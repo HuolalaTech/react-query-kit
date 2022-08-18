@@ -12,7 +12,7 @@ export interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
       TFnData,
       QueryKitKey<TVariables>
     >,
-    'queryKey' | 'queryFn'
+    'queryKey' | 'queryFn' | 'select'
   > {
   primaryKey: string
   queryFn: Required<
@@ -37,7 +37,7 @@ type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
   'queryKey' | 'queryFn'
 > &
   (TVariables extends void
-    ? Record<string, never>
+    ? unknown
     : {
         variables: TVariables
       })

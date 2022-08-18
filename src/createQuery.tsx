@@ -6,7 +6,7 @@ import { genKeyFn, genPartialKeyFn } from './utils'
 export interface CreateQueryOptions<TFnData, TVariables, Error>
   extends Omit<
     UseQueryOptions<TFnData, Error, unknown, QueryKitKey<TVariables>>,
-    'queryKey' | 'queryFn'
+    'queryKey' | 'queryFn' | 'select'
   > {
   primaryKey: string
   queryFn: Required<
@@ -19,7 +19,7 @@ type UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> = Omit<
   'queryKey' | 'queryFn'
 > &
   (TVariables extends void
-    ? Record<string, never>
+    ? unknown
     : {
         variables: TVariables
       })
