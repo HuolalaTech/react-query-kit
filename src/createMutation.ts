@@ -6,13 +6,6 @@ import type {
 } from '@tanstack/react-query'
 import { parseMutationArgs, useMutation } from '@tanstack/react-query'
 
-export type CreateMutationOptions<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown
-> = UseMutationOptions<TData, TError, TVariables, TContext>
-
 interface CreateMutationResult<
   TData = unknown,
   TError = unknown,
@@ -33,16 +26,16 @@ interface CreateMutationResult<
 
 export function createMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
+  TError = unknown,
   TContext = unknown
 >(
   options: UseMutationOptions<TData, TError, TVariables, TContext>
 ): CreateMutationResult<TData, TError, TVariables, TContext>
 export function createMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
+  TError = unknown,
   TContext = unknown
 >(
   mutationFn: MutationFunction<TData, TVariables>,
@@ -53,8 +46,8 @@ export function createMutation<
 ): CreateMutationResult<TData, TError, TVariables, TContext>
 export function createMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
+  TError = unknown,
   TContext = unknown
 >(
   mutationKey: MutationKey,
@@ -65,8 +58,8 @@ export function createMutation<
 ): CreateMutationResult<TData, TError, TVariables, TContext>
 export function createMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
+  TError = unknown,
   TContext = unknown
 >(
   mutationKey: MutationKey,
@@ -78,8 +71,8 @@ export function createMutation<
 ): CreateMutationResult<TData, TError, TVariables, TContext>
 export function createMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
+  TError = unknown,
   TContext = unknown
 >(
   arg1:
