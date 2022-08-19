@@ -1,7 +1,7 @@
 import type { UseInfiniteQueryOptions } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import type { QueryKitKey } from './types'
-import { genKeyFn, genPartialKeyFn } from './utils'
+import { genKeyFn } from './utils'
 
 export interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
   extends Omit<
@@ -53,7 +53,6 @@ export function createInfiniteQuery<
 }: CreateInfiniteQueryOptions<TFnData, TVariables, Error>) {
   const getPrimaryKey = () => primaryKey
   const getKey = genKeyFn<TVariables>(primaryKey)
-  const getPartialKey = genPartialKeyFn<TVariables>(primaryKey)
 
   function useGeneratedInfiniteQuery<TData = TFnData>(
     options: TVariables extends void
@@ -70,7 +69,7 @@ export function createInfiniteQuery<
       Error,
       TData,
       unknown
-    > & { variables: TVariables }
+    > & { variables: any }
 
     const mergedOptions = {
       ...defaultOptions,
@@ -89,7 +88,6 @@ export function createInfiniteQuery<
   }
 
   useGeneratedInfiniteQuery.getPrimaryKey = getPrimaryKey
-  useGeneratedInfiniteQuery.getPartialKey = getPartialKey
   useGeneratedInfiniteQuery.getKey = getKey
   useGeneratedInfiniteQuery.queryFn = queryFn
 

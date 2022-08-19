@@ -1,7 +1,7 @@
 import type { UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import type { QueryKitKey } from './types'
-import { genKeyFn, genPartialKeyFn } from './utils'
+import { genKeyFn } from './utils'
 
 export interface CreateQueryOptions<TFnData, TVariables, Error>
   extends Omit<
@@ -31,7 +31,6 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>({
 }: CreateQueryOptions<TFnData, TVariables, Error>) {
   const getPrimaryKey = () => primaryKey
   const getKey = genKeyFn<TVariables>(primaryKey)
-  const getPartialKey = genPartialKeyFn<TVariables>(primaryKey)
 
   function useGeneratedQuery<TData = TFnData>(
     options: TVariables extends void
@@ -43,7 +42,7 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>({
       Error,
       TData,
       unknown
-    > & { variables: TVariables }
+    > & { variables: any }
 
     const mergedOptions = {
       ...defaultOptions,
@@ -56,7 +55,6 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>({
   }
 
   useGeneratedQuery.getPrimaryKey = getPrimaryKey
-  useGeneratedQuery.getPartialKey = getPartialKey
   useGeneratedQuery.getKey = getKey
   useGeneratedQuery.queryFn = queryFn
 

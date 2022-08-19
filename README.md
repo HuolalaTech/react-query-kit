@@ -10,6 +10,7 @@
 
 - ReactQuery that needs u manual manage your queryKey or mutationKey
 - ReactQuery has no a elegant way to set defaultOptions
+- ReactQuery has no a type-safe way to get the queryKey
 
 ## This solution
 
@@ -106,14 +107,14 @@ const queries = useQueries({
 queryClient.setQueryData(usePost.getKey(variables), {...})
 
 // set data of all queries of `post`
-queryClient.setQueriesData([usePost.getPartialKey()], {...})
+queryClient.setQueriesData([usePost.getKey()], {...})
 // or set data of speicial queries of `post`
 queryClient.setQueriesData(usePost.getKey(variables), {...})
 
 // invalidate all queries of `post`
-queryClient.invalidateQueries(usePost.getPartialKey())
+queryClient.invalidateQueries(usePost.getKey())
 // or invalidate speicial queries of `post`
-queryClient.invalidateQueries(usePost.getPartialKey(variables))
+queryClient.invalidateQueries(usePost.getKey(variables))
 ```
 
 ### Additional API Reference
@@ -125,7 +126,6 @@ Options
 
 Returns
 - `getPrimaryKey: () => primaryKey`
-- `getPartialKey: (variables: Partial<TVariables> | void) => [primaryKey, variables]`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
@@ -208,10 +208,10 @@ const data = await queryClient.fetchInfiniteQuery(
 queryClient.setQueryData(useProjects.getKey(variables), {...})
 
 // set data of all queries of `projects`
-queryClient.setQueriesData(usePost.getPartialKey({...}), {...})
+queryClient.setQueriesData(usePost.getKey({...}), {...})
 
 // invalidate all queries of `projects`
-queryClient.invalidateQueries(usePost.getPartialKey({...}))
+queryClient.invalidateQueries(usePost.getKey({...}))
 ```
 
 ### Additional API Reference
@@ -223,7 +223,6 @@ Options
 
 Returns
 - `getPrimaryKey: () => primaryKey`
-- `getPartialKey: (variables: Partial<TVariables> | void) => [primaryKey, variables]`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
