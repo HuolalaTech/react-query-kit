@@ -20,7 +20,7 @@ it('createInfiniteQuery', () => {
   queryClient.fetchInfiniteQuery(queryKey, query.queryFn).then(data =>
     expect(data).toEqual({
       pageParams: [undefined],
-      pages: [['primaryKey', 1]],
+      pages: [queryKey],
     })
   )
 })

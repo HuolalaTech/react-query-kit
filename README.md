@@ -8,13 +8,13 @@
 
 ## The problem
 
-- ReactQuery that needs u manual manage your queryKey or mutationKey
-- ReactQuery has no a elegant way to set defaultOptions
-- ReactQuery has no a type-safe way to get the queryKey
+- ReactQuery that needs you manual manage your queryKey
+- ReactQuery doesn't have an elegant way to set defaultOptions for per custom useQuery hook
+- ReactQuery doesn't have a type-safe way to get the queryKey
 
 ## This solution
 
-A simplest way to create react-query without considering the consistence of the queryKey and provide default options to per hooks u create
+A simplest way to create your custom useQuery hooks without considering the consistence of the queryKey and provide default options to per hooks you create
 
 ## Table of Contents
 
@@ -56,6 +56,7 @@ type Variables = { id: number }
 const usePost = createQuery<Response, Variables, Error>({
   primaryKey: '/posts',
   queryFn: ({ queryKey: [primaryKey, variables] }) => {
+    // primaryKey equals to '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
 })
@@ -106,14 +107,14 @@ const queries = useQueries({
 // setQueryData
 queryClient.setQueryData(usePost.getKey(variables), {...})
 
-// set data of all queries of `post`
+// set data to all queries of `post`
 queryClient.setQueriesData([usePost.getKey()], {...})
-// or set data of speicial queries of `post`
+// or set data to some speicial queries of `post`
 queryClient.setQueriesData(usePost.getKey(variables), {...})
 
 // invalidate all queries of `post`
 queryClient.invalidateQueries(usePost.getKey())
-// or invalidate speicial queries of `post`
+// or invalidate some speicial queries of `post`
 queryClient.invalidateQueries(usePost.getKey(variables))
 ```
 
@@ -122,7 +123,7 @@ queryClient.invalidateQueries(usePost.getKey(variables))
 Options
 - `primaryKey: string`
     - Required
-    - `primaryKey` will be the first element of the arrary of `queryKey`
+    - `primaryKey` will be the first element of the array of `queryKey`
 
 Returns
 - `getPrimaryKey: () => primaryKey`
@@ -142,17 +143,17 @@ type Variables = { active: boolean }
 
 const useProjects = createInfiniteQuery<Data, Variables, Error>({
   primaryKey: 'projects',
-  queryFn: ({ queryKey: [primaryKey, variables], pageParam = 1 }) => {
+  queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
     return fetch(`/projects?cursor=${pageParam}?active=${variables.active}`).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
 })
 
-const variables = { ... }
+const variables = { active: true }
 
 // example
 export default function Page() {
-  // queryKey equals to `['/projects']`
+  // queryKey equals to `['projects', { active: true }]`
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useProjects({ suspense: true, variables })
 
@@ -313,3 +314,11 @@ a 👍. This helps maintainers prioritize what to work on.
 ## LICENSE
 
 MIT
+
+<!-- prettier-ignore-start -->
+[npm]: https://www.npmjs.com
+[node]: https://nodejs.org
+[bugs]: https://github.com/liaoliao666/react-query-kit/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Acreated-desc+label%3Abug
+[requests]: https://github.com/liaoliao666/react-query-kit/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement
+[good-first-issue]: https://github.com/liaoliao666/react-query-kit/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement+label%3A%22good+first+issue%22
+<!-- prettier-ignore-end -->
