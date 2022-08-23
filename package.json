@@ -77,5 +77,9 @@
     "es",
     "lib",
     "types"
+  ],
+  "keywords": [
+    "react",
+    "react query"
   ]
 }

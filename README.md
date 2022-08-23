@@ -16,6 +16,8 @@
 
 A simplest way to create your custom useQuery hooks without considering the consistence of the queryKey and provide default options to per hooks you create
 
+![Demo](https://files.catbox.moe/dkwp3p.gif)
+
 ## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
