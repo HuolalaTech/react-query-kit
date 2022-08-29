@@ -6,5 +6,5 @@ export type QueryKitPartialKey<TVariables> = TVariables extends Record<
   infer K,
   infer V
 >
-  ? Record<K, QueryKitPartialKey<V>> | void
+  ? Record<K, V | void> | void
   : TVariables | void
