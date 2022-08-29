@@ -1,6 +1,6 @@
 {
   "name": "react-query-kit",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "A simplest way to create react-query without considering the consistence of queryKey or queryFn ",
   "author": "liaoliao666",
   "repository": "liaoliao666/react-query-kit",
