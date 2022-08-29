@@ -6,7 +6,7 @@ import type {
 } from '@tanstack/react-query'
 import { parseMutationArgs, useMutation } from '@tanstack/react-query'
 
-interface CreateMutationResult<
+export interface CreateMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
@@ -32,6 +32,7 @@ export function createMutation<
 >(
   options: UseMutationOptions<TData, TError, TVariables, TContext>
 ): CreateMutationResult<TData, TError, TVariables, TContext>
+
 export function createMutation<
   TData = unknown,
   TVariables = void,
@@ -44,6 +45,7 @@ export function createMutation<
     'mutationFn'
   >
 ): CreateMutationResult<TData, TError, TVariables, TContext>
+
 export function createMutation<
   TData = unknown,
   TVariables = void,
@@ -56,6 +58,7 @@ export function createMutation<
     'mutationKey'
   >
 ): CreateMutationResult<TData, TError, TVariables, TContext>
+
 export function createMutation<
   TData = unknown,
   TVariables = void,
@@ -69,6 +72,7 @@ export function createMutation<
     'mutationKey' | 'mutationFn'
   >
 ): CreateMutationResult<TData, TError, TVariables, TContext>
+
 export function createMutation<
   TData = unknown,
   TVariables = void,

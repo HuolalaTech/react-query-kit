@@ -16,7 +16,7 @@
 
 A simplest way to create your custom useQuery hooks without considering the consistence of the queryKey and provide default options to per hooks you create
 
-![Demo](https://files.catbox.moe/dkwp3p.gif)
+![react-query-kit.gif](https://files.catbox.moe/dkwp3p.gif)
 
 ## Table of Contents
 
@@ -61,6 +61,12 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey equals to '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
+})
+
+// or using the alternative syntax to create
+const usePost = createQuery('/posts', ({ queryKey: [primaryKey, variables] }) => {
+  // primaryKey equals to '/posts'
+  return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
 })
 
 

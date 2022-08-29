@@ -1,17 +1,19 @@
-import type { UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunction,
+  UseQueryOptions,
+  UseQueryResult,
+} from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { QueryKitKey } from './types'
-import { genKeyFn } from './utils'
+import type { QueryKitKey, QueryKitPartialKey } from './types'
+import { genKeyFn, parseQueryKitArgs } from './utils'
 
-export interface CreateQueryOptions<TFnData, TVariables, Error>
+interface CreateQueryOptions<TFnData, TVariables, Error>
   extends Omit<
     UseQueryOptions<TFnData, Error, unknown, QueryKitKey<TVariables>>,
     'queryKey' | 'queryFn' | 'select'
   > {
   primaryKey: string
-  queryFn: Required<
-    UseQueryOptions<TFnData, Error, unknown, QueryKitKey<TVariables>>
-  >['queryFn']
+  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
 }
 
 type UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> = Omit<
@@ -24,11 +26,45 @@ type UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> = Omit<
         variables: TVariables
       })
 
-export function createQuery<TFnData, TVariables = void, Error = unknown>({
-  primaryKey,
-  queryFn,
-  ...defaultOptions
-}: CreateQueryOptions<TFnData, TVariables, Error>) {
+interface CreateQueryResult<TFnData, TVariables = void, Error = unknown> {
+  <TData = TFnData>(
+    options: TVariables extends void
+      ? UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> | void
+      : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
+  ): UseQueryResult<TData, Error>
+  getPrimaryKey: () => string
+  getKey: <V extends QueryKitPartialKey<TVariables>>(
+    variables?: V | undefined
+  ) => QueryKitKey<V>
+  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+}
+
+export function createQuery<TFnData, TVariables = void, Error = unknown>(
+  options: CreateQueryOptions<TFnData, TVariables, Error>
+): CreateQueryResult<TFnData, TVariables, Error>
+
+export function createQuery<TFnData, TVariables = void, Error = unknown>(
+  primaryKey: string,
+  options?: Omit<CreateQueryOptions<TFnData, TVariables, Error>, 'primaryKey'>
+): CreateQueryResult<TFnData, TVariables, Error>
+
+export function createQuery<TFnData, TVariables = void, Error = unknown>(
+  primaryKey: string,
+  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>,
+  options?: Omit<
+    CreateQueryOptions<TFnData, TVariables, Error>,
+    'primaryKey' | 'queryFn'
+  >
+): CreateQueryResult<TFnData, TVariables, Error>
+
+export function createQuery<TFnData, TVariables = void, Error = unknown>(
+  arg1: any,
+  arg2?: any,
+  arg3?: any
+): CreateQueryResult<TFnData, TVariables, Error> {
+  const { primaryKey, queryFn, ...defaultOptions } = parseQueryKitArgs<
+    CreateQueryOptions<TFnData, TVariables, Error>
+  >(arg1, arg2, arg3)
   const getPrimaryKey = () => primaryKey
   const getKey = genKeyFn<TVariables>(primaryKey)
 
@@ -37,7 +73,7 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>({
       ? UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> | void
       : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
   ) {
-    const { variables, ...rest } = options as UseGeneratedQueryOptions<
+    const { variables, ...restOptions } = options as UseGeneratedQueryOptions<
       TFnData,
       Error,
       TData,
@@ -46,7 +82,7 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>({
 
     const mergedOptions = {
       ...defaultOptions,
-      ...rest,
+      ...restOptions,
       queryFn,
       queryKey: getKey(variables),
     } as UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>
