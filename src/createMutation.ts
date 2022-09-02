@@ -19,9 +19,7 @@ export interface CreateMutationResult<
     >
   ): UseMutationResult<TData, TError, TVariables, TContext>
   getKey: () => MutationKey | undefined
-  mutationFn: Required<
-    UseMutationOptions<TData, TError, TVariables, TContext>
-  >['mutationFn']
+  mutationFn: MutationFunction<TData, TVariables>
 }
 
 export function createMutation<
@@ -104,9 +102,9 @@ export function createMutation<
   }
 
   useGeneratedMutation.getKey = getKey
-  useGeneratedMutation.mutationFn = defaultOptions.mutationFn as Required<
-    UseMutationOptions<TData, TError, TVariables, TContext>
-  >['mutationFn']
+  useGeneratedMutation.mutationFn = defaultOptions.mutationFn as NonNullable<
+    MutationFunction<TData, TVariables>
+  >
 
   return useGeneratedMutation
 }

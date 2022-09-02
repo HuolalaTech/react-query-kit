@@ -7,10 +7,10 @@ import size from 'rollup-plugin-size'
 import { terser } from 'rollup-plugin-terser'
 import visualizer from 'rollup-plugin-visualizer'
 
-const external = ['vue']
+const external = ['@tanstack/react-query']
 
 const globals = {
-  vue: 'Vue',
+  '@tanstack/react-query': 'ReactQuery',
 }
 
 const inputSrcs = [['src/index.ts', 'ReactQueryKit', 'react-query-kit']]

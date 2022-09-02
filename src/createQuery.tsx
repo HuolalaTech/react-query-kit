@@ -5,25 +5,29 @@ import type {
 } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import type { QueryKitKey, QueryKitPartialKey } from './types'
-import { genKeyFn, parseQueryKitArgs } from './utils'
+import { genKeyFn, parseQueryKitArgs, useEnabled } from './utils'
 
 interface CreateQueryOptions<TFnData, TVariables, Error>
   extends Omit<
     UseQueryOptions<TFnData, Error, unknown, QueryKitKey<TVariables>>,
-    'queryKey' | 'queryFn' | 'select'
+    'queryKey' | 'queryFn' | 'enabled' | 'select'
   > {
   primaryKey: string
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+  enabled?: boolean | ((data?: TFnData) => boolean)
 }
 
 type UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> = Omit<
   UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>,
-  'queryKey' | 'queryFn'
+  'queryKey' | 'queryFn' | 'enabled'
 > &
   (TVariables extends void
-    ? unknown
+    ? {
+        enabled?: boolean | ((data?: TFnData) => boolean)
+      }
     : {
         variables: TVariables
+        enabled?: boolean | ((data?: TFnData) => boolean)
       })
 
 interface CreateQueryResult<TFnData, TVariables = void, Error = unknown> {
@@ -73,21 +77,21 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>(
       ? UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> | void
       : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
   ) {
-    const { variables, ...restOptions } = options as UseGeneratedQueryOptions<
-      TFnData,
-      Error,
-      TData,
-      unknown
-    > & { variables: any }
-
+    const { variables, ...restOptions } = (options ||
+      {}) as UseGeneratedQueryOptions<TFnData, Error, TData, unknown> & {
+      variables: any
+    }
     const mergedOptions = {
       ...defaultOptions,
       ...restOptions,
       queryFn,
       queryKey: getKey(variables),
-    } as UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>
+    }
 
-    return useQuery(mergedOptions)
+    return useQuery({
+      ...mergedOptions,
+      enabled: useEnabled(mergedOptions),
+    } as UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>)
   }
 
   useGeneratedQuery.getPrimaryKey = getPrimaryKey

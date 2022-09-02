@@ -16,7 +16,7 @@
 
 A simplest way to create your custom useQuery hooks without considering the consistence of the queryKey and provide default options to per hooks you create
 
-![react-query-kit.gif](https://files.catbox.moe/dkwp3p.gif)
+![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 
 ## Table of Contents
 
@@ -61,13 +61,24 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey equals to '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
+  // if u only wanna fetch once
+  enabled: (data) => !data,
+  suspense: true
 })
 
 // or using the alternative syntax to create
-const usePost = createQuery('/posts', ({ queryKey: [primaryKey, variables] }) => {
-  // primaryKey equals to '/posts'
-  return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
-})
+const usePost = createQuery<Response, Variables, Error>(
+  '/posts',
+  ({ queryKey: [primaryKey, variables] }) => {
+    // primaryKey equals to '/posts'
+    return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+  },
+  {
+    // if u only wanna fetch once
+    enabled: (data) => !data,
+    suspense: true
+  }
+)
 
 
 const variables = { id: 1 }
@@ -132,8 +143,12 @@ Options
 - `primaryKey: string`
     - Required
     - `primaryKey` will be the first element of the array of `queryKey`
+- `enabled: boolean | ((data: TData) => boolean)`
+  - Optional
+  - Set this to `false` to disable this query from automatically running.
+  - If set to a function, the function will be executed with the latest data to compute the boolean
 
-Returns
+Expose Methods
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
@@ -229,8 +244,12 @@ Options
 - `primaryKey: string`
     - Required
     - `primaryKey` will be the first element of the arrary of `queryKey`
+- `enabled: boolean | ((data: TData) => boolean)`
+  - Optional
+  - Set this to `false` to disable this query from automatically running.
+  - If set to a function, the function will be executed with the latest data to compute the boolean
 
-Returns
+Expose Methods
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`

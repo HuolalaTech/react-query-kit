@@ -5,7 +5,7 @@ import type {
 } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import type { QueryKitKey, QueryKitPartialKey } from './types'
-import { genKeyFn, parseQueryKitArgs } from './utils'
+import { genKeyFn, parseQueryKitArgs, useEnabled } from './utils'
 
 interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
   extends Omit<
@@ -16,10 +16,11 @@ interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
       TFnData,
       QueryKitKey<TVariables>
     >,
-    'queryKey' | 'queryFn' | 'select'
+    'queryKey' | 'queryFn' | 'enabled' | 'select'
   > {
   primaryKey: string
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+  enabled?: boolean | ((data?: TFnData) => boolean)
 }
 
 type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
@@ -30,12 +31,15 @@ type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
     TFnData,
     QueryKitKey<TVariables>
   >,
-  'queryKey' | 'queryFn'
+  'queryKey' | 'queryFn' | 'enabled'
 > &
   (TVariables extends void
-    ? unknown
+    ? {
+        enabled?: boolean | ((data?: TFnData) => boolean)
+      }
     : {
         variables: TVariables
+        enabled?: boolean | ((data?: TFnData) => boolean)
       })
 
 interface CreateInfiniteQueryResult<
@@ -118,28 +122,24 @@ export function createInfiniteQuery<
         > | void
       : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
   ) {
-    const { variables, ...restOptions } =
-      options as UseGeneratedInfiniteQueryOptions<
-        TFnData,
-        Error,
-        TData,
-        unknown
-      > & { variables: any }
-
+    const { variables, ...restOptions } = (options ||
+      {}) as UseGeneratedInfiniteQueryOptions<
+      TFnData,
+      Error,
+      TData,
+      unknown
+    > & { variables: any }
     const mergedOptions = {
       ...defaultOptions,
       ...restOptions,
       queryFn,
       queryKey: getKey(variables),
-    } as UseInfiniteQueryOptions<
-      TFnData,
-      Error,
-      TData,
-      TFnData,
-      QueryKitKey<TVariables>
-    >
+    }
 
-    return useInfiniteQuery(mergedOptions)
+    return useInfiniteQuery({
+      ...mergedOptions,
+      enabled: useEnabled(mergedOptions),
+    } as UseInfiniteQueryOptions<TFnData, Error, TData, TFnData, QueryKitKey<TVariables>>)
   }
 
   useGeneratedInfiniteQuery.getPrimaryKey = getPrimaryKey
