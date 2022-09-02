@@ -1495,17 +1495,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@tanstack/query-core@^4.0.0-beta.1":
-  version "4.0.10"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack%2fquery-core/-/query-core-4.0.10.tgz"
-  integrity sha512-9LsABpZXkWZHi4P1ozRETEDXQocLAxVzQaIhganxbNuz/uA3PsCAJxJTiQrknG5htLMzOF5MqM9G10e6DCxV1A==
+"@tanstack/query-core@4.2.3":
+  version "4.2.3"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack%2fquery-core/-/query-core-4.2.3.tgz#52d75430c9662cc85c160761c1421de483c7791f"
+  integrity sha512-zdt5lYWs1dZaA3IxJbCgtAfHZJScRZONpiLL7YkeOkrme5MfjQqTpjq7LYbzpyuwPOh2Jx68le0PLl57JFv5hQ==
 
-"@tanstack/react-query@^4.1.3":
-  version "4.1.3"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack%2freact-query/-/react-query-4.1.3.tgz"
-  integrity sha512-BHI/dV3LOuVOZAaifM6u680Wi5rmiHu4aD3WkvrQT/9fYhHDhTzMdJO8l2Xh0UR7JhM8e9O3f89SJhD3T8Ejgw==
+"@tanstack/react-query@^4.2.3":
+  version "4.2.3"
+  resolved "https://mirrors.tencent.com/npm/@tanstack%2freact-query/-/react-query-4.2.3.tgz#782fd0f84553ba6219f1137a12ea28ab8cd3a3f3"
+  integrity sha512-JLaMOxoJTkiAu7QpevRCt2uI/0vd3E8K/rSlCuRgWlcW5DeJDFpDS5kfzmLO5MOcD97fgsJRrDbxDORxR1FdJA==
   dependencies:
-    "@tanstack/query-core" "^4.0.0-beta.1"
+    "@tanstack/query-core" "4.2.3"
     "@types/use-sync-external-store" "^0.0.3"
     use-sync-external-store "^1.2.0"
 

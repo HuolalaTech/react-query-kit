@@ -13,7 +13,7 @@ export interface CreateMutationResult<
   TContext = unknown
 > {
   (
-    options: Omit<
+    options?: Omit<
       UseMutationOptions<TData, TError, TVariables, TContext>,
       'mutationFn' | 'mutationKey'
     >
@@ -90,7 +90,7 @@ export function createMutation<
   const getKey = () => defaultOptions.mutationKey
 
   function useGeneratedMutation(
-    options: Omit<
+    options?: Omit<
       UseMutationOptions<TData, TError, TVariables, TContext>,
       'mutationFn' | 'mutationKey'
     >
