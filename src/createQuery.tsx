@@ -4,7 +4,7 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { QueryKitKey, QueryKitPartialKey } from './types'
+import type { PartialQueryKitKey, QueryKitKey } from './types'
 import { genKeyFn, parseQueryKitArgs, useEnabled } from './utils'
 
 interface CreateQueryOptions<TFnData, TVariables, Error>
@@ -20,14 +20,12 @@ interface CreateQueryOptions<TFnData, TVariables, Error>
 type UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> = Omit<
   UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>,
   'queryKey' | 'queryFn' | 'enabled'
-> &
-  (TVariables extends void
-    ? {
-        enabled?: boolean | ((data?: TFnData) => boolean)
-      }
+> & {
+  enabled?: boolean | ((data?: TFnData) => boolean)
+} & (TVariables extends void
+    ? { variables?: TVariables }
     : {
         variables: TVariables
-        enabled?: boolean | ((data?: TFnData) => boolean)
       })
 
 interface CreateQueryResult<TFnData, TVariables = void, Error = unknown> {
@@ -37,7 +35,7 @@ interface CreateQueryResult<TFnData, TVariables = void, Error = unknown> {
       : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
   ): UseQueryResult<TData, Error>
   getPrimaryKey: () => string
-  getKey: <V extends QueryKitPartialKey<TVariables>>(
+  getKey: <V extends PartialQueryKitKey<TVariables>>(
     variables?: V | undefined
   ) => QueryKitKey<V>
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
@@ -77,15 +75,12 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>(
       ? UseGeneratedQueryOptions<TFnData, Error, TData, TVariables> | void
       : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
   ) {
-    const { variables, ...restOptions } = (options ||
-      {}) as UseGeneratedQueryOptions<TFnData, Error, TData, unknown> & {
-      variables: any
-    }
+    const { variables, ...restOptions } = options || {}
     const mergedOptions = {
       ...defaultOptions,
       ...restOptions,
       queryFn,
-      queryKey: getKey(variables),
+      queryKey: getKey(variables as PartialQueryKitKey<TVariables>),
     }
 
     return useQuery({

@@ -4,7 +4,7 @@ import type {
   UseInfiniteQueryResult,
 } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import type { QueryKitKey, QueryKitPartialKey } from './types'
+import type { PartialQueryKitKey, QueryKitKey } from './types'
 import { genKeyFn, parseQueryKitArgs, useEnabled } from './utils'
 
 interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
@@ -32,14 +32,14 @@ type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
     QueryKitKey<TVariables>
   >,
   'queryKey' | 'queryFn' | 'enabled'
-> &
-  (TVariables extends void
+> & {
+  enabled?: boolean | ((data?: TFnData) => boolean)
+} & (TVariables extends void
     ? {
-        enabled?: boolean | ((data?: TFnData) => boolean)
+        variables?: TVariables
       }
     : {
         variables: TVariables
-        enabled?: boolean | ((data?: TFnData) => boolean)
       })
 
 interface CreateInfiniteQueryResult<
@@ -58,7 +58,7 @@ interface CreateInfiniteQueryResult<
       : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
   ): UseInfiniteQueryResult<TData, Error>
   getPrimaryKey: () => string
-  getKey: <V extends QueryKitPartialKey<TVariables>>(
+  getKey: <V extends PartialQueryKitKey<TVariables>>(
     variables?: V | undefined
   ) => QueryKitKey<V>
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
@@ -122,18 +122,12 @@ export function createInfiniteQuery<
         > | void
       : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
   ) {
-    const { variables, ...restOptions } = (options ||
-      {}) as UseGeneratedInfiniteQueryOptions<
-      TFnData,
-      Error,
-      TData,
-      unknown
-    > & { variables: any }
+    const { variables, ...restOptions } = options || {}
     const mergedOptions = {
       ...defaultOptions,
       ...restOptions,
       queryFn,
-      queryKey: getKey(variables),
+      queryKey: getKey(variables as PartialQueryKitKey<TVariables>),
     }
 
     return useInfiniteQuery({
