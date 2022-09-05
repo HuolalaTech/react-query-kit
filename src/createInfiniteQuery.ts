@@ -58,8 +58,8 @@ interface CreateInfiniteQueryResult<
       : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
   ): UseInfiniteQueryResult<TData, Error>
   getPrimaryKey: () => string
-  getKey: <V extends PartialQueryKitKey<TVariables>>(
-    variables?: V | undefined
+  getKey: <V extends PartialQueryKitKey<TVariables> | void = void>(
+    variables?: V
   ) => QueryKitKey<V>
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
 }

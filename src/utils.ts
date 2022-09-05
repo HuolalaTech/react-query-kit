@@ -3,7 +3,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import type { PartialQueryKitKey, QueryKitKey } from './types'
 
 export function genKeyFn<TVariables>(primaryKey: string) {
-  return <V extends PartialQueryKitKey<TVariables>>(variables?: V) =>
+  return <V extends PartialQueryKitKey<TVariables> | void = void>(
+    variables?: V
+  ) =>
     (typeof variables === 'undefined'
       ? [primaryKey]
       : [primaryKey, variables]) as QueryKitKey<V>

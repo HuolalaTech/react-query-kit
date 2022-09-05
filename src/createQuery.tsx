@@ -35,8 +35,8 @@ interface CreateQueryResult<TFnData, TVariables = void, Error = unknown> {
       : UseGeneratedQueryOptions<TFnData, Error, TData, TVariables>
   ): UseQueryResult<TData, Error>
   getPrimaryKey: () => string
-  getKey: <V extends PartialQueryKitKey<TVariables>>(
-    variables?: V | undefined
+  getKey: <V extends PartialQueryKitKey<TVariables> | void = void>(
+    variables?: V
   ) => QueryKitKey<V>
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
 }
