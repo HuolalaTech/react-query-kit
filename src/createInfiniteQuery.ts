@@ -1,29 +1,35 @@
 import type {
+  InfiniteData,
   QueryFunction,
+  SetDataOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import type { PartialQueryKitKey, QueryKitKey } from './types'
-import { genKeyFn, parseQueryKitArgs, useEnabled } from './utils'
+import type { Updater } from '@tanstack/react-query/build/types/packages/query-core/src/utils'
+import { createBaseQuery } from './createBaseQuery'
+import type {
+  AdditionalCreateOptions,
+  AdditionalQueryHookOptions,
+  ExposeMethods,
+  QueryKitKey,
+} from './types'
+import { parseQueryKitArgs } from './utils'
 
 interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
   extends Omit<
-    UseInfiniteQueryOptions<
-      TFnData,
-      Error,
-      unknown,
-      TFnData,
-      QueryKitKey<TVariables>
+      UseInfiniteQueryOptions<
+        TFnData,
+        Error,
+        unknown,
+        TFnData,
+        QueryKitKey<TVariables>
+      >,
+      'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
-    'queryKey' | 'queryFn' | 'enabled' | 'select'
-  > {
-  primaryKey: string
-  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
-  enabled?: boolean | ((data?: TFnData) => boolean)
-}
+    AdditionalCreateOptions<TFnData, TVariables> {}
 
-type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
+type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
   UseInfiniteQueryOptions<
     TFnData,
     Error,
@@ -32,36 +38,24 @@ type UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables> = Omit<
     QueryKitKey<TVariables>
   >,
   'queryKey' | 'queryFn' | 'enabled'
-> & {
-  enabled?: boolean | ((data?: TFnData) => boolean)
-} & (TVariables extends void
-    ? {
-        variables?: TVariables
-      }
-    : {
-        variables: TVariables
-      })
+> &
+  AdditionalQueryHookOptions<TFnData, TVariables>
 
-interface CreateInfiniteQueryResult<
-  TFnData,
-  TVariables = void,
-  Error = unknown
-> {
+interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
+  extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: TVariables extends void
-      ? UseGeneratedInfiniteQueryOptions<
-          TFnData,
-          Error,
-          TData,
-          TVariables
-        > | void
-      : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
-  ): UseInfiniteQueryResult<TData, Error>
-  getPrimaryKey: () => string
-  getKey: <V extends PartialQueryKitKey<TVariables> | void = void>(
-    variables?: V
-  ) => QueryKitKey<V>
-  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+      ? InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> | void
+      : InfiniteQueryHookOptions<TFnData, Error, TData, TVariables>
+  ): UseInfiniteQueryResult<TData, Error> & {
+    setData: (
+      updater: Updater<
+        InfiniteData<TFnData> | undefined,
+        InfiniteData<TFnData> | undefined
+      >,
+      options?: SetDataOptions
+    ) => InfiniteData<TFnData> | undefined
+  }
 }
 
 export function createInfiniteQuery<
@@ -70,7 +64,7 @@ export function createInfiniteQuery<
   Error = unknown
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, Error>
-): CreateInfiniteQueryResult<TFnData, TVariables, Error>
+): InfiniteQueryHook<TFnData, TVariables, Error>
 
 export function createInfiniteQuery<
   TFnData,
@@ -82,7 +76,7 @@ export function createInfiniteQuery<
     CreateInfiniteQueryOptions<TFnData, TVariables, Error>,
     'primaryKey'
   >
-): CreateInfiniteQueryResult<TFnData, TVariables, Error>
+): InfiniteQueryHook<TFnData, TVariables, Error>
 
 export function createInfiniteQuery<
   TFnData,
@@ -95,7 +89,7 @@ export function createInfiniteQuery<
     CreateInfiniteQueryOptions<TFnData, TVariables, Error>,
     'primaryKey' | 'queryFn'
   >
-): CreateInfiniteQueryResult<TFnData, TVariables, Error>
+): InfiniteQueryHook<TFnData, TVariables, Error>
 
 export function createInfiniteQuery<
   TFnData,
@@ -105,40 +99,11 @@ export function createInfiniteQuery<
   arg1: any,
   arg2?: any,
   arg3?: any
-): CreateInfiniteQueryResult<TFnData, TVariables, Error> {
-  const { primaryKey, queryFn, ...defaultOptions } = parseQueryKitArgs<
-    CreateInfiniteQueryOptions<TFnData, TVariables, Error>
-  >(arg1, arg2, arg3)
-  const getPrimaryKey = () => primaryKey
-  const getKey = genKeyFn<TVariables>(primaryKey)
-
-  function useGeneratedInfiniteQuery<TData = TFnData>(
-    options: TVariables extends void
-      ? UseGeneratedInfiniteQueryOptions<
-          TFnData,
-          Error,
-          TData,
-          TVariables
-        > | void
-      : UseGeneratedInfiniteQueryOptions<TFnData, Error, TData, TVariables>
-  ) {
-    const { variables, ...restOptions } = options || {}
-    const mergedOptions = {
-      ...defaultOptions,
-      ...restOptions,
-      queryFn,
-      queryKey: getKey(variables as PartialQueryKitKey<TVariables>),
-    }
-
-    return useInfiniteQuery({
-      ...mergedOptions,
-      enabled: useEnabled(mergedOptions),
-    } as UseInfiniteQueryOptions<TFnData, Error, TData, TFnData, QueryKitKey<TVariables>>)
-  }
-
-  useGeneratedInfiniteQuery.getPrimaryKey = getPrimaryKey
-  useGeneratedInfiniteQuery.getKey = getKey
-  useGeneratedInfiniteQuery.queryFn = queryFn
-
-  return useGeneratedInfiniteQuery
+): InfiniteQueryHook<TFnData, TVariables, Error> {
+  const options = parseQueryKitArgs(arg1, arg2, arg3)
+  return createBaseQuery(options, useInfiniteQuery) as InfiniteQueryHook<
+    TFnData,
+    TVariables,
+    Error
+  >
 }

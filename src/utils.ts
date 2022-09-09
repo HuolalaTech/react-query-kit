@@ -1,15 +1,4 @@
-import type { ContextOptions, QueryFunction } from '@tanstack/react-query'
-import { useQueryClient } from '@tanstack/react-query'
-import type { PartialQueryKitKey, QueryKitKey } from './types'
-
-export function genKeyFn<TVariables>(primaryKey: string) {
-  return <V extends PartialQueryKitKey<TVariables> | void = void>(
-    variables?: V
-  ) =>
-    (typeof variables === 'undefined'
-      ? [primaryKey]
-      : [primaryKey, variables]) as QueryKitKey<V>
-}
+import type { QueryFunction } from '@tanstack/react-query'
 
 export function parseQueryKitArgs<TOptions extends Record<any, any>>(
   arg1: string | TOptions,
@@ -25,20 +14,4 @@ export function parseQueryKitArgs<TOptions extends Record<any, any>>(
   }
 
   return { ...arg2, primaryKey: arg1 } as unknown as TOptions
-}
-
-export function useEnabled({
-  context,
-  enabled,
-  queryKey,
-}: {
-  context?: ContextOptions['context']
-  enabled?: boolean | undefined | ((data: any) => boolean)
-  queryKey: any[]
-}) {
-  const queryClient = useQueryClient({ context })
-
-  return typeof enabled === 'function'
-    ? enabled(queryClient.getQueryData(queryKey))
-    : enabled
 }

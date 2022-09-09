@@ -153,6 +153,10 @@ Expose Methods
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
+Returns
+- `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
+    - it's args similar with `queryClient.setQueryData` but without `queryKey`
+
 ## createInfiniteQuery
 
 ### Usage
@@ -253,6 +257,10 @@ Expose Methods
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
+
+Returns
+- `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
+    - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
 ## createMutation
 

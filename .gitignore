@@ -1,10 +1,7 @@
 node_modules
 
 # builds
-types
-dist
-lib
-es
+build
 
 # misc
 npm-debug.log*

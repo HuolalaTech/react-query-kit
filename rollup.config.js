@@ -1,71 +1,116 @@
+import { babel } from '@rollup/plugin-babel'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
-import babel from 'rollup-plugin-babel'
-import commonJS from 'rollup-plugin-commonjs'
-import resolve from 'rollup-plugin-node-resolve'
-import externalDeps from 'rollup-plugin-peer-deps-external'
 import size from 'rollup-plugin-size'
 import { terser } from 'rollup-plugin-terser'
 import visualizer from 'rollup-plugin-visualizer'
 
-const external = ['@tanstack/react-query']
+const umdDevPlugin = type =>
+  replace({
+    'process.env.NODE_ENV': `"${type}"`,
+    delimiters: ['', ''],
+    preventAssignment: true,
+  })
+const extensions = ['.ts', '.tsx']
+const babelPlugin = babel({
+  babelHelpers: 'bundled',
+  exclude: /node_modules/,
+  extensions,
+})
 
-const globals = {
-  '@tanstack/react-query': 'ReactQuery',
+export default function rollup() {
+  const options = {
+    input: 'src/index.ts',
+    jsName: 'ReactQueryKit',
+    external: ['@tanstack/react-query'],
+    globals: {
+      '@tanstack/react-query': 'ReactQuery',
+    },
+  }
+
+  return [esm(options), cjs(options), umdDev(options), umdProd(options)]
 }
 
-const inputSrcs = [['src/index.ts', 'ReactQueryKit', 'react-query-kit']]
+function esm({ input, external }) {
+  return {
+    // ESM
+    external,
+    input,
+    output: {
+      format: 'esm',
+      sourcemap: true,
+      dir: `build/esm`,
+    },
+    plugins: [babelPlugin, nodeResolve({ extensions })],
+  }
+}
 
-const extensions = ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx']
-const babelConfig = { extensions, runtimeHelpers: true }
-const resolveConfig = { extensions }
+function cjs({ input, external }) {
+  return {
+    // CJS
+    external,
+    input,
+    output: {
+      format: 'cjs',
+      sourcemap: true,
+      dir: `build/cjs`,
+      preserveModules: true,
+      exports: 'named',
+    },
+    plugins: [babelPlugin, nodeResolve({ extensions })],
+  }
+}
 
-export default inputSrcs
-  .map(([input, name, file]) => {
-    return [
-      {
-        input: input,
-        output: {
-          name,
-          file: `dist/${file}.development.js`,
-          format: 'umd',
-          sourcemap: true,
-          globals,
-        },
-        external,
-        plugins: [
-          resolve(resolveConfig),
-          babel(babelConfig),
-          commonJS(),
-          externalDeps(),
-        ],
-      },
-      {
-        input: input,
-        output: {
-          name,
-          file: `dist/${file}.production.min.js`,
-          format: 'umd',
-          sourcemap: true,
-          globals,
-        },
-        external,
-        plugins: [
-          replace({
-            'process.env.NODE_ENV': `"production"`,
-            delimiters: ['', ''],
-          }),
-          resolve(resolveConfig),
-          babel(babelConfig),
-          commonJS(),
-          externalDeps(),
-          terser(),
-          size(),
-          visualizer({
-            filename: 'stats.json',
-            json: true,
-          }),
-        ],
-      },
-    ]
-  })
-  .flat()
+function umdDev({ input, external, globals, jsName }) {
+  return {
+    // UMD (Dev)
+    external,
+    input,
+    output: {
+      format: 'umd',
+      sourcemap: true,
+      file: `build/umd/index.development.js`,
+      name: jsName,
+      globals,
+    },
+    plugins: [
+      babelPlugin,
+      nodeResolve({ extensions }),
+      umdDevPlugin('development'),
+    ],
+  }
+}
+
+function umdProd({ input, external, globals, jsName }) {
+  return {
+    // UMD (Prod)
+    external,
+    input,
+    output: {
+      format: 'umd',
+      sourcemap: true,
+      file: `build/umd/index.production.js`,
+      name: jsName,
+      globals,
+    },
+    plugins: [
+      babelPlugin,
+      nodeResolve({ extensions }),
+      umdDevPlugin('production'),
+      terser({
+        mangle: true,
+        compress: true,
+      }),
+      size({}),
+      visualizer({
+        filename: `build/stats-html.html`,
+        gzipSize: true,
+      }),
+      visualizer({
+        filename: `build/stats.json`,
+        json: true,
+        gzipSize: true,
+      }),
+    ],
+  }
+}
