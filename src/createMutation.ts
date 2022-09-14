@@ -9,10 +9,9 @@ import { parseMutationArgs, useMutation } from '@tanstack/react-query'
 export interface CreateMutationResult<
   TData = unknown,
   TError = unknown,
-  TVariables = void,
-  TContext = unknown
+  TVariables = void
 > {
-  (
+  <TContext>(
     options?: Omit<
       UseMutationOptions<TData, TError, TVariables, TContext>,
       'mutationFn' | 'mutationKey'
@@ -29,7 +28,7 @@ export function createMutation<
   TContext = unknown
 >(
   options: UseMutationOptions<TData, TError, TVariables, TContext>
-): CreateMutationResult<TData, TError, TVariables, TContext>
+): CreateMutationResult<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -42,7 +41,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationFn'
   >
-): CreateMutationResult<TData, TError, TVariables, TContext>
+): CreateMutationResult<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -55,7 +54,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationKey'
   >
-): CreateMutationResult<TData, TError, TVariables, TContext>
+): CreateMutationResult<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -69,7 +68,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationKey' | 'mutationFn'
   >
-): CreateMutationResult<TData, TError, TVariables, TContext>
+): CreateMutationResult<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -85,7 +84,7 @@ export function createMutation<
     | MutationFunction<TData, TVariables>
     | UseMutationOptions<TData, TError, TVariables, TContext>,
   arg3?: UseMutationOptions<TData, TError, TVariables, TContext>
-): CreateMutationResult<TData, TError, TVariables, TContext> {
+): CreateMutationResult<TData, TError, TVariables> {
   const defaultOptions = parseMutationArgs(arg1, arg2, arg3)
   const getKey = () => defaultOptions.mutationKey
 
@@ -106,5 +105,5 @@ export function createMutation<
     MutationFunction<TData, TVariables>
   >
 
-  return useGeneratedMutation
+  return useGeneratedMutation as CreateMutationResult<TData, TError, TVariables>
 }
