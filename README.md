@@ -1,20 +1,28 @@
 <div align="center">
 <h1>react-query-kit</h1>
 
-<p>Simple reusable and mini(&#60;1kb) React Query utils</p>
+<p>🕊️ A toolkit for ReactQuery that make ReactQuery hooks more reusable and typesafe</p>
+
+<p align="center">
+  <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
+  <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
+  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/minzip/react-query-kit" alt="Bundlephobia" target="\_parent"></a>
+  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/tree-shaking/liaoliao666/react-query-kit" alt="Tree shaking available" target="\_parent"></a>
+  <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
+  <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
+  <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
+  <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://img.shields.io/github/stars/liaoliao666/react-query-kit.svg?style=social&amp;label=Star" alt="GitHub Stars" target="\_parent"></a>
+</p>
 </div>
 
 ---
 
-## The problem
+## Motivation
 
-- ReactQuery that needs you manual manage your queryKey
-- ReactQuery doesn't have an elegant way to set defaultOptions for per custom useQuery hook
-- ReactQuery doesn't have a type-safe way to get the queryKey
-
-## This solution
-
-A simplest way to create your custom useQuery hooks without considering the consistence of the queryKey and provide default options to per hooks you create
+People will face with these pain points when writing ReactQuery hooks.
+- Share a custom hook between multiple components
+- Combining `queryKey` with `queryClient` in a type-safe way
+- Set `defaultOptions` for specific hooks more easier
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 
@@ -24,6 +32,7 @@ A simplest way to create your custom useQuery hooks without considering the cons
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Installation](#installation)
+- [Examples](#examples)
 - Usage
   - [createQuery](#createQuery)
   - [createInfiniteQuery](#createInfiniteQuery)
@@ -40,9 +49,19 @@ A simplest way to create your custom useQuery hooks without considering the cons
 This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `dependencies`:
 
+```bash
+$ npm i @tanstack/react-query-kit @tanstack/react-query
+# or
+$ yarn add @tanstack/react-query-kit @tanstack/react-query
 ```
-npm install --save react-query-kit @tanstack/react-query
-```
+
+# Examples
+
+- [Basic](https://codesandbox.io/embed/github/liaoliao666/react-query-kit/tree/master/examples/basic?autoresize=1&fontsize=14&theme=dark)
+- [Optimistic Updates](https://codesandbox.io/embed/github/liaoliao666/react-query-kit/tree/master/examples/optimistic-updates?autoresize=1&fontsize=14&theme=dark)
+- [Next.js](https://codesandbox.io/embed/github/liaoliao666/react-query-kit/tree/master/examples/nextjs?autoresize=1&fontsize=14&theme=dark)
+- [Load-More & Infinite Scroll](https://codesandbox.io/embed/github/liaoliao666/react-query-kit/tree/master/examples/load-more-infinite-scroll?autoresize=1&fontsize=14&theme=dark)
+
 
 ## createQuery
 
@@ -67,18 +86,18 @@ const usePost = createQuery<Response, Variables, Error>({
 })
 
 // or using the alternative syntax to create
-const usePost = createQuery<Response, Variables, Error>(
-  '/posts',
-  ({ queryKey: [primaryKey, variables] }) => {
-    // primaryKey equals to '/posts'
-    return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
-  },
-  {
-    // if u only wanna fetch once
-    enabled: (data) => !data,
-    suspense: true
-  }
-)
+// const usePost = createQuery<Response, Variables, Error>(
+//   '/posts',
+//   ({ queryKey: [primaryKey, variables] }) => {
+//     // primaryKey equals to '/posts'
+//     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+//   },
+//   {
+//     // if u only wanna fetch once
+//     enabled: (data) => !data,
+//     suspense: true
+//   }
+// )
 
 
 const variables = { id: 1 }
@@ -100,6 +119,7 @@ export default function Page() {
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
+  // usePost.getKey(variables) equals to `['/posts', { id: 1 }]`
   await queryClient.prefetchQuery(usePost.getKey(variables), usePost.queryFn)
 
   return {
@@ -182,7 +202,7 @@ const variables = { active: true }
 export default function Page() {
   // queryKey equals to `['projects', { active: true }]`
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useProjects({ suspense: true, variables })
+    useProjects({ variables, suspense: true })
 
   return (
     <div>
