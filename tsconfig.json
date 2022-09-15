@@ -19,7 +19,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["jest"],
-    "outDir": "./build/types"
+    "outDir": "./build/lib"
   },
   "files": ["src/index.ts"],
   "include": ["src"]

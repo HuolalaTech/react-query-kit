@@ -1,4 +1,5 @@
 import { babel } from '@rollup/plugin-babel'
+import commonJS from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import size from 'rollup-plugin-size'
@@ -39,7 +40,9 @@ function esm({ input, external }) {
     output: {
       format: 'esm',
       sourcemap: true,
-      dir: `build/esm`,
+      dir: `build/lib`,
+      preserveModules: true,
+      entryFileNames: '[name].mjs',
     },
     plugins: [babelPlugin, nodeResolve({ extensions })],
   }
@@ -53,11 +56,12 @@ function cjs({ input, external }) {
     output: {
       format: 'cjs',
       sourcemap: true,
-      dir: `build/cjs`,
+      dir: `build/lib`,
       preserveModules: true,
       exports: 'named',
+      entryFileNames: '[name].js',
     },
-    plugins: [babelPlugin, nodeResolve({ extensions })],
+    plugins: [babelPlugin, commonJS(), nodeResolve({ extensions })],
   }
 }
 
@@ -75,6 +79,7 @@ function umdDev({ input, external, globals, jsName }) {
     },
     plugins: [
       babelPlugin,
+      commonJS(),
       nodeResolve({ extensions }),
       umdDevPlugin('development'),
     ],
@@ -95,6 +100,7 @@ function umdProd({ input, external, globals, jsName }) {
     },
     plugins: [
       babelPlugin,
+      commonJS(),
       nodeResolve({ extensions }),
       umdDevPlugin('production'),
       terser({

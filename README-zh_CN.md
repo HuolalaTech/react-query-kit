@@ -1,7 +1,7 @@
 <div align="center">
 <h1>react-query-kit</h1>
 
-<p>🕊️ A toolkit for ReactQuery that make ReactQuery reusable and typesafe</p>
+<p>🕊️ 一个用于 ReactQuery 的工具包，它能使 ReactQuery 更易复用和类型安全</p>
 
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
@@ -19,27 +19,27 @@
 
 ## Motivation
 
-People will face with these pain points when writing ReactQuery hooks.
-- Share a custom hook between multiple components
-- how to combining `queryKey` with `queryClient` in a type-safe way
-- Set `defaultOptions` for specific custom hooks
+我们在编写 ReactQuery hooks 时通常会面临这些痛点。
+- 在多个组件之间共享自定义hooks
+- 如何以类型安全的方式将 `queryKey` 与 `queryClient` 组合使用
+- 为特定的自定义hooks设置`defaultOptions`更容易
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 
-English | [简体中文](./README-zh_CN.md)
+[English](./README.md) | 简体中文
 
 ## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Installation](#installation)
-- [Examples](#examples)
-- Usage
+- [安装](#installation)
+- [例子](#examples)
+- 使用
   - [createQuery](#createQuery)
   - [createInfiniteQuery](#createInfiniteQuery)
   - [createMutation](#createMutation)
-- [Issues](#issues)
+- [问题](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
 - [LICENSE](#license)
@@ -47,9 +47,6 @@ English | [简体中文](./README-zh_CN.md)
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
-
-This module is distributed via [npm][npm] which is bundled with [node][node] and
-should be installed as one of your project's `dependencies`:
 
 ```bash
 $ npm i @tanstack/react-query-kit @tanstack/react-query
@@ -79,19 +76,19 @@ type Variables = { id: number }
 const usePost = createQuery<Response, Variables, Error>({
   primaryKey: '/posts',
   queryFn: ({ queryKey: [primaryKey, variables] }) => {
-    // primaryKey equals to '/posts'
+    // primaryKey 相等于 '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
-  // if u only wanna fetch once
+  // 如果你只想在没有数据时请求，可以这么设置
   enabled: (data) => !data,
   suspense: true
 })
 
-// or using the alternative syntax to create
+// 你也可以使用以下的语法来创建自定义hook
 // const usePost = createQuery<Response, Variables, Error>(
 //   '/posts',
 //   ({ queryKey: [primaryKey, variables] }) => {
-//     // primaryKey equals to '/posts'
+//     // primaryKey 相等于 '/posts'
 //     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
 //   },
 //   {
@@ -106,7 +103,7 @@ const variables = { id: 1 }
 
 // example
 export default function Page() {
-  // queryKey equals to ['/posts', { id: 1 }]
+  // queryKey 相等于 ['/posts', { id: 1 }]
   const { data } = usePost({ variables, suspense: true })
 
   return (
@@ -120,7 +117,7 @@ export default function Page() {
 console.log(usePost.getKey()) //  ['/posts']
 console.log(usePost.getKey(variables)) //  ['/posts', { id: 1 }]
 
-// nextjs example
+// nextjs 例子
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
@@ -133,13 +130,13 @@ export async function getStaticProps() {
   }
 }
 
-// usage outside of react component
+// 在 react 组件外使用
 const data = await queryClient.fetchQuery(
   usePost.getKey(variables),
   usePost.queryFn
 )
 
-// useQueries example
+// useQueries 例子
 const queries = useQueries({
   queries: [
     { queryKey: usePost.getKey(variables), queryFn: usePost.queryFn },
@@ -151,16 +148,16 @@ const queries = useQueries({
 queryClient.setQueryData(usePost.getKey(variables), {...})
 ```
 
-### Additional API Reference
+### 额外的API文档
 
 Options
 - `primaryKey: string`
-    - Required
-    - `primaryKey` will be the first element of the array of `queryKey`
+    - 必填
+    - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData) => boolean)`
   - Optional
-  - Set this to `false` to disable this query from automatically running.
-  - If set to a function, the function will be executed with the latest data to compute the boolean
+  - 将此设置为 `false` 以禁用此查询自动运行。
+  - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 
 Expose Methods
 - `getPrimaryKey: () => primaryKey`
@@ -169,7 +166,7 @@ Expose Methods
 
 Returns
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-    - it's args similar with `queryClient.setQueryData` but without `queryKey`
+    - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createInfiniteQuery
 
@@ -240,23 +237,23 @@ export async function getStaticProps() {
   }
 }
 
-// usage outside of react component
+// 在 react 组件外使用
 const data = await queryClient.fetchInfiniteQuery(
   useProjects.getKey(variables),
   useProjects.queryFn
 )
 ```
 
-### Additional API Reference
+### 额外的API文档
 
 Options
 - `primaryKey: string`
-    - Required
-    - `primaryKey` will be the first element of the arrary of `queryKey`
+    - 必填
+    - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData) => boolean)`
   - Optional
-  - Set this to `false` to disable this query from automatically running.
-  - If set to a function, the function will be executed with the latest data to compute the boolean
+  - 将此设置为 `false` 以禁用此查询自动运行。
+  - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 
 Expose Methods
 - `getPrimaryKey: () => primaryKey`
@@ -264,8 +261,8 @@ Expose Methods
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
 Returns
-- `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
-    - it's args similar with `queryClient.setQueryData` but without `queryKey`
+- `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
+    - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createMutation
 
@@ -327,7 +324,7 @@ function App() {
 useAddTodo.mutationFn({  title: 'Do Laundry', content: "content..." })
 ```
 
-### Additional API Reference
+### 额外的API文档
 
 Returns
 - `getKey: () => MutationKey`
@@ -340,14 +337,14 @@ label._
 
 ### 🐛 Bugs
 
-Please file an issue for bugs, missing documentation, or unexpected behavior.
+请针对错误、缺少文档或意外行为提出问题。
 
 [**See Bugs**][bugs]
 
 ### 💡 Feature Requests
 
-Please file an issue to suggest new features. Vote on feature requests by adding
-a 👍. This helps maintainers prioritize what to work on.
+请提交问题以建议新功能。 通过添加对功能请求进行投票
+一个👍。 这有助于维护人员优先处理要处理的内容。
 
 [**See Feature Requests**][requests]
 

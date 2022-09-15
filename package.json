@@ -1,14 +1,20 @@
 {
   "name": "react-query-kit",
   "version": "1.2.5",
-  "description": "🕊️ A toolkit for ReactQuery that make ReactQuery hooks reusable, typesafe and enhance it's options",
+  "description": "🕊️ A toolkit for ReactQuery that make ReactQuery hooks more reusable and typesafe",
   "author": "liaoliao666",
   "repository": "liaoliao666/react-query-kit",
   "homepage": "https://github.com/liaoliao666/react-query-kit",
-  "module": "build/esm/index.js",
-  "main": "build/cjs/index.js",
-  "browser": "build/umd/index.production.js",
-  "types": "build/types/index.d.ts",
+  "types": "build/lib/index.d.ts",
+  "main": "build/lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./build/lib/index.d.ts",
+      "import": "./build/lib/index.mjs",
+      "default": "./build/lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.18.10",
@@ -17,6 +23,7 @@
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
     "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^13.2.1",
     "@rollup/plugin-replace": "^4.0.0",
     "@tanstack/react-query": "^4.2.3",
