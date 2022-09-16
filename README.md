@@ -7,7 +7,7 @@
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
   <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/minzip/react-query-kit" alt="Bundlephobia" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/tree-shaking/react-query-kit" alt="Tree shaking available" target="\_parent"></a>
+  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/dependency-count/react-query-kit" alt="Dependency count 0" target="\_parent"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -21,8 +21,10 @@
 
 People will face with these pain points when writing ReactQuery hooks.
 - Share a custom hook between multiple components
-- how to combining `queryKey` with `queryClient` in a type-safe way
-- Set `defaultOptions` for specific custom hooks
+- How to pass variables to custom ReactQuery hook in a type-safe way
+- How to get `queryKey` in a type-safe way
+- How to combining `queryKey` with `queryClient` in a type-safe way
+- Set `defaultOptions` for custom ReactQuery hooks easier and clearer
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 

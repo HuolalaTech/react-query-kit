@@ -7,7 +7,7 @@
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
   <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/minzip/react-query-kit" alt="Bundlephobia" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/tree-shaking/react-query-kit" alt="Tree shaking available" target="\_parent"></a>
+  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/dependency-count/react-query-kit" alt="Dependency count 0" target="\_parent"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -20,9 +20,11 @@
 ## Motivation
 
 我们在编写 ReactQuery hooks 时通常会面临这些痛点。
-- 在多个组件之间共享自定义hooks
+- 在多个组件之间共享自定义的 ReactQuery hooks
+- 如何以类型安全的方式将变量传递给自定义的 ReactQuery hooks
+- 如何以类型安全的方式获取`queryKey`
 - 如何以类型安全的方式将 `queryKey` 与 `queryClient` 组合使用
-- 为特定的自定义hooks设置`defaultOptions`更容易
+- 为自定义的 ReactQuery hooks 设置`defaultOptions`更容易且清晰
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 
