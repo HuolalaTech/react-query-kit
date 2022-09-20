@@ -54,9 +54,9 @@ This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `dependencies`:
 
 ```bash
-$ npm i @tanstack/react-query-kit @tanstack/react-query
+$ npm i react-query-kit
 # or
-$ yarn add @tanstack/react-query-kit @tanstack/react-query
+$ yarn add react-query-kit
 ```
 
 # Examples
