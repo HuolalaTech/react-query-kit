@@ -17,14 +17,13 @@
 
 ---
 
-## Motivation
+## What could you benefit from it
 
-People will face with these pain points when writing ReactQuery hooks.
-- Share a custom hook between multiple components
-- How to pass variables to custom ReactQuery hook in a type-safe way
-- How to get `queryKey` in a type-safe way
-- How to combining `queryKey` with `queryClient` in a type-safe way
-- Set `defaultOptions` for custom ReactQuery hooks easier and clearer
+- Make `queryKey` strongly related with `queryFn`
+- Manage `queryKey` in a type-safe way
+- Generate quickly a custom ReactQuery hook
+- Make `queryClient`'s operations more clearly associated with which custom ReactQuery hook
+- Set defaultOptions for custom ReactQuery hooks easier and clearer
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 

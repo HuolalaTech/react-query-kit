@@ -19,12 +19,11 @@
 
 ## Motivation
 
-我们在编写 ReactQuery hooks 时通常会面临这些痛点。
-- 在多个组件之间共享自定义的 ReactQuery hooks
-- 如何以类型安全的方式将变量传递给自定义的 ReactQuery hooks
-- 如何以类型安全的方式获取`queryKey`
-- 如何以类型安全的方式将 `queryKey` 与 `queryClient` 组合使用
-- 为自定义的 ReactQuery hooks 设置`defaultOptions`更容易且清晰
+- 使 `queryKey` 与 `queryFn` 强相关
+- 以类型安全的方式管理 `queryKey`
+- 快速生成自定义 ReactQuery 钩子
+- 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery 钩子
+- 为自定义 ReactQuery 钩子设置默认选项更容易和更清晰
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
 
