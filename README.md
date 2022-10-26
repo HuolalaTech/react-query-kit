@@ -21,8 +21,8 @@
 
 - Make `queryKey` strongly related with `queryFn`
 - Manage `queryKey` in a type-safe way
-- Generate quickly a custom ReactQuery hook
-- Make `queryClient`'s operations more clearly associated with which custom ReactQuery hook
+- Generate a custom ReactQuery hook quickly
+- Make `queryClient`'s operations clearly associated with custom ReactQuery hooks
 - Set defaultOptions for custom ReactQuery hooks easier and clearer
 
 ![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
@@ -169,6 +169,8 @@ Expose Methods
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
 Returns
+- `queryKey: unknown[]`
+  - The query key of this custom query.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
     - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
@@ -265,6 +267,8 @@ Expose Methods
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 
 Returns
+- `queryKey: unknown[]`
+  - The query key of this custom query.
 - `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
     - it's args similar with `queryClient.setQueryData` but without `queryKey`
 

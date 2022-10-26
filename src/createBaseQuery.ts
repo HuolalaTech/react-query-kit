@@ -21,7 +21,7 @@ type QueryBaseHookOptions = Omit<
 
 export function createBaseQuery(
   options: CreateQueryOptions,
-  hook: (options: any) => any
+  useRQHook: (options: any) => any
 ): any {
   const { primaryKey, queryFn, ...defaultOptions } = options
 
@@ -47,7 +47,7 @@ export function createBaseQuery(
     const setData = (updater: Updater<any, any>, options?: SetDataOptions) =>
       queryClient.setQueryData(queryKey, updater, options)
 
-    const result = hook({
+    const result = useRQHook({
       ...mergedOptions,
       enabled:
         typeof enabled === 'function'
@@ -55,7 +55,7 @@ export function createBaseQuery(
           : enabled,
     })
 
-    return Object.assign(result, { setData })
+    return Object.assign(result, { queryKey, setData })
   }
 
   useGeneratedQuery.getPrimaryKey = getPrimaryKey
