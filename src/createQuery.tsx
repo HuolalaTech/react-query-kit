@@ -35,6 +35,7 @@ interface QueryHook<TFnData, TVariables = void, Error = unknown>
       ? QueryHookOptions<TFnData, Error, TData, TVariables> | void
       : QueryHookOptions<TFnData, Error, TData, TVariables>
   ): UseQueryResult<TData, Error> & {
+    queryKey: QueryKitKey<TVariables>
     setData: (
       updater: Updater<TFnData | undefined, TFnData>,
       options?: SetDataOptions | undefined

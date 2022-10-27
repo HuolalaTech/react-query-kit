@@ -48,6 +48,7 @@ interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
       ? InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> | void
       : InfiniteQueryHookOptions<TFnData, Error, TData, TVariables>
   ): UseInfiniteQueryResult<TData, Error> & {
+    queryKey: QueryKitKey<TVariables>
     setData: (
       updater: Updater<
         InfiniteData<TFnData> | undefined,
