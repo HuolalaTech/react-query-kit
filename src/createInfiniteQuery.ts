@@ -41,7 +41,7 @@ type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
-interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
+export interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
   extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: TVariables extends void

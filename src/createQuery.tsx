@@ -28,7 +28,7 @@ type QueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
-interface QueryHook<TFnData, TVariables = void, Error = unknown>
+export interface QueryHook<TFnData, TVariables = void, Error = unknown>
   extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: TVariables extends void
