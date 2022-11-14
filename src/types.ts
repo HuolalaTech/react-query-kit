@@ -7,11 +7,15 @@ export type QueryKitKey<TVariables> = TVariables extends void
 export type AdditionalCreateOptions<TFnData, TVariables> = {
   primaryKey: string
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
-  enabled?: boolean | ((data?: TFnData) => boolean)
+  enabled?:
+    | boolean
+    | ((data: TFnData | undefined, variables: TVariables) => boolean)
 }
 
 export type AdditionalQueryHookOptions<TFnData, TVariables> = {
-  enabled?: boolean | ((data?: TFnData) => boolean)
+  enabled?:
+    | boolean
+    | ((data: TFnData | undefined, variables: TVariables) => boolean)
 } & (TVariables extends void
   ? {
       variables?: TVariables

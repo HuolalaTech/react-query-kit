@@ -80,8 +80,8 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey 相等于 '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
-  // 如果你只想在没有数据时请求，可以这么设置
-  enabled: (data) => !data,
+  // 如果你只想在有id时且没有数据时请求，可以这么设置
+  enabled: (data, variables) => !data && variables.id,
   suspense: true
 })
 
@@ -155,7 +155,7 @@ Options
 - `primaryKey: string`
     - 必填
     - `primaryKey` 将是 `queryKey` 数组的第一个元素
-- `enabled: boolean | ((data: TData) => boolean)`
+- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
@@ -251,7 +251,7 @@ Options
 - `primaryKey: string`
     - 必填
     - `primaryKey` 将是 `queryKey` 数组的第一个元素
-- `enabled: boolean | ((data: TData) => boolean)`
+- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值

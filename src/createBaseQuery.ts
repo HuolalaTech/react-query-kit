@@ -51,7 +51,7 @@ export function createBaseQuery(
       ...mergedOptions,
       enabled:
         typeof enabled === 'function'
-          ? enabled(queryClient.getQueryData(queryKey))
+          ? enabled(queryClient.getQueryData(queryKey), variables)
           : enabled,
     })
 
