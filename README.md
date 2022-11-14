@@ -158,7 +158,7 @@ Options
 - `primaryKey: string`
     - Required
     - `primaryKey` will be the first element of the array of `queryKey`
-- `enabled: boolean | ((data: TData) => boolean)`
+- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
@@ -256,7 +256,7 @@ Options
 - `primaryKey: string`
     - Required
     - `primaryKey` will be the first element of the arrary of `queryKey`
-- `enabled: boolean | ((data: TData) => boolean)`
+- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
