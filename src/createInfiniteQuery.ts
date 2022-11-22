@@ -21,7 +21,7 @@ interface CreateInfiniteQueryOptions<TFnData, TVariables, Error>
       UseInfiniteQueryOptions<
         TFnData,
         Error,
-        unknown,
+        TFnData,
         TFnData,
         QueryKitKey<TVariables>
       >,
