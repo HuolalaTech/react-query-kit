@@ -17,7 +17,7 @@ import { parseQueryKitArgs } from './utils'
 
 interface CreateQueryOptions<TFnData, TVariables, Error>
   extends Omit<
-      UseQueryOptions<TFnData, Error, unknown, QueryKitKey<TVariables>>,
+      UseQueryOptions<TFnData, Error, TFnData, QueryKitKey<TVariables>>,
       'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
     AdditionalCreateOptions<TFnData, TVariables> {}
