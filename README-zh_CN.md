@@ -273,14 +273,14 @@ Returns
 import { createMutation } from 'react-query-kit'
 
 const useAddTodo = createMutation(
-  async (data: { title: string; content: string }) =>
+  async (variables: { title: string; content: string }) =>
     fetch('/post', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(variables),
     }).then(res => res.json()),
   {
     onSuccess(data, variables, context) {
@@ -288,6 +288,19 @@ const useAddTodo = createMutation(
     },
   }
 )
+
+// 你也可以使用以下的语法来创建自定义hook
+// const useAddTodo = createMutation<TData, { title: string; content: string }>(
+//   async (variables) =>
+//     fetch('/post', {
+//       method: 'POST',
+//       headers: {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(variables),
+//     }).then(res => res.json()),
+// )
 
 function App() {
   const mutation = useAddTodo({  
@@ -330,6 +343,18 @@ useAddTodo.mutationFn({  title: 'Do Laundry', content: "content..." })
 Returns
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
+
+
+## 类型推倒
+
+您可以使用 inferVariables 提取任何自定义hook的 TypeScript 类型
+
+```ts
+import { inferVariables, inferData } from 'react-query-kit'
+
+type variables = inferVariables<typeof usePost>
+type Data = inferData<typeof usePost>
+```
 
 ## Issues
 

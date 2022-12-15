@@ -72,7 +72,7 @@ $ yarn add react-query-kit
 
 ```tsx
 import { QueryClient, dehydrate } from '@tanstack/react-query'
-import { createQuery } from 'react-query-kit'
+import { createQuery, inferData } from 'react-query-kit'
 
 type Response = { title: string; content: string }
 type Variables = { id: number }
@@ -149,7 +149,7 @@ const queries = useQueries({
 })
 
 // setQueryData
-queryClient.setQueryData(usePost.getKey(variables), {...})
+queryClient.setQueryData<inferData<typeof usePost>>(usePost.getKey(variables), {...})
 ```
 
 ### Additional API Reference
@@ -280,14 +280,14 @@ Returns
 import { createMutation } from 'react-query-kit'
 
 const useAddTodo = createMutation(
-  async (data: { title: string; content: string }) =>
+  async (variables: { title: string; content: string }) =>
     fetch('/post', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(variables),
     }).then(res => res.json()),
   {
     onSuccess(data, variables, context) {
@@ -295,6 +295,19 @@ const useAddTodo = createMutation(
     },
   }
 )
+
+// or using the alternative syntax to create
+// const useAddTodo = createMutation<TData, { title: string; content: string }>(
+//   async (variables) =>
+//     fetch('/post', {
+//       method: 'POST',
+//       headers: {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(variables),
+//     }).then(res => res.json()),
+// )
 
 function App() {
   const mutation = useAddTodo({  
@@ -337,6 +350,17 @@ useAddTodo.mutationFn({  title: 'Do Laundry', content: "content..." })
 Returns
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
+
+## Type inference
+
+You can extract the TypeScript type of any custom hook with inferVariables<typeof usePost> or inferData<typeof usePost>
+
+```ts
+import { inferVariables, inferData } from 'react-query-kit'
+
+type variables = inferVariables<typeof usePost>
+type Data = inferData<typeof usePost>
+```
 
 ## Issues
 
