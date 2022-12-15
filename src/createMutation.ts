@@ -2,24 +2,9 @@ import type {
   MutationFunction,
   MutationKey,
   UseMutationOptions,
-  UseMutationResult,
 } from '@tanstack/react-query'
 import { parseMutationArgs, useMutation } from '@tanstack/react-query'
-
-export interface CreateMutationResult<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void
-> {
-  <TContext>(
-    options?: Omit<
-      UseMutationOptions<TData, TError, TVariables, TContext>,
-      'mutationFn' | 'mutationKey'
-    >
-  ): UseMutationResult<TData, TError, TVariables, TContext>
-  getKey: () => MutationKey | undefined
-  mutationFn: MutationFunction<TData, TVariables>
-}
+import { CreateMutationResult } from './types'
 
 export function createMutation<
   TData = unknown,
