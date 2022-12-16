@@ -7,10 +7,7 @@ import type {
 } from './types'
 
 interface CreateQueryOptions
-  extends Omit<
-      UseBaseQueryOptions,
-      'queryKey' | 'queryFn' | 'enabled' | 'select'
-    >,
+  extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
     AdditionalCreateOptions<any, any> {}
 
 type QueryBaseHookOptions = Omit<
@@ -23,7 +20,7 @@ export function createBaseQuery(
   options: CreateQueryOptions,
   useRQHook: (options: any) => any
 ): any {
-  const { primaryKey, queryFn, ...defaultOptions } = options
+  const { primaryKey, queryFn, select: _select, ...defaultOptions } = options
 
   const getPrimaryKey = () => primaryKey
 

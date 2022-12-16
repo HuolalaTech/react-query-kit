@@ -40,6 +40,7 @@ English | [简体中文](./README-zh_CN.md)
   - [createQuery](#createQuery)
   - [createInfiniteQuery](#createInfiniteQuery)
   - [createMutation](#createMutation)
+  - [Type inference](#Type-inference)
 - [Issues](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -353,12 +354,12 @@ Returns
 
 ## Type inference
 
-You can extract the TypeScript type of any custom hook with inferVariables<typeof usePost> or inferData<typeof usePost>
+You can extract the TypeScript type of any custom hook with `inferVariables` or `inferData`
 
 ```ts
 import { inferVariables, inferData } from 'react-query-kit'
 
-type variables = inferVariables<typeof usePost>
+type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
 ```
 

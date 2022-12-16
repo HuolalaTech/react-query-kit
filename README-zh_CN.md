@@ -40,6 +40,7 @@
   - [createQuery](#createQuery)
   - [createInfiniteQuery](#createInfiniteQuery)
   - [createMutation](#createMutation)
+  - [类型推倒](#类型推倒)
 - [问题](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -347,12 +348,12 @@ Returns
 
 ## 类型推倒
 
-您可以使用 inferVariables 提取任何自定义hook的 TypeScript 类型
+您可以使用 `inferVariables` 或 `inferData` 提取任何自定义hook的 TypeScript 类型
 
 ```ts
 import { inferVariables, inferData } from 'react-query-kit'
 
-type variables = inferVariables<typeof usePost>
+type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
 ```
 
