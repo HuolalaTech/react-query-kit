@@ -3,6 +3,7 @@ import type {
   MutationFunction,
   MutationKey,
   QueryFunction,
+  QueryKeyHashFunction,
   SetDataOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
@@ -51,6 +52,7 @@ export type ExposeMethods<TFnData, TVariables> = {
     variables?: V
   ) => QueryKitKey<V>
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+  queryKeyHashFn: QueryKeyHashFunction<QueryKitKey<TVariables>>
 }
 
 type QueryHookOptions<TFnData, Error, TData, TVariables> = Omit<

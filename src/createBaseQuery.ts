@@ -1,3 +1,4 @@
+import { hashQueryKey } from '@tanstack/query-core'
 import type { SetDataOptions, UseBaseQueryOptions } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Updater } from '@tanstack/react-query/build/types/packages/query-core/src/utils'
@@ -20,7 +21,13 @@ export function createBaseQuery(
   options: CreateQueryOptions,
   useRQHook: (options: any) => any
 ): any {
-  const { primaryKey, queryFn, select: _select, ...defaultOptions } = options
+  const {
+    primaryKey,
+    queryFn,
+    queryKeyHashFn = hashQueryKey,
+    select: _select,
+    ...defaultOptions
+  } = options
 
   const getPrimaryKey = () => primaryKey
 
@@ -35,6 +42,7 @@ export function createBaseQuery(
     const { enabled, ...mergedOptions } = {
       ...defaultOptions,
       ...restOptions,
+      queryKeyHashFn,
       queryFn,
       queryKey,
     }
@@ -58,6 +66,7 @@ export function createBaseQuery(
   useGeneratedQuery.getPrimaryKey = getPrimaryKey
   useGeneratedQuery.getKey = getKey
   useGeneratedQuery.queryFn = queryFn
+  useGeneratedQuery.queryKeyHashFn = queryKeyHashFn
 
   return useGeneratedQuery
 }

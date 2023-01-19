@@ -66,7 +66,6 @@ $ yarn add react-query-kit
 - [Next.js](https://codesandbox.io/s/example-react-query-kit-nextjs-uldl88)
 - [Load-More & Infinite Scroll](https://codesandbox.io/s/example-react-query-kit-load-more-infinite-scroll-vg494v)
 
-
 ## createQuery
 
 ### Usage
@@ -156,24 +155,28 @@ queryClient.setQueryData<inferData<typeof usePost>>(usePost.getKey(variables), {
 ### Additional API Reference
 
 Options
+
 - `primaryKey: string`
-    - Required
-    - `primaryKey` will be the first element of the array of `queryKey`
+  - Required
+  - `primaryKey` will be the first element of the array of `queryKey`
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
 
 Expose Methods
+
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
+- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
 Returns
+
 - `queryKey: unknown[]`
   - The query key of this custom query.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-    - it's args similar with `queryClient.setQueryData` but without `queryKey`
+  - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
 ## createInfiniteQuery
 
@@ -189,7 +192,9 @@ type Variables = { active: boolean }
 const useProjects = createInfiniteQuery<Data, Variables, Error>({
   primaryKey: 'projects',
   queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
-    return fetch(`/projects?cursor=${pageParam}?active=${variables.active}`).then(res => res.json())
+    return fetch(
+      `/projects?cursor=${pageParam}?active=${variables.active}`
+    ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
 })
@@ -254,24 +259,28 @@ const data = await queryClient.fetchInfiniteQuery(
 ### Additional API Reference
 
 Options
+
 - `primaryKey: string`
-    - Required
-    - `primaryKey` will be the first element of the arrary of `queryKey`
+  - Required
+  - `primaryKey` will be the first element of the arrary of `queryKey`
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
 
 Expose Methods
+
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
+- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
 Returns
+
 - `queryKey: unknown[]`
   - The query key of this custom query.
 - `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
-    - it's args similar with `queryClient.setQueryData` but without `queryKey`
+  - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
 ## createMutation
 
@@ -311,10 +320,10 @@ const useAddTodo = createMutation(
 // )
 
 function App() {
-  const mutation = useAddTodo({  
+  const mutation = useAddTodo({
     onSettled: (data, error, variables, context) => {
-        // Error or success... doesn't matter!
-    }
+      // Error or success... doesn't matter!
+    },
   })
 
   return (
@@ -331,7 +340,7 @@ function App() {
 
           <button
             onClick={() => {
-              mutation.mutate({  title: 'Do Laundry', content: "content..." })
+              mutation.mutate({ title: 'Do Laundry', content: 'content...' })
             }}
           >
             Create Todo
@@ -343,12 +352,13 @@ function App() {
 }
 
 // usage outside of react component
-useAddTodo.mutationFn({  title: 'Do Laundry', content: "content..." })
+useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 ```
 
 ### Additional API Reference
 
 Returns
+
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
