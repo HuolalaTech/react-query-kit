@@ -63,7 +63,6 @@ $ yarn add react-query-kit
 - [Next.js](https://codesandbox.io/s/example-react-query-kit-nextjs-uldl88)
 - [Load-More & Infinite Scroll](https://codesandbox.io/s/example-react-query-kit-load-more-infinite-scroll-vg494v)
 
-
 ## createQuery
 
 ### Usage
@@ -150,25 +149,29 @@ const queries = useQueries({
 queryClient.setQueryData(usePost.getKey(variables), {...})
 ```
 
-### 额外的API文档
+### 额外的 API 文档
 
 Options
+
 - `primaryKey: string`
-    - 必填
-    - `primaryKey` 将是 `queryKey` 数组的第一个元素
+  - 必填
+  - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 
 Expose Methods
+
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
+- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
 Returns
+
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-    - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
+  - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createInfiniteQuery
 
@@ -184,7 +187,9 @@ type Variables = { active: boolean }
 const useProjects = createInfiniteQuery<Data, Variables, Error>({
   primaryKey: 'projects',
   queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
-    return fetch(`/projects?cursor=${pageParam}?active=${variables.active}`).then(res => res.json())
+    return fetch(
+      `/projects?cursor=${pageParam}?active=${variables.active}`
+    ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
 })
@@ -246,25 +251,29 @@ const data = await queryClient.fetchInfiniteQuery(
 )
 ```
 
-### 额外的API文档
+### 额外的 API 文档
 
 Options
+
 - `primaryKey: string`
-    - 必填
-    - `primaryKey` 将是 `queryKey` 数组的第一个元素
+  - 必填
+  - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
   - Optional
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 
 Expose Methods
+
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
+- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
 Returns
+
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-    - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
+  - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createMutation
 
@@ -304,10 +313,10 @@ const useAddTodo = createMutation(
 // )
 
 function App() {
-  const mutation = useAddTodo({  
+  const mutation = useAddTodo({
     onSettled: (data, error, variables, context) => {
-        // Error or success... doesn't matter!
-    }
+      // Error or success... doesn't matter!
+    },
   })
 
   return (
@@ -324,7 +333,7 @@ function App() {
 
           <button
             onClick={() => {
-              mutation.mutate({  title: 'Do Laundry', content: "content..." })
+              mutation.mutate({ title: 'Do Laundry', content: 'content...' })
             }}
           >
             Create Todo
@@ -336,19 +345,19 @@ function App() {
 }
 
 // usage outside of react component
-useAddTodo.mutationFn({  title: 'Do Laundry', content: "content..." })
+useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 ```
 
-### 额外的API文档
+### 额外的 API 文档
 
 Returns
+
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
-
 ## 类型推倒
 
-您可以使用 `inferVariables` 或 `inferData` 提取任何自定义hook的 TypeScript 类型
+您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
 import { inferVariables, inferData } from 'react-query-kit'
@@ -371,7 +380,7 @@ label._
 ### 💡 Feature Requests
 
 请提交问题以建议新功能。 通过添加对功能请求进行投票
-一个👍。 这有助于维护人员优先处理要处理的内容。
+一个 👍。 这有助于维护人员优先处理要处理的内容。
 
 [**See Feature Requests**][requests]
 

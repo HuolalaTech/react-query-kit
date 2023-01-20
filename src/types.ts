@@ -61,7 +61,7 @@ type QueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
-export interface QueryHook<TFnData, TVariables = void, Error = unknown>
+export interface QueryHook<TFnData, TVariables, Error>
   extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: TVariables extends void
@@ -88,7 +88,7 @@ type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
-export interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
+export interface InfiniteQueryHook<TFnData, TVariables, Error = unknown>
   extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: TVariables extends void
@@ -106,11 +106,7 @@ export interface InfiniteQueryHook<TFnData, TVariables = void, Error = unknown>
   }
 }
 
-export interface CreateMutationResult<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void
-> {
+export interface CreateMutationResult<TData, TError, TVariables> {
   <TContext>(
     options?: Omit<
       UseMutationOptions<TData, TError, TVariables, TContext>,

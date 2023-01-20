@@ -11,16 +11,16 @@ interface CreateQueryOptions<TFnData, TVariables, Error>
     >,
     AdditionalCreateOptions<TFnData, TVariables> {}
 
-export function createQuery<TFnData, TVariables = void, Error = unknown>(
+export function createQuery<TFnData, TVariables = any, Error = unknown>(
   options: CreateQueryOptions<TFnData, TVariables, Error>
 ): QueryHook<TFnData, TVariables, Error>
 
-export function createQuery<TFnData, TVariables = void, Error = unknown>(
+export function createQuery<TFnData, TVariables = any, Error = unknown>(
   primaryKey: string,
   options?: Omit<CreateQueryOptions<TFnData, TVariables, Error>, 'primaryKey'>
 ): QueryHook<TFnData, TVariables, Error>
 
-export function createQuery<TFnData, TVariables = void, Error = unknown>(
+export function createQuery<TFnData, TVariables = any, Error = unknown>(
   primaryKey: string,
   queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>,
   options?: Omit<
@@ -29,7 +29,7 @@ export function createQuery<TFnData, TVariables = void, Error = unknown>(
   >
 ): QueryHook<TFnData, TVariables, Error>
 
-export function createQuery<TFnData, TVariables = void, Error = unknown>(
+export function createQuery<TFnData, TVariables = any, Error = unknown>(
   arg1: any,
   arg2?: any,
   arg3?: any
