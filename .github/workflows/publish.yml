@@ -1,8 +1,8 @@
-name: "publish"
+name: 'publish'
 
-on: 
-  push: 
-    branches: 
+on:
+  push:
+    branches:
       - main
 
 jobs:
@@ -10,18 +10,17 @@ jobs:
     name: publish
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-        registry-url: https://registry.npmjs.org
-        cache: 'yarn'
-    - run: |
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org
+          cache: 'yarn'
+      - run: |
           git config --global user.name 'liaoliao666'
           git config --global user.email '1076988944@qq.com'
           yarn
           yarn test && yarn build
-    - name: publish
-      run: npm publish --access publish
-      env: 
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}

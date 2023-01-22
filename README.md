@@ -186,10 +186,10 @@ Returns
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createInfiniteQuery } from 'react-query-kit'
 
-type Data = { projects: { id: string; name: string }[]; nextCursor: number }
+type Response = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
-const useProjects = createInfiniteQuery<Data, Variables, Error>({
+const useProjects = createInfiniteQuery<Response, Variables, Error>({
   primaryKey: 'projects',
   queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
     return fetch(
@@ -371,6 +371,28 @@ import { inferVariables, inferData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
+```
+
+## Caution
+
+Since the `variables` type of `createQuery` or `createInfiniteQuery` defaults to `any`, the `variables` option of a custom hook can pass any value when you don't set the type of `varibables`, as below
+
+```ts
+const usePost = createQuery<Response>({...})
+usePost({
+  // This will not throw type errors
+  variables: {foo: 1}
+})
+```
+
+For stricter type validation, when you don't want to pass the `variables` option, I suggest you use the `void` type as the `variables` type, as shown below. When you pass value to variables, usePost will throw a TypeError.
+
+```ts
+const usePost = createQuery<Response, void>({...})
+usePost({
+  // This will throw a type error
+  variables: {foo: 1}
+})
 ```
 
 ## Issues

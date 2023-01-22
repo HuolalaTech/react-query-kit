@@ -181,10 +181,10 @@ Returns
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createInfiniteQuery } from 'react-query-kit'
 
-type Data = { projects: { id: string; name: string }[]; nextCursor: number }
+type Response = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
-const useProjects = createInfiniteQuery<Data, Variables, Error>({
+const useProjects = createInfiniteQuery<Response, Variables, Error>({
   primaryKey: 'projects',
   queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
     return fetch(
@@ -364,6 +364,28 @@ import { inferVariables, inferData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
+```
+
+## 注意事项
+
+由于 `createQuery` 或 `createInfiniteQuery` 的 `变量` 类型默认为 `any`，当你没有设置 `varibables` 的类型时，自定义钩子的 `varibables` 选项可以传递任何值，如下所示
+
+```ts
+const usePost = createQuery<Response>({...})
+usePost({
+  // 这将不会抛出类型错误
+  variables: {foo: 1}
+})
+```
+
+为了进行更严格的类型验证，当你不想传递`variables`选项时，我建议你使用`void`类型作为`variables`类型，如下图。当你向变量传递值时，usePost 会抛出一个 TypeError。
+
+```ts
+const usePost = createQuery<Response, void>({...})
+usePost({
+  // 这将抛出一个类型错误
+  variables: {foo: 1}
+})
 ```
 
 ## Issues
