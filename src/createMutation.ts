@@ -85,10 +85,8 @@ export function createMutation<
     })
   }
 
-  useGeneratedMutation.getKey = getKey
-  useGeneratedMutation.mutationFn = defaultOptions.mutationFn as NonNullable<
-    MutationFunction<TData, TVariables>
-  >
-
-  return useGeneratedMutation as CreateMutationResult<TData, TError, TVariables>
+  return Object.assign(useGeneratedMutation, {
+    getKey,
+    mutationFn: defaultOptions.mutationFn,
+  }) as CreateMutationResult<TData, TError, TVariables>
 }

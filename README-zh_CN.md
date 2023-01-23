@@ -40,7 +40,8 @@
   - [createQuery](#createQuery)
   - [createInfiniteQuery](#createInfiniteQuery)
   - [createMutation](#createMutation)
-  - [类型推倒](#类型推倒)
+  - [类型推导](#类型推导)
+  - [注意事项](#注意事项)
 - [问题](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -355,7 +356,7 @@ Returns
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
-## 类型推倒
+## 类型推导
 
 您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
 

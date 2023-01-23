@@ -63,10 +63,10 @@ export function createBaseQuery(
     return Object.assign(result, { queryKey, setData })
   }
 
-  useGeneratedQuery.getPrimaryKey = getPrimaryKey
-  useGeneratedQuery.getKey = getKey
-  useGeneratedQuery.queryFn = queryFn
-  useGeneratedQuery.queryKeyHashFn = queryKeyHashFn
-
-  return useGeneratedQuery
+  return Object.assign(useGeneratedQuery, {
+    getPrimaryKey,
+    getKey,
+    queryFn,
+    queryKeyHashFn,
+  })
 }
