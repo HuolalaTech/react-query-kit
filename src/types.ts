@@ -57,7 +57,7 @@ export type ExposeMethods<TFnData, TVariables> = {
 
 type QueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
   UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>,
-  'queryKey' | 'queryFn' | 'enabled'
+  'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
@@ -84,7 +84,7 @@ type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
     TFnData,
     QueryKitKey<TVariables>
   >,
-  'queryKey' | 'queryFn' | 'enabled'
+  'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
 > &
   AdditionalQueryHookOptions<TFnData, TVariables>
 
