@@ -1,4 +1,3 @@
-import { hashQueryKey } from '@tanstack/query-core'
 import type { SetDataOptions, UseBaseQueryOptions } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Updater } from '@tanstack/react-query/build/types/packages/query-core/src/utils'
@@ -24,7 +23,7 @@ export function createBaseQuery(
   const {
     primaryKey,
     queryFn,
-    queryKeyHashFn = hashQueryKey,
+    queryKeyHashFn,
     select: _select,
     ...defaultOptions
   } = options
