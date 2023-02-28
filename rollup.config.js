@@ -30,10 +30,16 @@ export default function rollup() {
     },
   }
 
-  return [esm(options), cjs(options), umdDev(options), umdProd(options)]
+  return [
+    mjs(options),
+    esm(options),
+    cjs(options),
+    umdDev(options),
+    umdProd(options),
+  ]
 }
 
-function esm({ input, external }) {
+function mjs({ input, external }) {
   return {
     // ESM
     external,
@@ -46,6 +52,26 @@ function esm({ input, external }) {
       entryFileNames: '[name].mjs',
     },
     plugins: [babelPlugin, nodeResolve({ extensions })],
+  }
+}
+
+function esm({ input, external }) {
+  return {
+    // ESM
+    external,
+    input,
+    output: {
+      format: 'esm',
+      dir: `build/lib`,
+      sourcemap: true,
+      preserveModules: true,
+      entryFileNames: '[name].esm.js',
+    },
+    plugins: [
+      babelPlugin,
+      commonJS(),
+      nodeResolve({ extensions: ['.ts', '.tsx', '.native.ts'] }),
+    ],
   }
 }
 

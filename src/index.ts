@@ -4,7 +4,7 @@ export * from './createQuery'
 export type {
   QueryHook,
   InfiniteQueryHook,
-  CreateMutationResult,
+  MutationHook,
   inferVariables,
   inferData,
 } from './types'

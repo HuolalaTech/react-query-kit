@@ -369,7 +369,7 @@ type Data = inferData<typeof usePost>
 
 ## 注意事项
 
-由于 `createQuery` 或 `createInfiniteQuery` 的 `变量` 类型默认为 `any`，当你没有设置 `varibables` 的类型时，自定义钩子的 `varibables` 选项可以传递任何值，如下所示
+由于 `createQuery` 或 `createInfiniteQuery` 的 `varibables` 类型默认为 `any`，当你没有设置 `varibables` 的类型时，自定义钩子的 `varibables` 选项可以传递任何值，如下所示
 
 ```ts
 const usePost = createQuery<Response>({...})

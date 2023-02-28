@@ -4,7 +4,7 @@ import type {
   UseMutationOptions,
 } from '@tanstack/react-query'
 import { parseMutationArgs, useMutation } from '@tanstack/react-query'
-import { CreateMutationResult } from './types'
+import type { MutationHook } from './types'
 
 export function createMutation<
   TData = unknown,
@@ -13,7 +13,7 @@ export function createMutation<
   TContext = unknown
 >(
   options: UseMutationOptions<TData, TError, TVariables, TContext>
-): CreateMutationResult<TData, TError, TVariables>
+): MutationHook<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -26,7 +26,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationFn'
   >
-): CreateMutationResult<TData, TError, TVariables>
+): MutationHook<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -39,7 +39,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationKey'
   >
-): CreateMutationResult<TData, TError, TVariables>
+): MutationHook<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -53,7 +53,7 @@ export function createMutation<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationKey' | 'mutationFn'
   >
-): CreateMutationResult<TData, TError, TVariables>
+): MutationHook<TData, TError, TVariables>
 
 export function createMutation<
   TData = unknown,
@@ -69,7 +69,7 @@ export function createMutation<
     | MutationFunction<TData, TVariables>
     | UseMutationOptions<TData, TError, TVariables, TContext>,
   arg3?: UseMutationOptions<TData, TError, TVariables, TContext>
-): CreateMutationResult<TData, TError, TVariables> {
+): MutationHook<TData, TError, TVariables> {
   const defaultOptions = parseMutationArgs(arg1, arg2, arg3)
   const getKey = () => defaultOptions.mutationKey
 
@@ -88,5 +88,5 @@ export function createMutation<
   return Object.assign(useGeneratedMutation, {
     getKey,
     mutationFn: defaultOptions.mutationFn,
-  }) as CreateMutationResult<TData, TError, TVariables>
+  }) as MutationHook<TData, TError, TVariables>
 }

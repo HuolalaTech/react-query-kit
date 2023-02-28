@@ -106,7 +106,7 @@ export interface InfiniteQueryHook<TFnData, TVariables, Error = unknown>
   }
 }
 
-export interface CreateMutationResult<TData, TError, TVariables> {
+export interface MutationHook<TData, TError, TVariables> {
   <TContext>(
     options?: Omit<
       UseMutationOptions<TData, TError, TVariables, TContext>,
@@ -121,7 +121,7 @@ export type inferVariables<T> = T extends QueryHook<any, infer TVariables, any>
   ? TVariables
   : T extends InfiniteQueryHook<any, infer TVariables, any>
   ? TVariables
-  : T extends CreateMutationResult<any, any, infer TVariables>
+  : T extends MutationHook<any, any, infer TVariables>
   ? TVariables
   : never
 
@@ -129,6 +129,6 @@ export type inferData<T> = T extends QueryHook<infer TData, any, any>
   ? TData
   : T extends InfiniteQueryHook<infer TData, any, any>
   ? InfiniteData<TData>
-  : T extends CreateMutationResult<infer TData, any, any>
+  : T extends MutationHook<infer TData, any, any>
   ? TData
   : never
