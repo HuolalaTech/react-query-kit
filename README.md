@@ -25,8 +25,6 @@
 - Make `queryClient`'s operations clearly associated with custom ReactQuery hooks
 - Set defaultOptions for custom ReactQuery hooks easier and clearer
 
-![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
-
 English | [简体中文](./README-zh_CN.md)
 
 ## Table of Contents
@@ -86,22 +84,18 @@ const usePost = createQuery<Response, Variables, Error>({
   },
   // if u only wanna fetch once
   enabled: (data) => !data,
-  suspense: true
-})
+  suspense: true,
+  // u can also pass default options like this
+  useDefaultOptions: () => {
+    const queryClient = useQueryClient()
 
-// or using the alternative syntax to create
-// const usePost = createQuery<Response, Variables, Error>(
-//   '/posts',
-//   ({ queryKey: [primaryKey, variables] }) => {
-//     // primaryKey equals to '/posts'
-//     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
-//   },
-//   {
-//     // if u only wanna fetch once
-//     enabled: (data) => !data,
-//     suspense: true
-//   }
-// )
+    return {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+      },
+    }
+  }
+})
 
 
 const variables = { id: 1 }
@@ -126,7 +120,10 @@ console.log(usePost.getKey(variables)) //  ['/posts', { id: 1 }]
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchQuery(usePost.getKey(variables), usePost.queryFn)
+  await queryClient.prefetchQuery({
+    queryKey: usePost.getKey(variables), 
+    queryFn: usePost.queryFn
+  })
 
   return {
     props: {
@@ -136,10 +133,10 @@ export async function getStaticProps() {
 }
 
 // usage outside of react component
-const data = await queryClient.fetchQuery(
-  usePost.getKey(variables),
-  usePost.queryFn
-)
+const data = await queryClient.fetchQuery({
+  queryKey: usePost.getKey(variables), 
+  queryFn: usePost.queryFn
+})
 
 // useQueries example
 const queries = useQueries({
@@ -164,6 +161,9 @@ Options
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
+- `useDefaultOptions: () => QueryHookOptions`
+  - Optional
+  - If u wanna inject return values from hooks into query, u can use this option.
 
 Expose Methods
 
@@ -238,10 +238,10 @@ export default function Page() {
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchInfiniteQuery(
-    useProjects.getKey(variables),
-    useProjects.queryFn
-  )
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: useProjects.getKey(variables),
+    queryFn: useProjects.queryFn,
+  })
 
   return {
     props: {
@@ -251,10 +251,17 @@ export async function getStaticProps() {
 }
 
 // usage outside of react component
-const data = await queryClient.fetchInfiniteQuery(
-  useProjects.getKey(variables),
-  useProjects.queryFn
-)
+const data = await queryClient.fetchInfiniteQuery({
+  queryKey: useProjects.getKey(variables),
+  queryFn: useProjects.queryFn,
+})
+
+
+// usage outside of react component
+const data = await queryClient.fetchInfiniteQuery({
+  queryKey: useProjects.getKey(variables),
+  queryFn: useProjects.queryFn,
+})
 ```
 
 ### Additional API Reference
@@ -268,6 +275,9 @@ Options
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
+- `useDefaultOptions: () => InfiniteQueryHookOptions`
+  - Optional
+  - If u wanna inject return values from hooks into query, u can use this option.
 
 Expose Methods
 
@@ -290,8 +300,8 @@ Returns
 ```tsx
 import { createMutation } from 'react-query-kit'
 
-const useAddTodo = createMutation(
-  async (variables: { title: string; content: string }) =>
+const useAddTodo = createMutation({
+  mutationFn: async (variables: { title: string; content: string }) =>
     fetch('/post', {
       method: 'POST',
       headers: {
@@ -300,25 +310,10 @@ const useAddTodo = createMutation(
       },
       body: JSON.stringify(variables),
     }).then(res => res.json()),
-  {
-    onSuccess(data, variables, context) {
-      // do somethings
-    },
-  }
-)
-
-// or using the alternative syntax to create
-// const useAddTodo = createMutation<TData, { title: string; content: string }>(
-//   async (variables) =>
-//     fetch('/post', {
-//       method: 'POST',
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(variables),
-//     }).then(res => res.json()),
-// )
+  onSuccess(data, variables, context) {
+    // do somethings
+  },
+})
 
 function App() {
   const mutation = useAddTodo({
@@ -357,6 +352,12 @@ useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 ```
 
 ### Additional API Reference
+
+Options
+
+- `useDefaultOptions: () => MutationHookOptions`
+  - Optional
+  - If u wanna inject return values from hooks into mutation, u can use this option.
 
 Returns
 

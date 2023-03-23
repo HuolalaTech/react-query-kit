@@ -8,7 +8,9 @@ import type {
 
 interface CreateQueryOptions
   extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
-    AdditionalCreateOptions<any, any> {}
+    AdditionalCreateOptions<any, any> {
+  useDefaultOptions?: () => QueryBaseHookOptions
+}
 
 type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
@@ -17,30 +19,35 @@ type QueryBaseHookOptions = Omit<
   AdditionalQueryHookOptions<any, any>
 
 export function createBaseQuery(
-  options: CreateQueryOptions,
+  options: any,
   useRQHook: (options: any) => any
 ): any {
   const {
     primaryKey,
     queryFn,
     queryKeyHashFn,
-    select: _select,
+    useDefaultOptions,
     ...defaultOptions
-  } = options
+  } = options as CreateQueryOptions
 
   const getPrimaryKey = () => primaryKey
 
   const getKey = (variables?: any) =>
     typeof variables === 'undefined' ? [primaryKey] : [primaryKey, variables]
 
-  function useGeneratedQuery(options?: QueryBaseHookOptions) {
-    const { variables, ...restOptions } = options || {}
+  const useGeneratedQuery = (options?: QueryBaseHookOptions) => {
+    const { select: _select, ...prevOptions } = {
+      ...defaultOptions,
+      ...useDefaultOptions?.(),
+    }
+
+    const { variables, ...currOptions } = options || {}
 
     const queryKey = getKey(variables)
 
     const { enabled, ...mergedOptions } = {
-      ...defaultOptions,
-      ...restOptions,
+      ...prevOptions,
+      ...currOptions,
       queryKeyHashFn,
       queryFn,
       queryKey,

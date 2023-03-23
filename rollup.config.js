@@ -23,10 +23,9 @@ export default function rollup() {
   const options = {
     input: 'src/index.ts',
     jsName: 'ReactQueryKit',
-    external: ['@tanstack/react-query', '@tanstack/query-core'],
+    external: ['@tanstack/react-query'],
     globals: {
       '@tanstack/react-query': 'ReactQuery',
-      '@tanstack/query-core': 'QueryCore',
     },
   }
 
@@ -51,7 +50,7 @@ function mjs({ input, external }) {
       preserveModules: true,
       entryFileNames: '[name].mjs',
     },
-    plugins: [babelPlugin, nodeResolve({ extensions })],
+    plugins: [babelPlugin, commonJS(), nodeResolve({ extensions })],
   }
 }
 
@@ -67,11 +66,7 @@ function esm({ input, external }) {
       preserveModules: true,
       entryFileNames: '[name].esm.js',
     },
-    plugins: [
-      babelPlugin,
-      commonJS(),
-      nodeResolve({ extensions: ['.ts', '.tsx', '.native.ts'] }),
-    ],
+    plugins: [babelPlugin, commonJS(), nodeResolve({ extensions })],
   }
 }
 

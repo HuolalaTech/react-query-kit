@@ -1,23 +1,22 @@
-import { QueryClient } from '@tanstack/react-query'
 import { createQuery } from '../src/createQuery'
 
-const queryClient = new QueryClient()
-
 it('createQuery', () => {
-  type PrimaryKey = string
-  type Variables = number
+  type Response = { title: string; content: string }
+  type Variables = { id: number }
 
-  const primaryKey: PrimaryKey = 'primaryKey'
-  const variables: Variables = 1
-  const queryKey: [PrimaryKey, Variables] = [primaryKey, variables]
-  const query = createQuery<[PrimaryKey, Variables], Variables>({
+  const primaryKey = '/posts'
+  const variables = { id: 1 }
+
+  const query = createQuery<Response, Variables, Error>({
     primaryKey,
-    queryFn: ({ queryKey }) => queryKey,
+    queryFn: ({ queryKey: [primaryKey, variables] }) => {
+      return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+    },
+    enabled: data => !data,
+    suspense: true,
   })
 
   expect(query.getPrimaryKey()).toBe(primaryKey)
-  expect(query.getKey(variables)).toEqual(queryKey)
-  queryClient
-    .fetchQuery(queryKey, query.queryFn)
-    .then(data => expect(data).toEqual(queryKey))
+  expect(query.getKey()).toEqual([primaryKey])
+  expect(query.getKey(variables)).toEqual([primaryKey, variables])
 })

@@ -26,11 +26,15 @@ export type AdditionalCreateOptions<TFnData, TVariables> = {
     | ((data: TFnData | undefined, variables: TVariables) => boolean)
 }
 
-export type AdditionalQueryHookOptions<TFnData, TVariables> = {
+export type AdditionalQueryHookOptions<
+  TFnData,
+  TVariables,
+  TOptVariables = TVariables
+> = {
   enabled?:
     | boolean
     | ((data: TFnData | undefined, variables: TVariables) => boolean)
-} & (TVariables extends void
+} & (TOptVariables extends void
   ? {
       variables?: TVariables
     }
@@ -55,18 +59,34 @@ export type ExposeMethods<TFnData, TVariables> = {
   queryKeyHashFn: QueryKeyHashFunction<QueryKitKey<TVariables>>
 }
 
-type QueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
+export type QueryHookOptions<
+  TFnData,
+  Error,
+  TData,
+  TVariables,
+  TOptVariables = TVariables
+> = Omit<
   UseQueryOptions<TFnData, Error, TData, QueryKitKey<TVariables>>,
   'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables>
+  AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
 
-export interface QueryHook<TFnData, TVariables, Error>
-  extends ExposeMethods<TFnData, TVariables> {
+export interface QueryHook<
+  TFnData,
+  TVariables,
+  Error,
+  TOptVariables = TVariables
+> extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
-    options: TVariables extends void
-      ? QueryHookOptions<TFnData, Error, TData, TVariables> | void
-      : QueryHookOptions<TFnData, Error, TData, TVariables>
+    options: TOptVariables extends void
+      ? QueryHookOptions<
+          TFnData,
+          Error,
+          TData,
+          TVariables,
+          TOptVariables
+        > | void
+      : QueryHookOptions<TFnData, Error, TData, TVariables, TOptVariables>
   ): UseQueryResult<TData, Error> & {
     queryKey: QueryKitKey<TVariables>
     setData: (
@@ -76,7 +96,13 @@ export interface QueryHook<TFnData, TVariables, Error>
   }
 }
 
-type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
+export type InfiniteQueryHookOptions<
+  TFnData,
+  Error,
+  TData,
+  TVariables,
+  TOptVariables = TVariables
+> = Omit<
   UseInfiniteQueryOptions<
     TFnData,
     Error,
@@ -86,14 +112,30 @@ type InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> = Omit<
   >,
   'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables>
+  AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
 
-export interface InfiniteQueryHook<TFnData, TVariables, Error = unknown>
-  extends ExposeMethods<TFnData, TVariables> {
+export interface InfiniteQueryHook<
+  TFnData,
+  TVariables,
+  Error = unknown,
+  TOptVariables = TVariables
+> extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
-    options: TVariables extends void
-      ? InfiniteQueryHookOptions<TFnData, Error, TData, TVariables> | void
-      : InfiniteQueryHookOptions<TFnData, Error, TData, TVariables>
+    options: TOptVariables extends void
+      ? InfiniteQueryHookOptions<
+          TFnData,
+          Error,
+          TData,
+          TVariables,
+          TOptVariables
+        > | void
+      : InfiniteQueryHookOptions<
+          TFnData,
+          Error,
+          TData,
+          TVariables,
+          TOptVariables
+        >
   ): UseInfiniteQueryResult<TData, Error> & {
     queryKey: QueryKitKey<TVariables>
     setData: (
@@ -106,12 +148,14 @@ export interface InfiniteQueryHook<TFnData, TVariables, Error = unknown>
   }
 }
 
+export type MutationHookOptions<TData, TError, TVariables, TContext> = Omit<
+  UseMutationOptions<TData, TError, TVariables, TContext>,
+  'mutationFn' | 'mutationKey'
+>
+
 export interface MutationHook<TData, TError, TVariables> {
   <TContext>(
-    options?: Omit<
-      UseMutationOptions<TData, TError, TVariables, TContext>,
-      'mutationFn' | 'mutationKey'
-    >
+    options?: MutationHookOptions<TData, TError, TVariables, TContext>
   ): UseMutationResult<TData, TError, TVariables, TContext>
   getKey: () => MutationKey | undefined
   mutationFn: MutationFunction<TData, TVariables>

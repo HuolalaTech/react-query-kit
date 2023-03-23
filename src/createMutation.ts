@@ -1,86 +1,38 @@
-import type {
-  MutationFunction,
-  MutationKey,
-  UseMutationOptions,
-} from '@tanstack/react-query'
-import { parseMutationArgs, useMutation } from '@tanstack/react-query'
-import type { MutationHook } from './types'
+import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { MutationHook, MutationHookOptions } from './types'
 
-export function createMutation<
-  TData = unknown,
-  TVariables = void,
-  TError = unknown,
-  TContext = unknown
->(
-  options: UseMutationOptions<TData, TError, TVariables, TContext>
-): MutationHook<TData, TError, TVariables>
-
-export function createMutation<
-  TData = unknown,
-  TVariables = void,
-  TError = unknown,
-  TContext = unknown
->(
-  mutationFn: MutationFunction<TData, TVariables>,
-  options?: Omit<
-    UseMutationOptions<TData, TError, TVariables, TContext>,
-    'mutationFn'
+interface CreateMutationOptions<TData, TError, TVariables, TContext>
+  extends UseMutationOptions<TData, TError, TVariables, TContext> {
+  useDefaultOptions?: () => MutationHookOptions<
+    TData,
+    TError,
+    TVariables,
+    TContext
   >
-): MutationHook<TData, TError, TVariables>
+}
 
 export function createMutation<
   TData = unknown,
   TVariables = void,
   TError = unknown,
   TContext = unknown
->(
-  mutationKey: MutationKey,
-  options?: Omit<
-    UseMutationOptions<TData, TError, TVariables, TContext>,
-    'mutationKey'
-  >
-): MutationHook<TData, TError, TVariables>
-
-export function createMutation<
-  TData = unknown,
-  TVariables = void,
-  TError = unknown,
-  TContext = unknown
->(
-  mutationKey: MutationKey,
-  mutationFn?: MutationFunction<TData, TVariables>,
-  options?: Omit<
-    UseMutationOptions<TData, TError, TVariables, TContext>,
-    'mutationKey' | 'mutationFn'
-  >
-): MutationHook<TData, TError, TVariables>
-
-export function createMutation<
-  TData = unknown,
-  TVariables = void,
-  TError = unknown,
-  TContext = unknown
->(
-  arg1:
-    | MutationKey
-    | MutationFunction<TData, TVariables>
-    | UseMutationOptions<TData, TError, TVariables, TContext>,
-  arg2?:
-    | MutationFunction<TData, TVariables>
-    | UseMutationOptions<TData, TError, TVariables, TContext>,
-  arg3?: UseMutationOptions<TData, TError, TVariables, TContext>
-): MutationHook<TData, TError, TVariables> {
-  const defaultOptions = parseMutationArgs(arg1, arg2, arg3)
+>({
+  useDefaultOptions,
+  ...defaultOptions
+}: CreateMutationOptions<TData, TError, TVariables, TContext>): MutationHook<
+  TData,
+  TError,
+  TVariables
+> {
   const getKey = () => defaultOptions.mutationKey
 
-  function useGeneratedMutation(
-    options?: Omit<
-      UseMutationOptions<TData, TError, TVariables, TContext>,
-      'mutationFn' | 'mutationKey'
-    >
-  ) {
+  const useGeneratedMutation = (
+    options?: MutationHookOptions<TData, TError, TVariables, TContext>
+  ) => {
     return useMutation({
       ...defaultOptions,
+      ...useDefaultOptions?.(),
       ...options,
     })
   }

@@ -25,8 +25,6 @@
 - 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery 钩子
 - 为自定义 ReactQuery 钩子设置默认选项更容易和更清晰
 
-![react-query-kit.gif](https://files.catbox.moe/9na7tp.gif)
-
 [English](./README.md) | 简体中文
 
 ## Table of Contents
@@ -86,21 +84,6 @@ const usePost = createQuery<Response, Variables, Error>({
   suspense: true
 })
 
-// 你也可以使用以下的语法来创建自定义hook
-// const usePost = createQuery<Response, Variables, Error>(
-//   '/posts',
-//   ({ queryKey: [primaryKey, variables] }) => {
-//     // primaryKey 相等于 '/posts'
-//     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
-//   },
-//   {
-//     // if u only wanna fetch once
-//     enabled: (data) => !data,
-//     suspense: true
-//   }
-// )
-
-
 const variables = { id: 1 }
 
 // example
@@ -158,9 +141,12 @@ Options
   - 必填
   - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - Optional
+  - 可选
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
+- `useDefaultOptions: () => QueryHookOptions`
+  - 可选
+  - 如果你想将其他钩子的返回值注入到当前query中，你可以使用这个选项。
 
 Expose Methods
 
@@ -260,9 +246,12 @@ Options
   - 必填
   - `primaryKey` 将是 `queryKey` 数组的第一个元素
 - `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - Optional
+  - 可选
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
+- `useDefaultOptions: () => InfiniteQueryHookOptions`
+  - 可选
+  - 如果你想将其他钩子的返回值注入到当前query中，你可以使用这个选项。
 
 Expose Methods
 
@@ -299,19 +288,6 @@ const useAddTodo = createMutation(
     },
   }
 )
-
-// 你也可以使用以下的语法来创建自定义hook
-// const useAddTodo = createMutation<TData, { title: string; content: string }>(
-//   async (variables) =>
-//     fetch('/post', {
-//       method: 'POST',
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(variables),
-//     }).then(res => res.json()),
-// )
 
 function App() {
   const mutation = useAddTodo({
@@ -350,6 +326,13 @@ useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 ```
 
 ### 额外的 API 文档
+
+Options
+
+- `useDefaultOptions: () => MutationHookOptions`
+  - 可选
+  - 如果你想将其他钩子的返回值注入到当前mutation中，你可以使用这个选项。
+
 
 Returns
 
