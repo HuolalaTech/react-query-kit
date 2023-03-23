@@ -1,6 +1,6 @@
 {
   "name": "react-query-kit",
-  "version": "1.5.0",
+  "version": "1.4.0",
   "description": "🕊️ A toolkit for ReactQuery that make ReactQuery hooks more reusable and typesafe",
   "author": "liaoliao666",
   "repository": "liaoliao666/react-query-kit",
