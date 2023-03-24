@@ -26,7 +26,7 @@ export function createInfiniteQuery<TFnData, TVariables = any, Error = unknown>(
     useDefaultOptions: () => Omit<
       InfiniteQueryHookOptions<TFnData, Error, TFnData, TVariables>,
       'select'
-    > & { variables: TVariables | void }
+    > & { variables: TVariables }
   }
 ): InfiniteQueryHook<TFnData, TVariables, Error, TVariables | void>
 
