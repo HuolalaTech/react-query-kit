@@ -85,14 +85,11 @@ const usePost = createQuery<Response, Variables, Error>({
   // if u only wanna fetch once
   enabled: (data) => !data,
   suspense: true,
-  // u can also pass default options like this
+  // u can also pass default options via useDefaultOptions
   useDefaultOptions: () => {
-    const queryClient = useQueryClient()
-
+    const { id } = useSomething()
     return {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      },
+      variables: { id }
     }
   }
 })

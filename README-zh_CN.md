@@ -81,7 +81,14 @@ const usePost = createQuery<Response, Variables, Error>({
   },
   // 如果你只想在有id时且没有数据时请求，可以这么设置
   enabled: (data, variables) => !data && variables.id,
-  suspense: true
+  suspense: true,
+   // 你也可以通过 useDefaultOptions 传入默认选项
+  useDefaultOptions: () => {
+    const { id } = useSomething()
+    return {
+      variables: { id }
+    }
+  }
 })
 
 const variables = { id: 1 }

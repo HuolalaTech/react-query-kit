@@ -35,13 +35,14 @@ export function createBaseQuery(
   const getKey = (variables?: any) =>
     typeof variables === 'undefined' ? [primaryKey] : [primaryKey, variables]
 
-  const useGeneratedQuery = (options?: QueryBaseHookOptions) => {
+  const useGeneratedQuery = ({
+    variables,
+    ...currOptions
+  }: QueryBaseHookOptions = {}) => {
     const { select: _select, ...prevOptions } = {
       ...defaultOptions,
       ...useDefaultOptions?.(),
     }
-
-    const { variables, ...currOptions } = options || {}
 
     const queryKey = getKey(variables)
 
