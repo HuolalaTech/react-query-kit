@@ -1,10 +1,13 @@
 import { createInfiniteQuery } from '../src/createInfiniteQuery'
 
 it('createInfiniteQuery', () => {
-  type Response = { title: string; content: string }
+  type Response = {
+    projects: { id: string; name: string }[]
+    nextCursor: number
+  }
   type Variables = { id: number }
 
-  const primaryKey = '/posts'
+  const primaryKey = '/projects'
   const variables = { id: 1 }
 
   const query = createInfiniteQuery<Response, Variables, Error>({
@@ -12,6 +15,8 @@ it('createInfiniteQuery', () => {
     queryFn: ({ queryKey: [primaryKey, variables] }) => {
       return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
     },
+    defaultPageParam: 1,
+    getNextPageParam: lastPage => lastPage.nextCursor,
     enabled: data => !data,
     suspense: true,
   })
