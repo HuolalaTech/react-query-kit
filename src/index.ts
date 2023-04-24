@@ -10,4 +10,5 @@ export type {
   MutationHook,
   inferVariables,
   inferData,
+  inferFnData,
 } from './types'

@@ -1495,19 +1495,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@tanstack/query-core@4.2.3":
-  version "4.2.3"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack%2fquery-core/-/query-core-4.2.3.tgz#52d75430c9662cc85c160761c1421de483c7791f"
-  integrity sha512-zdt5lYWs1dZaA3IxJbCgtAfHZJScRZONpiLL7YkeOkrme5MfjQqTpjq7LYbzpyuwPOh2Jx68le0PLl57JFv5hQ==
+"@tanstack/query-core@5.0.0-alpha.19":
+  version "5.0.0-alpha.19"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.19.tgz#f71a88ae75e37a5c82dfc17b09a854740c12707c"
+  integrity sha512-3W30tOF9TKXdG2Ke2c+DHIVLkTTOK+4Zcynre6qDMjd6/xvK/hLhk0FYyrPAhLoxlqPrMS/4RqHjNGay7g19bQ==
 
-"@tanstack/react-query@^4.2.3":
-  version "4.2.3"
-  resolved "https://mirrors.tencent.com/npm/@tanstack%2freact-query/-/react-query-4.2.3.tgz#782fd0f84553ba6219f1137a12ea28ab8cd3a3f3"
-  integrity sha512-JLaMOxoJTkiAu7QpevRCt2uI/0vd3E8K/rSlCuRgWlcW5DeJDFpDS5kfzmLO5MOcD97fgsJRrDbxDORxR1FdJA==
+"@tanstack/react-query@^5.0.0-alpha.19":
+  version "5.0.0-alpha.19"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.19.tgz#d5bad1b99de89a3237013189b9764d9649264b5c"
+  integrity sha512-hXkvGtxLVrzZOYJEra32LcfatNUz1NqEIsQjD//aG8c7fD4/9Bou6DmIZMaQu1CRTSs9yiUWzUFmhSxAhnJN+Q==
   dependencies:
-    "@tanstack/query-core" "4.2.3"
-    "@types/use-sync-external-store" "^0.0.3"
-    use-sync-external-store "^1.2.0"
+    "@tanstack/query-core" "5.0.0-alpha.19"
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -1657,11 +1655,6 @@
   version "2.0.1"
   resolved "https://mirrors.cloud.tencent.com/npm/@types%2fstack-utils/-/stack-utils-2.0.1.tgz"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
-
-"@types/use-sync-external-store@^0.0.3":
-  version "0.0.3"
-  resolved "https://mirrors.cloud.tencent.com/npm/@types%2fuse-sync-external-store/-/use-sync-external-store-0.0.3.tgz"
-  integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
 
 "@types/yargs-parser@*":
   version "21.0.0"
@@ -5183,11 +5176,6 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
-
-use-sync-external-store@^1.2.0:
-  version "1.2.0"
-  resolved "https://mirrors.cloud.tencent.com/npm/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz"
-  integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
 
 util-deprecate@^1.0.1:
   version "1.0.2"

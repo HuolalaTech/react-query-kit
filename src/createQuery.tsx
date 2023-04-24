@@ -1,8 +1,9 @@
-import type { UseQueryOptions } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { createBaseQuery } from './createBaseQuery'
 import type {
   AdditionalCreateOptions,
+  CompatibleWithV4,
   QueryHook,
   QueryHookOptions,
   QueryKitKey,
@@ -21,7 +22,8 @@ export function createQuery<TFnData, TVariables = any, Error = unknown>(
       QueryHookOptions<TFnData, Error, TFnData, TVariables>,
       'select'
     > & { variables: TVariables }
-  }
+  },
+  queryClient?: CompatibleWithV4<QueryClient, void>
 ): QueryHook<TFnData, TVariables, Error, TVariables | void>
 
 export function createQuery<TFnData, TVariables = any, Error = unknown>(
@@ -30,13 +32,15 @@ export function createQuery<TFnData, TVariables = any, Error = unknown>(
       QueryHookOptions<TFnData, Error, TFnData, TVariables>,
       'select' | 'variables'
     >
-  }
+  },
+  queryClient?: CompatibleWithV4<QueryClient, void>
 ): QueryHook<TFnData, TVariables, Error, TVariables>
 
 export function createQuery<TFnData, TVariables = any, Error = unknown>(
-  options: CreateQueryOptions<TFnData, TVariables, Error>
+  options: CreateQueryOptions<TFnData, TVariables, Error>,
+  queryClient?: CompatibleWithV4<QueryClient, void>
 ): QueryHook<TFnData, TVariables, Error, TVariables>
 
-export function createQuery(options: any) {
-  return createBaseQuery(options, useQuery)
+export function createQuery(options: any, queryClient?: any) {
+  return createBaseQuery(options, useQuery, queryClient)
 }

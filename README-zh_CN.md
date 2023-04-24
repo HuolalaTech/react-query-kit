@@ -180,12 +180,13 @@ type Variables = { active: boolean }
 
 const useProjects = createInfiniteQuery<Response, Variables, Error>({
   primaryKey: 'projects',
-  queryFn: ({ queryKey: [_primaryKey, variables], pageParam = 1 }) => {
+  queryFn: ({ queryKey: [_primaryKey, variables], pageParam }) => {
     return fetch(
       `/projects?cursor=${pageParam}?active=${variables.active}`
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+  defaultPageParam: 1
 })
 
 const variables = { active: true }
@@ -305,7 +306,7 @@ function App() {
 
   return (
     <div>
-      {mutation.isLoading ? (
+      {mutation.isPending ? (
         'Adding todo...'
       ) : (
         <>
@@ -355,6 +356,7 @@ import { inferVariables, inferData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
+type FnData = inferFnData<typeof usePost>
 ```
 
 ## 注意事项

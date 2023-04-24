@@ -1,6 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import type { UseMutationOptions } from '@tanstack/react-query'
-import type { MutationHook, MutationHookOptions } from './types'
+import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  CompatibleWithV4,
+  MutationHook,
+  MutationHookOptions,
+} from './types'
 
 interface CreateMutationOptions<TData, TError, TVariables, TContext>
   extends UseMutationOptions<TData, TError, TVariables, TContext> {
@@ -17,24 +21,26 @@ export function createMutation<
   TVariables = void,
   TError = unknown,
   TContext = unknown
->({
-  useDefaultOptions,
-  ...defaultOptions
-}: CreateMutationOptions<TData, TError, TVariables, TContext>): MutationHook<
-  TData,
-  TError,
-  TVariables
-> {
+>(
+  {
+    useDefaultOptions,
+    ...defaultOptions
+  }: CreateMutationOptions<TData, TError, TVariables, TContext>,
+  queryClient?: CompatibleWithV4<QueryClient, void>
+): MutationHook<TData, TError, TVariables> {
   const getKey = () => defaultOptions.mutationKey
 
   const useGeneratedMutation = (
     options?: MutationHookOptions<TData, TError, TVariables, TContext>
   ) => {
-    return useMutation({
-      ...defaultOptions,
-      ...useDefaultOptions?.(),
-      ...options,
-    })
+    return useMutation(
+      {
+        ...defaultOptions,
+        ...useDefaultOptions?.(),
+        ...options,
+      },
+      queryClient
+    )
   }
 
   return Object.assign(useGeneratedMutation, {

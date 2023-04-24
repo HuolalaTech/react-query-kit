@@ -3,6 +3,7 @@ import type {
   MutationFunction,
   MutationKey,
   QueryFunction,
+  QueryKey,
   QueryKeyHashFunction,
   SetDataOptions,
   UseInfiniteQueryOptions,
@@ -12,15 +13,60 @@ import type {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query'
-import type { Updater } from '@tanstack/react-query/build/types/packages/query-core/src/utils'
+
+export declare type DataUpdateFunction<TInput, TOutput> = (
+  input: TInput
+) => TOutput
+export declare type Updater<TInput, TOutput> =
+  | TOutput
+  | DataUpdateFunction<TInput, TOutput>
+
+export type CompatibleWithV4<V5, V4> =
+  InfiniteData<unknown> extends UseInfiniteQueryResult<
+    InfiniteData<unknown>
+  >['data']
+    ? V5
+    : V4
+
+export type CompatibleQueryFunction<
+  T = unknown,
+  TQueryKey extends QueryKey = QueryKey,
+  TPageParam = unknown
+> = CompatibleWithV4<
+  QueryFunction<T, TQueryKey, TPageParam>,
+  QueryFunction<T, TQueryKey>
+>
+
+export type CompatibleUseInfiniteQueryOptions<
+  TFnData,
+  TVariables,
+  Error,
+  TPageParam
+> = CompatibleWithV4<
+  UseInfiniteQueryOptions<
+    TFnData,
+    Error,
+    InfiniteData<TFnData>,
+    TFnData,
+    QueryKitKey<TVariables>,
+    TPageParam
+  >,
+  UseInfiniteQueryOptions<
+    TFnData,
+    Error,
+    TFnData,
+    TFnData,
+    QueryKitKey<TVariables>
+  >
+>
 
 export type QueryKitKey<TVariables> = TVariables extends void
   ? [string]
   : [string, TVariables]
 
-export type AdditionalCreateOptions<TFnData, TVariables> = {
+export type AdditionalCreateOptions<TFnData, TVariables, TPageParam = never> = {
   primaryKey: string
-  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+  queryFn: CompatibleQueryFunction<TFnData, QueryKitKey<TVariables>, TPageParam>
   enabled?:
     | boolean
     | ((data: TFnData | undefined, variables: TVariables) => boolean)
@@ -50,12 +96,12 @@ type PartialQueryKitKey<TVariables> = TVariables extends Record<any, any>
       | void
   : TVariables | void
 
-export type ExposeMethods<TFnData, TVariables> = {
+export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
   getPrimaryKey: () => string
   getKey: <V extends PartialQueryKitKey<TVariables> | void = void>(
     variables?: V
   ) => QueryKitKey<V>
-  queryFn: QueryFunction<TFnData, QueryKitKey<TVariables>>
+  queryFn: CompatibleQueryFunction<TFnData, QueryKitKey<TVariables>, TPageParam>
   queryKeyHashFn: QueryKeyHashFunction<QueryKitKey<TVariables>>
 }
 
@@ -99,18 +145,18 @@ export interface QueryHook<
 export type InfiniteQueryHookOptions<
   TFnData,
   Error,
-  TData,
   TVariables,
-  TOptVariables = TVariables
+  TOptVariables = TVariables,
+  TPageParam = number
 > = Omit<
-  UseInfiniteQueryOptions<
-    TFnData,
-    Error,
-    TData,
-    TFnData,
-    QueryKitKey<TVariables>
-  >,
-  'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
+  CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
+  | 'queryKey'
+  | 'queryFn'
+  | 'queryKeyHashFn'
+  | 'enabled'
+  | 'defaultPageParam'
+  | 'getPreviousPageParam'
+  | 'getNextPageParam'
 > &
   AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
 
@@ -118,33 +164,31 @@ export interface InfiniteQueryHook<
   TFnData,
   TVariables,
   Error = unknown,
-  TOptVariables = TVariables
-> extends ExposeMethods<TFnData, TVariables> {
-  <TData = TFnData>(
+  TOptVariables = TVariables,
+  TPageParam = number
+> extends ExposeMethods<TFnData, TVariables, TPageParam> {
+  <TData = InfiniteData<TFnData>>(
     options: TOptVariables extends void
       ? InfiniteQueryHookOptions<
           TFnData,
           Error,
-          TData,
           TVariables,
-          TOptVariables
+          TOptVariables,
+          TPageParam
         > | void
       : InfiniteQueryHookOptions<
           TFnData,
           Error,
-          TData,
           TVariables,
-          TOptVariables
+          TOptVariables,
+          TPageParam
         >
-  ): UseInfiniteQueryResult<TData, Error> & {
+  ): UseInfiniteQueryResult<CompatibleWithV4<TData, TFnData>, Error> & {
     queryKey: QueryKitKey<TVariables>
     setData: (
-      updater: Updater<
-        InfiniteData<TFnData> | undefined,
-        InfiniteData<TFnData> | undefined
-      >,
+      updater: Updater<TData | undefined, TData | undefined>,
       options?: SetDataOptions
-    ) => InfiniteData<TFnData> | undefined
+    ) => TData | undefined
   }
 }
 
@@ -173,6 +217,14 @@ export type inferData<T> = T extends QueryHook<infer TData, any, any>
   ? TData
   : T extends InfiniteQueryHook<infer TData, any, any>
   ? InfiniteData<TData>
+  : T extends MutationHook<infer TData, any, any>
+  ? TData
+  : never
+
+export type inferFnData<T> = T extends QueryHook<infer TData, any, any>
+  ? TData
+  : T extends InfiniteQueryHook<infer TData, any, any>
+  ? TData
   : T extends MutationHook<infer TData, any, any>
   ? TData
   : never
