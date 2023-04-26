@@ -367,7 +367,7 @@ Returns
 You can extract the TypeScript type of any custom hook with `inferVariables` or `inferData`
 
 ```ts
-import { inferVariables, inferData } from 'react-query-kit'
+import { inferVariables, inferData, inferFnData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>

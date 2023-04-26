@@ -40,12 +40,16 @@ export function createBaseQuery(
     variables,
     ...currOptions
   }: QueryBaseHookOptions = {}) => {
-    const { select: _select, ...prevOptions } = {
+    const {
+      select: _select,
+      variables: prevVariables,
+      ...prevOptions
+    } = {
       ...defaultOptions,
       ...useDefaultOptions?.(),
-    }
+    } as QueryBaseHookOptions
 
-    const queryKey = getKey(variables)
+    const queryKey = getKey(variables ?? prevVariables)
 
     const { enabled, ...mergedOptions } = {
       ...prevOptions,
@@ -56,7 +60,6 @@ export function createBaseQuery(
     }
 
     const client = useQueryClient(
-      // @ts-ignore
       mergedOptions.context ? { context: mergedOptions.context } : queryClient
     )
 

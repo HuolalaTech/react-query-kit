@@ -352,7 +352,7 @@ Returns
 您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
-import { inferVariables, inferData } from 'react-query-kit'
+import { inferVariables, inferData, inferFnData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
