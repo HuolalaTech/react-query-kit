@@ -5,6 +5,7 @@ import type {
   AdditionalQueryHookOptions,
   Updater,
 } from './types'
+import { isUndefined } from './utils'
 
 interface CreateQueryOptions
   extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
@@ -34,10 +35,10 @@ export function createBaseQuery(
   const getPrimaryKey = () => primaryKey
 
   const getKey = (variables?: any) =>
-    typeof variables === 'undefined' ? [primaryKey] : [primaryKey, variables]
+    isUndefined(variables) ? [primaryKey] : [primaryKey, variables]
 
   const useGeneratedQuery = ({
-    variables,
+    variables: currVariables,
     ...currOptions
   }: QueryBaseHookOptions = {}) => {
     const {
@@ -49,7 +50,9 @@ export function createBaseQuery(
       ...useDefaultOptions?.(),
     } as QueryBaseHookOptions
 
-    const queryKey = getKey(variables ?? prevVariables)
+    const variables = isUndefined(currVariables) ? prevVariables : currVariables
+
+    const queryKey = getKey(variables)
 
     const { enabled, ...mergedOptions } = {
       ...prevOptions,
