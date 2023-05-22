@@ -5,7 +5,6 @@ import type {
   AdditionalQueryHookOptions,
   Updater,
 } from './types'
-import { isUndefined } from './utils'
 
 interface CreateQueryOptions
   extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
@@ -35,54 +34,39 @@ export function createBaseQuery(
   const getPrimaryKey = () => primaryKey
 
   const getKey = (variables?: any) =>
-    isUndefined(variables) ? [primaryKey] : [primaryKey, variables]
+    variables === undefined ? [primaryKey] : [primaryKey, variables]
 
-  const useGeneratedQuery = ({
-    variables: currVariables,
-    ...currOptions
-  }: QueryBaseHookOptions = {}) => {
-    const {
-      select: _select,
-      variables: prevVariables,
-      ...prevOptions
-    } = {
+  const useGeneratedQuery = (options: QueryBaseHookOptions) => {
+    const { enabled, variables, ...mergedOptions } = {
       ...defaultOptions,
       ...useDefaultOptions?.(),
+      ...options,
     } as QueryBaseHookOptions
-
-    const variables = isUndefined(currVariables) ? prevVariables : currVariables
 
     const queryKey = getKey(variables)
 
-    const { enabled, ...mergedOptions } = {
-      ...prevOptions,
-      ...currOptions,
+    const client = useQueryClient(
+      // compatible with ReactQuery v4
+      mergedOptions.context ? { context: mergedOptions.context } : queryClient
+    )
+
+    const queryOptions = {
+      ...mergedOptions,
+      enabled:
+        typeof enabled === 'function'
+          ? enabled(client.getQueryData(queryKey), variables)
+          : enabled,
       queryKeyHashFn,
       queryFn,
       queryKey,
     }
 
-    const client = useQueryClient(
-      mergedOptions.context ? { context: mergedOptions.context } : queryClient
-    )
-
-    const setData = (
-      updater: Updater<any, any>,
-      setDataOptions?: SetDataOptions
-    ) => client.setQueryData(queryKey, updater, setDataOptions)
-
-    const result = useRQHook(
-      {
-        ...mergedOptions,
-        enabled:
-          typeof enabled === 'function'
-            ? enabled(client.getQueryData(queryKey), variables)
-            : enabled,
-      },
-      client
-    )
-
-    return Object.assign(result, { queryKey, setData })
+    return Object.assign(useRQHook(queryOptions, client), {
+      queryKey,
+      variables,
+      setData: (updater: Updater<any, any>, setDataOptions?: SetDataOptions) =>
+        client.setQueryData(queryKey, updater, setDataOptions),
+    })
   }
 
   return Object.assign(useGeneratedQuery, {

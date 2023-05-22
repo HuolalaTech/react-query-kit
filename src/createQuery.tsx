@@ -6,12 +6,12 @@ import type {
   CompatibleWithV4,
   QueryHook,
   QueryHookOptions,
-  QueryKitKey,
+  inferQueryKey,
 } from './types'
 
-interface CreateQueryOptions<TFnData, TVariables, Error>
+export interface CreateQueryOptions<TFnData, TVariables = any, Error = unknown>
   extends Omit<
-      UseQueryOptions<TFnData, Error, TFnData, QueryKitKey<TVariables>>,
+      UseQueryOptions<TFnData, Error, TFnData, inferQueryKey<TVariables>>,
       'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
     AdditionalCreateOptions<TFnData, TVariables> {}

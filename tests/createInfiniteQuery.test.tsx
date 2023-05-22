@@ -1,27 +1,28 @@
 import { createInfiniteQuery } from '../src/createInfiniteQuery'
+import { uniqueKey } from './utils'
 
-it('createInfiniteQuery', () => {
-  type Response = {
-    projects: { id: string; name: string }[]
-    nextCursor: number
-  }
-  type Variables = { id: number }
+describe('createInfiniteQuery', () => {
+  it('should return the correct key', () => {
+    type Response = {
+      projects: { id: string; name: string }[]
+      nextCursor: number
+    }
+    type Variables = { id: number }
 
-  const primaryKey = '/projects'
-  const variables = { id: 1 }
-
-  const query = createInfiniteQuery<Response, Variables, Error>({
-    primaryKey,
-    queryFn: ({ queryKey: [primaryKey, variables] }) => {
-      return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
-    },
-    defaultPageParam: 1,
-    getNextPageParam: lastPage => lastPage.nextCursor,
-    enabled: data => !data,
-    suspense: true,
+    const primaryKey = uniqueKey()
+    const variables = { id: 1 }
+    const useGeneratedQuery = createInfiniteQuery<Response, Variables, Error>({
+      primaryKey,
+      queryFn: () => {
+        return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+      },
+      defaultPageParam: 1,
+      getNextPageParam: lastPage => lastPage.nextCursor,
+      enabled: data => !data,
+      suspense: true,
+    })
+    expect(useGeneratedQuery.getPrimaryKey()).toBe(primaryKey)
+    expect(useGeneratedQuery.getKey()).toEqual([primaryKey])
+    expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
   })
-
-  expect(query.getPrimaryKey()).toBe(primaryKey)
-  expect(query.getKey()).toEqual([primaryKey])
-  expect(query.getKey(variables)).toEqual([primaryKey, variables])
 })

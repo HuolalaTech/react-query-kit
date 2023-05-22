@@ -164,6 +164,10 @@ Expose Methods
 
 Returns
 
+- `queryKey: [primaryKey, TVariables]`
+  - 自定义hook的queryKey.
+- `variables: TVariables`
+  - 自定义hook的variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
@@ -270,6 +274,10 @@ Expose Methods
 
 Returns
 
+- `queryKey: [primaryKey, TVariables]`
+  - 自定义hook的queryKey.
+- `variables: TVariables`
+  - 自定义hook的variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 

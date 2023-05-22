@@ -9,8 +9,12 @@ import type {
   InfiniteQueryHookOptions,
 } from './types'
 
-interface CreateInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>
-  extends Omit<
+export interface CreateInfiniteQueryOptions<
+  TFnData,
+  TVariables = any,
+  Error = unknown,
+  TPageParam = number
+> extends Omit<
       CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
       'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
@@ -40,7 +44,7 @@ export function createInfiniteQuery<
     > & { variables: TVariables }
   },
   queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TVariables | void, TPageParam>
+): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables | void>
 
 export function createInfiniteQuery<
   TFnData,
@@ -59,14 +63,14 @@ export function createInfiniteQuery<
         TFnData,
         Error,
         TVariables,
-        TVariables,
-        TPageParam
+        TPageParam,
+        TVariables
       >,
       'select' | 'variables'
     >
   },
   queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TVariables, TPageParam>
+): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
 
 export function createInfiniteQuery<
   TFnData,
@@ -76,7 +80,7 @@ export function createInfiniteQuery<
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
   queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TVariables, TPageParam>
+): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
 
 export function createInfiniteQuery(options: any, queryClient?: any) {
   return createBaseQuery(options, useInfiniteQuery, queryClient)

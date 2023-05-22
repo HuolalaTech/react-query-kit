@@ -171,8 +171,10 @@ Expose Methods
 
 Returns
 
-- `queryKey: unknown[]`
+- `queryKey: [primaryKey, TVariables]`
   - The query key of this custom query.
+- `variables: TVariables`
+  - The variables of this custom query.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
@@ -286,8 +288,10 @@ Expose Methods
 
 Returns
 
-- `queryKey: unknown[]`
+- `queryKey: [primaryKey, TVariables]`
   - The query key of this custom query.
+- `variables: TVariables`
+  - The variables of this custom query.
 - `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
   - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
@@ -370,7 +374,7 @@ You can extract the TypeScript type of any custom hook with `inferVariables` or 
 import { inferVariables, inferData, inferFnData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
-type Data = inferData<typeof usePost>
+type Data = inferData<typeof usePost> 
 type FnData = inferFnData<typeof usePost>
 ```
 

@@ -4,8 +4,10 @@ export * from './createQuery'
 export type {
   QueryHookOptions,
   QueryHook,
+  QueryHookResult,
   InfiniteQueryHookOptions,
   InfiniteQueryHook,
+  InfiniteQueryHookResult,
   MutationHookOptions,
   MutationHook,
   inferVariables,

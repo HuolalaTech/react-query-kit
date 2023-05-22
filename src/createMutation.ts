@@ -6,7 +6,7 @@ import type {
   MutationHookOptions,
 } from './types'
 
-interface CreateMutationOptions<TData, TError, TVariables, TContext>
+export interface CreateMutationOptions<TData, TError, TVariables, TContext>
   extends UseMutationOptions<TData, TError, TVariables, TContext> {
   useDefaultOptions?: () => MutationHookOptions<
     TData,
