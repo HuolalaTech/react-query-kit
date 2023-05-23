@@ -25,6 +25,8 @@
 - Make `queryClient`'s operations clearly associated with custom ReactQuery hooks
 - Set defaultOptions for custom ReactQuery hooks easier and clearer
 
+![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
+
 English | [简体中文](./README-zh_CN.md)
 
 ## Table of Contents

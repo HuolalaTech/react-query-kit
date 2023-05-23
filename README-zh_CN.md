@@ -25,6 +25,8 @@
 - 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery 钩子
 - 为自定义 ReactQuery 钩子设置默认选项更容易和更清晰
 
+![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
+
 [English](./README.md) | 简体中文
 
 ## Table of Contents
