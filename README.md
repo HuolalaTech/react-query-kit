@@ -6,8 +6,7 @@
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/minzip/react-query-kit" alt="Bundlephobia" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/dependency-count/react-query-kit" alt="Dependency count 0" target="\_parent"></a>
+  <a href="https://unpkg.com/browse/react-query-kit@latest/build/umd/index.production.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/umd/index.production.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -120,7 +119,7 @@ export async function getStaticProps() {
   const queryClient = new QueryClient()
 
   await queryClient.prefetchQuery({
-    queryKey: usePost.getKey(variables), 
+    queryKey: usePost.getKey(variables),
     queryFn: usePost.queryFn
   })
 
@@ -133,7 +132,7 @@ export async function getStaticProps() {
 
 // usage outside of react component
 const data = await queryClient.fetchQuery({
-  queryKey: usePost.getKey(variables), 
+  queryKey: usePost.getKey(variables),
   queryFn: usePost.queryFn
 })
 
@@ -199,7 +198,7 @@ const useProjects = createInfiniteQuery<Response, Variables, Error>({
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  defaultPageParam: 1
+  defaultPageParam: 1,
 })
 
 const variables = { active: true }
@@ -257,7 +256,6 @@ const data = await queryClient.fetchInfiniteQuery({
   queryKey: useProjects.getKey(variables),
   queryFn: useProjects.queryFn,
 })
-
 
 // usage outside of react component
 const data = await queryClient.fetchInfiniteQuery({
@@ -376,7 +374,7 @@ You can extract the TypeScript type of any custom hook with `inferVariables` or 
 import { inferVariables, inferData, inferFnData } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
-type Data = inferData<typeof usePost> 
+type Data = inferData<typeof usePost>
 type FnData = inferFnData<typeof usePost>
 ```
 

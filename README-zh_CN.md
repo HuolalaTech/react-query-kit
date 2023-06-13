@@ -6,8 +6,7 @@
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/minzip/react-query-kit" alt="Bundlephobia" target="\_parent"></a>
-  <a href="https://bundlephobia.com/package/react-query-kit@latest"><img src="https://badgen.net/bundlephobia/dependency-count/react-query-kit" alt="Dependency count 0" target="\_parent"></a>
+  <a href="https://unpkg.com/browse/react-query-kit@latest/build/umd/index.production.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/umd/index.production.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -155,7 +154,7 @@ Options
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 - `useDefaultOptions: () => QueryHookOptions`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前query中，你可以使用这个选项。
+  - 如果你想将其他钩子的返回值注入到当前 query 中，你可以使用这个选项。
 
 Expose Methods
 
@@ -167,9 +166,9 @@ Expose Methods
 Returns
 
 - `queryKey: [primaryKey, TVariables]`
-  - 自定义hook的queryKey.
+  - 自定义 hook 的 queryKey.
 - `variables: TVariables`
-  - 自定义hook的variables.
+  - 自定义 hook 的 variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
@@ -192,7 +191,7 @@ const useProjects = createInfiniteQuery<Response, Variables, Error>({
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  defaultPageParam: 1
+  defaultPageParam: 1,
 })
 
 const variables = { active: true }
@@ -265,7 +264,7 @@ Options
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 - `useDefaultOptions: () => InfiniteQueryHookOptions`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前query中，你可以使用这个选项。
+  - 如果你想将其他钩子的返回值注入到当前 query 中，你可以使用这个选项。
 
 Expose Methods
 
@@ -277,9 +276,9 @@ Expose Methods
 Returns
 
 - `queryKey: [primaryKey, TVariables]`
-  - 自定义hook的queryKey.
+  - 自定义 hook 的 queryKey.
 - `variables: TVariables`
-  - 自定义hook的variables.
+  - 自定义 hook 的 variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
@@ -349,8 +348,7 @@ Options
 
 - `useDefaultOptions: () => MutationHookOptions`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前mutation中，你可以使用这个选项。
-
+  - 如果你想将其他钩子的返回值注入到当前 mutation 中，你可以使用这个选项。
 
 Returns
 
