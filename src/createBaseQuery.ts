@@ -19,9 +19,10 @@ type QueryBaseHookOptions = Omit<
   AdditionalQueryHookOptions<any, any> & { context?: any }
 
 export function createBaseQuery(
-  options: any,
+  initialOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
-  queryClient?: any
+  queryClient?: any,
+  overrideOptions?: QueryBaseHookOptions
 ): any {
   const {
     primaryKey,
@@ -29,7 +30,7 @@ export function createBaseQuery(
     queryKeyHashFn,
     useDefaultOptions,
     ...defaultOptions
-  } = options as CreateQueryOptions
+  } = initialOptions as CreateQueryOptions
 
   const getPrimaryKey = () => primaryKey
 
@@ -41,6 +42,7 @@ export function createBaseQuery(
       ...defaultOptions,
       ...useDefaultOptions?.(),
       ...options,
+      ...overrideOptions,
     } as QueryBaseHookOptions
 
     const queryKey = getKey(variables)
@@ -50,18 +52,21 @@ export function createBaseQuery(
       mergedOptions.context ? { context: mergedOptions.context } : queryClient
     )
 
-    const queryOptions = {
-      ...mergedOptions,
-      enabled:
-        typeof enabled === 'function'
-          ? enabled(client.getQueryData(queryKey), variables)
-          : enabled,
-      queryKeyHashFn,
-      queryFn,
-      queryKey,
-    }
+    const result = useRQHook(
+      {
+        ...mergedOptions,
+        enabled:
+          typeof enabled === 'function'
+            ? enabled(client.getQueryData(queryKey), variables)
+            : enabled,
+        queryKeyHashFn,
+        queryFn,
+        queryKey,
+      },
+      client
+    )
 
-    return Object.assign(useRQHook(queryOptions, client), {
+    return Object.assign(result, {
       queryKey,
       variables,
       setData: (updater: Updater<any, any>, setDataOptions?: SetDataOptions) =>

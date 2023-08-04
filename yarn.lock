@@ -1538,17 +1538,18 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@tanstack/query-core@5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.19.tgz#f71a88ae75e37a5c82dfc17b09a854740c12707c"
-  integrity sha512-3W30tOF9TKXdG2Ke2c+DHIVLkTTOK+4Zcynre6qDMjd6/xvK/hLhk0FYyrPAhLoxlqPrMS/4RqHjNGay7g19bQ==
+"@tanstack/query-core@5.0.0-beta.9":
+  version "5.0.0-beta.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.0.0-beta.9.tgz#3715379e7e83876bd974695318567f0b453f6cf2"
+  integrity sha512-SXaTZ+K/Gw4kd7ZAtHrc0AgffcdLVOHMX0ECgDbyZ8F5hxwS/Fi7F3r1FTiVBxDf1QW4oAiHQW65zhGWikRSng==
 
-"@tanstack/react-query@^5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.19.tgz#d5bad1b99de89a3237013189b9764d9649264b5c"
-  integrity sha512-hXkvGtxLVrzZOYJEra32LcfatNUz1NqEIsQjD//aG8c7fD4/9Bou6DmIZMaQu1CRTSs9yiUWzUFmhSxAhnJN+Q==
+"@tanstack/react-query@^5.0.0-beta.9":
+  version "5.0.0-beta.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.0.0-beta.9.tgz#10768f2ec060bce7dfcfa228e9d5461cd16b89fd"
+  integrity sha512-9gCv+sKOrxUGshOeiQM+jlOvIvfnUPY4bjTpdsfim1wqoY5qjP+yw4KqHImP+t3gNRYgt2CpXsLaEkU3/2x8jg==
   dependencies:
-    "@tanstack/query-core" "5.0.0-alpha.19"
+    "@tanstack/query-core" "5.0.0-beta.9"
+    client-only "0.0.1"
 
 "@testing-library/dom@^9.0.0":
   version "9.3.0"
@@ -2340,6 +2341,11 @@ cjs-module-lexer@^1.0.0:
   version "1.2.2"
   resolved "https://mirrors.cloud.tencent.com/npm/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz"
   integrity sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==
+
+client-only@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
+  integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
 
 cliui@^6.0.0:
   version "6.0.0"

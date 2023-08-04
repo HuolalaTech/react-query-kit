@@ -36,9 +36,12 @@
 - [安装](#installation)
 - [例子](#examples)
 - 使用
-  - [createQuery](#createQuery)
-  - [createInfiniteQuery](#createInfiniteQuery)
-  - [createMutation](#createMutation)
+  - [createQuery](#createquery)
+  - [createInfiniteQuery](#createinfinitequery)
+  - [createMutation](#createmutation)
+  - [createImmutableQuery](#createimmutablequery)
+  - [createSuspenseQuery](#createsuspensequery)
+  - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [类型推导](#类型推导)
   - [注意事项](#注意事项)
 - [问题](#issues)
@@ -281,6 +284,68 @@ Returns
   - 自定义 hook 的 variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
+
+## createImmutableQuery
+
+如果资源是不可变的，即使我们再怎么重新请求也永远不会发生任何改变，那么我们可以禁用它的所有的自动重新请求。
+ReactQueryKit 提供了一个辅助函数 `createImmutableQuery` 来标记资源为不可变的：
+
+```ts
+import { createImmutableQuery } from 'react-query-kit'
+
+createImmutableQuery({
+  ...options,
+})
+
+// 相当于
+createQuery({
+  ...options,
+  refetchInterval: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+  staleTime: Infinity,
+  gcTime: Infinity,
+})
+```
+
+## createSuspenseQuery
+
+这与在查询配置中将 suspense 选项设置为 true 具有相同的效果，但在 TypeScript 中效果更好，因为 data 是有定义的（因为错误和加载状态由 Suspense 和 ErrorBoundaries 处理）。
+
+```ts
+import { createSuspenseQuery } from 'react-query-kit'
+
+createSuspenseQuery({
+  ...options,
+})
+
+// 相当于
+createQuery({
+  ...options,
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+})
+```
+
+## createSuspenseInfiniteQuery
+
+```ts
+import { createSuspenseInfiniteQuery } from 'react-query-kit'
+
+createSuspenseInfiniteQuery({
+  ...options,
+})
+
+// 相当于
+createInfiniteQuery({
+  ...options,
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+})
+```
 
 ## createMutation
 

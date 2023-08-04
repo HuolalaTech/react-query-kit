@@ -36,11 +36,15 @@ English | [简体中文](./README-zh_CN.md)
 - [Installation](#installation)
 - [Examples](#examples)
 - Usage
-  - [createQuery](#createQuery)
-  - [createInfiniteQuery](#createInfiniteQuery)
-  - [createMutation](#createMutation)
-  - [Type inference](#Type-inference)
-  - [Caution](#Caution)
+  - [createQuery](#createquery)
+  - [createInfiniteQuery](#createinfinitequery)
+  - [createMutation](#createmutation)
+  - [createImmutableQuery](#createimmutablequery)
+  - [createSuspenseQuery](#createsuspensequery)
+  - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
+  - [createMutation](#createmutation)
+  - [Type inference](#type-inference)
+  - [Caution](#caution)
 - [Issues](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -294,6 +298,68 @@ Returns
   - The variables of this custom query.
 - `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
   - it's args similar with `queryClient.setQueryData` but without `queryKey`
+
+## createImmutableQuery
+
+If the resource is immutable, no matter how many times we request it again, it will never change. In this case, we can disable all automatic re-requests for it.
+ReactQueryKit provides a helper function `createImmutableQuery` to mark a resource as immutable.
+
+```ts
+import { createImmutableQuery } from 'react-query-kit'
+
+createImmutableQuery({
+  ...options,
+})
+
+// equals to
+createQuery({
+  ...options,
+  refetchInterval: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+  staleTime: Infinity,
+  gcTime: Infinity,
+})
+```
+
+## createSuspenseQuery
+
+This has the same effect as setting the `suspense` option to `true` in the query config, but it works better in TypeScript, because `data` is guaranteed to be defined (as errors and loading states are handled by Suspense- and ErrorBoundaries).
+
+```ts
+import { createSuspenseQuery } from 'react-query-kit'
+
+createSuspenseQuery({
+  ...options,
+})
+
+// equals to
+createQuery({
+  ...options,
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+})
+```
+
+## createSuspenseInfiniteQuery
+
+```ts
+import { createSuspenseInfiniteQuery } from 'react-query-kit'
+
+createSuspenseInfiniteQuery({
+  ...options,
+})
+
+// equals to
+createInfiniteQuery({
+  ...options,
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+})
+```
 
 ## createMutation
 
