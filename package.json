@@ -52,7 +52,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-visualizer": "^5.7.1",
     "ts-jest": "^29.1.0",
-    "typescript": "^4.8.2"
+    "typescript": "^5.1.6"
   },
   "peerDependencies": {
     "@tanstack/react-query": "*"

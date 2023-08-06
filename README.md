@@ -38,7 +38,6 @@ English | [简体中文](./README-zh_CN.md)
 - Usage
   - [createQuery](#createquery)
   - [createInfiniteQuery](#createinfinitequery)
-  - [createMutation](#createmutation)
   - [createImmutableQuery](#createimmutablequery)
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)

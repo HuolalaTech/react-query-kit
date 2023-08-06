@@ -38,10 +38,10 @@
 - 使用
   - [createQuery](#createquery)
   - [createInfiniteQuery](#createinfinitequery)
-  - [createMutation](#createmutation)
   - [createImmutableQuery](#createimmutablequery)
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
+  - [createMutation](#createmutation)
   - [类型推导](#类型推导)
   - [注意事项](#注意事项)
 - [问题](#issues)
@@ -311,7 +311,7 @@ createQuery({
 
 ## createSuspenseQuery
 
-这与在查询配置中将 suspense 选项设置为 true 具有相同的效果，但在 TypeScript 中效果更好，因为 data 是有定义的（因为错误和加载状态由 Suspense 和 ErrorBoundaries 处理）。
+这与在查询配置中将 suspense 选项设置为 true 具有相同的效果，但在 TypeScript 的体验更好，因为 data 是有定义的（因为错误和加载状态由 Suspense 和 ErrorBoundaries 处理）。
 
 ```ts
 import { createSuspenseQuery } from 'react-query-kit'
