@@ -28,7 +28,7 @@ export interface CreateImmutableQueryOptions<
       | 'gcTime'
       | 'cacheTime'
     >,
-    AdditionalCreateOptions<TFnData, TVariables> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {}
 
 export function createImmutableQuery<
   TFnData,

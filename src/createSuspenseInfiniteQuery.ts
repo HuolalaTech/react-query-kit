@@ -26,7 +26,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
       | 'keepPreviousData'
       | 'useErrorBoundary'
     >,
-    AdditionalCreateOptions<TFnData, TVariables, TPageParam> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables, TPageParam>, 'enabled'> {}
 
 export function createSuspenseInfiniteQuery<
   TFnData,

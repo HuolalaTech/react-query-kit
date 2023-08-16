@@ -25,7 +25,7 @@ export interface CreateSuspenseQueryOptions<
       | 'keepPreviousData'
       | 'useErrorBoundary'
     >,
-    AdditionalCreateOptions<TFnData, TVariables> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {}
 
 export function createSuspenseQuery<TFnData, TVariables = any, Error = unknown>(
   options: CreateSuspenseQueryOptions<TFnData, TVariables, Error> & {

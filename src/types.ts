@@ -194,7 +194,10 @@ export type ImmutableQueryHookOptions<
   | 'gcTime'
   | 'cacheTime'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
+  Omit<
+    AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>,
+    'enabled'
+  >
 
 export type ImmutableQueryHookResult<
   TFnData,
@@ -255,7 +258,10 @@ export type SuspenseQueryHookOptions<
   | 'keepPreviousData'
   | 'useErrorBoundary'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
+  Omit<
+    AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>,
+    'enabled'
+  >
 
 export type SuspenseQueryHookResult<
   TFnData,
@@ -387,7 +393,10 @@ export type SuspenseInfiniteQueryHookOptions<
   | 'keepPreviousData'
   | 'useErrorBoundary'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables, TPageParam, TOptVariables>
+  Omit<
+    AdditionalQueryHookOptions<TFnData, TVariables, TPageParam, TOptVariables>,
+    'enabled'
+  >
 
 export type SuspenseInfiniteQueryHookResult<
   TFnData,

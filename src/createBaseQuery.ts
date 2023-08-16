@@ -16,7 +16,7 @@ type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
   'queryKey' | 'queryFn' | 'enabled'
 > &
-  AdditionalQueryHookOptions<any, any> & { context?: any }
+  AdditionalQueryHookOptions<any, any>
 
 export function createBaseQuery(
   initialOptions: any,
@@ -49,6 +49,7 @@ export function createBaseQuery(
 
     const client = useQueryClient(
       // compatible with ReactQuery v4
+      // @ts-ignore
       mergedOptions.context ? { context: mergedOptions.context } : queryClient
     )
 
