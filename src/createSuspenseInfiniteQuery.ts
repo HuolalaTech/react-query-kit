@@ -15,7 +15,13 @@ export interface CreateSuspenseInfiniteQueryOptions<
   Error = unknown,
   TPageParam = number
 > extends Omit<
-      CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
+      CompatibleUseInfiniteQueryOptions<
+        TFnData,
+        TVariables,
+        TFnData,
+        Error,
+        TPageParam
+      >,
       | 'queryKey'
       | 'queryFn'
       | 'enabled'

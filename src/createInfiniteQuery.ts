@@ -15,7 +15,13 @@ export interface CreateInfiniteQueryOptions<
   Error = unknown,
   TPageParam = number
 > extends Omit<
-      CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
+      CompatibleUseInfiniteQueryOptions<
+        TFnData,
+        TVariables,
+        TFnData,
+        Error,
+        TPageParam
+      >,
       'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
     AdditionalCreateOptions<TFnData, TVariables, TPageParam> {}

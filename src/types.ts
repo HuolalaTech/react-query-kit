@@ -45,13 +45,14 @@ export type CompatibleQueryFunction<
 export type CompatibleUseInfiniteQueryOptions<
   TFnData,
   TVariables,
+  TData,
   Error,
   TPageParam
 > = CompatibleWithV4<
   UseInfiniteQueryOptions<
     TFnData,
     Error,
-    InfiniteData<TFnData>,
+    TData,
     TFnData,
     inferQueryKey<TVariables>,
     TPageParam
@@ -59,7 +60,7 @@ export type CompatibleUseInfiniteQueryOptions<
   UseInfiniteQueryOptions<
     TFnData,
     Error,
-    TFnData,
+    TData,
     TFnData,
     inferQueryKey<TVariables>
   >
@@ -310,11 +311,18 @@ export interface SuspenseQueryHook<
 export type InfiniteQueryHookOptions<
   TFnData,
   Error,
+  TData,
   TVariables,
   TPageParam = number,
   TOptVariables = TVariables
 > = Omit<
-  CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
+  CompatibleUseInfiniteQueryOptions<
+    TFnData,
+    TVariables,
+    TData,
+    Error,
+    TPageParam
+  >,
   | 'queryKey'
   | 'queryFn'
   | 'queryKeyHashFn'
@@ -329,14 +337,17 @@ export type InfiniteQueryHookResult<
   TFnData,
   TVariables,
   TError = unknown,
-  TData = InfiniteData<TFnData>
-> = UseInfiniteQueryResult<CompatibleWithV4<TData, TFnData>, TError> & {
+  TData = CompatibleWithV4<InfiniteData<TFnData>, TFnData>
+> = UseInfiniteQueryResult<TData, TError> & {
   queryKey: inferQueryKey<TVariables>
   variables: TVariables
   setData: (
-    updater: Updater<TData | undefined, TData | undefined>,
+    updater: Updater<
+      InfiniteData<TFnData> | undefined,
+      InfiniteData<TFnData> | undefined
+    >,
     options?: SetDataOptions
-  ) => TData | undefined
+  ) => InfiniteData<TFnData> | undefined
 }
 
 export interface InfiniteQueryHook<
@@ -346,16 +357,12 @@ export interface InfiniteQueryHook<
   TPageParam = number,
   TOptVariables = TVariables
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
-  <
-    TData = CompatibleWithV4<
-      InfiniteData<TFnData, TPageParam>,
-      InfiniteData<TFnData>
-    >
-  >(
+  <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
     options: TOptVariables extends void
       ? InfiniteQueryHookOptions<
           TFnData,
           TError,
+          TData,
           TVariables,
           TPageParam,
           TOptVariables
@@ -363,6 +370,7 @@ export interface InfiniteQueryHook<
       : InfiniteQueryHookOptions<
           TFnData,
           TError,
+          TData,
           TVariables,
           TPageParam,
           TOptVariables
@@ -375,11 +383,18 @@ export interface InfiniteQueryHook<
 export type SuspenseInfiniteQueryHookOptions<
   TFnData,
   Error,
+  TData,
   TVariables,
   TPageParam = number,
   TOptVariables = TVariables
 > = Omit<
-  CompatibleUseInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
+  CompatibleUseInfiniteQueryOptions<
+    TFnData,
+    TVariables,
+    TData,
+    Error,
+    TPageParam
+  >,
   | 'queryKey'
   | 'queryFn'
   | 'queryKeyHashFn'
@@ -402,7 +417,7 @@ export type SuspenseInfiniteQueryHookResult<
   TFnData,
   TVariables,
   TError = unknown,
-  TData = InfiniteData<TFnData>
+  TData = CompatibleWithV4<InfiniteData<TFnData>, TFnData>
 > = Omit<
   InfiniteQueryObserverSuccessResult<CompatibleWithV4<TData, TFnData>, TError>,
   'isPlaceholderData' | 'isPreviousData'
@@ -410,9 +425,12 @@ export type SuspenseInfiniteQueryHookResult<
   queryKey: inferQueryKey<TVariables>
   variables: TVariables
   setData: (
-    updater: Updater<TData | undefined, TData | undefined>,
+    updater: Updater<
+      InfiniteData<TFnData> | undefined,
+      InfiniteData<TFnData> | undefined
+    >,
     options?: SetDataOptions
-  ) => TData | undefined
+  ) => InfiniteData<TFnData> | undefined
 }
 
 export interface SuspenseInfiniteQueryHook<
@@ -422,16 +440,12 @@ export interface SuspenseInfiniteQueryHook<
   TPageParam = number,
   TOptVariables = TVariables
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
-  <
-    TData = CompatibleWithV4<
-      InfiniteData<TFnData, TPageParam>,
-      InfiniteData<TFnData>
-    >
-  >(
+  <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
     options: TOptVariables extends void
       ? SuspenseInfiniteQueryHookOptions<
           TFnData,
           TError,
+          TData,
           TVariables,
           TPageParam,
           TOptVariables
@@ -439,6 +453,7 @@ export interface SuspenseInfiniteQueryHook<
       : SuspenseInfiniteQueryHookOptions<
           TFnData,
           TError,
+          TData,
           TVariables,
           TPageParam,
           TOptVariables
