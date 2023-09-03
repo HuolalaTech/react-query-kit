@@ -327,7 +327,7 @@ export type InfiniteQueryHookOptions<
   | 'queryFn'
   | 'queryKeyHashFn'
   | 'enabled'
-  | 'defaultPageParam'
+  | 'initialPageParam'
   | 'getPreviousPageParam'
   | 'getNextPageParam'
 > &
@@ -399,7 +399,7 @@ export type SuspenseInfiniteQueryHookOptions<
   | 'queryFn'
   | 'queryKeyHashFn'
   | 'enabled'
-  | 'defaultPageParam'
+  | 'initialPageParam'
   | 'getPreviousPageParam'
   | 'getNextPageParam'
   | 'suspense'

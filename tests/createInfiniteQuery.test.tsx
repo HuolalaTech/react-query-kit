@@ -16,7 +16,7 @@ describe('createInfiniteQuery', () => {
       queryFn: () => {
         return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
       },
-      defaultPageParam: 1,
+      initialPageParam: 1,
       getNextPageParam: lastPage => lastPage.nextCursor,
       enabled: data => !data,
     })
