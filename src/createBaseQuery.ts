@@ -1,15 +1,22 @@
-import type { SetDataOptions, UseBaseQueryOptions } from '@tanstack/react-query'
-import { useQueryClient } from '@tanstack/react-query'
+import type {
+  QueryClient,
+  SetDataOptions,
+  Updater,
+  UseBaseQueryOptions,
+} from '@tanstack/react-query'
+
 import type {
   AdditionalCreateOptions,
   AdditionalQueryHookOptions,
-  Updater,
+  CompatibleWithV4,
+  Middleware,
 } from './types'
+import { getQueryKey, useCompatibeQueryClient, withMiddlewares } from './utils'
 
 interface CreateQueryOptions
   extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
     AdditionalCreateOptions<any, any> {
-  useDefaultOptions?: () => QueryBaseHookOptions
+  use?: Middleware[]
 }
 
 type QueryBaseHookOptions = Omit<
@@ -19,39 +26,48 @@ type QueryBaseHookOptions = Omit<
   AdditionalQueryHookOptions<any, any>
 
 export function createBaseQuery(
-  initialOptions: any,
+  defaultOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
-  queryClient?: any,
   overrideOptions?: QueryBaseHookOptions
 ): any {
-  const {
-    primaryKey,
-    queryFn,
-    queryKeyHashFn,
-    useDefaultOptions,
-    ...defaultOptions
-  } = initialOptions as CreateQueryOptions
+  const { primaryKey } = defaultOptions as CreateQueryOptions
+
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore
+    if (defaultOptions.useDefaultOptions) {
+      throw new Error(
+        'useDefaultOptions is not supported, please use middleware instead.'
+      )
+    }
+  }
 
   const getPrimaryKey = () => primaryKey
 
-  const getKey = (variables?: any) =>
-    variables === undefined ? [primaryKey] : [primaryKey, variables]
+  const getKey = (variables?: any) => getQueryKey(primaryKey, variables)
 
-  const useGeneratedQuery = (options: QueryBaseHookOptions) => {
+  const getFetchOptions = (variables: any) => {
+    return {
+      queryKey: getKey(variables),
+      queryFn: defaultOptions.queryFn,
+      queryKeyHashFn: defaultOptions.queryKeyHashFn,
+      getPreviousPageParam: (defaultOptions as any).getPreviousPageParam,
+      getNextPageParam: (defaultOptions as any).getNextPageParam,
+      initialPageParam: (defaultOptions as any).initialPageParam,
+    }
+  }
+
+  const useGeneratedQuery = (
+    options: QueryBaseHookOptions,
+    queryClient?: CompatibleWithV4<QueryClient, void>
+  ) => {
+    const client = useCompatibeQueryClient(options, queryClient)
+
     const { enabled, variables, ...mergedOptions } = {
-      ...defaultOptions,
-      ...useDefaultOptions?.(),
       ...options,
       ...overrideOptions,
     } as QueryBaseHookOptions
 
     const queryKey = getKey(variables)
-
-    const client = useQueryClient(
-      // compatible with ReactQuery v4
-      // @ts-ignore
-      mergedOptions.context ? { context: mergedOptions.context } : queryClient
-    )
 
     const result = useRQHook(
       {
@@ -60,25 +76,27 @@ export function createBaseQuery(
           typeof enabled === 'function'
             ? enabled(client.getQueryData(queryKey), variables)
             : enabled,
-        queryKeyHashFn,
-        queryFn,
         queryKey,
       },
       client
     )
 
     return Object.assign(result, {
-      queryKey,
+      queryKey: queryKey,
       variables,
       setData: (updater: Updater<any, any>, setDataOptions?: SetDataOptions) =>
         client.setQueryData(queryKey, updater, setDataOptions),
     })
   }
 
-  return Object.assign(useGeneratedQuery, {
-    getPrimaryKey,
-    getKey,
-    queryFn,
-    queryKeyHashFn,
-  })
+  return Object.assign(
+    withMiddlewares(useGeneratedQuery, defaultOptions, 'queries'),
+    {
+      getPrimaryKey,
+      getKey,
+      queryFn: defaultOptions.queryFn,
+      queryKeyHashFn: defaultOptions.queryKeyHashFn,
+      getFetchOptions,
+    }
+  )
 }

@@ -89,13 +89,8 @@ const usePost = createQuery<Response, Variables, Error>({
   // if u only wanna fetch once
   enabled: (data) => !data,
   suspense: true,
-  // u can also pass default options via useDefaultOptions
-  useDefaultOptions: () => {
-    const { id } = useSomething()
-    return {
-      variables: { id }
-    }
-  }
+  // u can also pass middleware to cutomize this hook's behavior
+  use: [myMiddleware]
 })
 
 
@@ -121,10 +116,7 @@ console.log(usePost.getKey(variables)) //  ['/posts', { id: 1 }]
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchQuery({
-    queryKey: usePost.getKey(variables),
-    queryFn: usePost.queryFn
-  })
+  await queryClient.prefetchQuery(usePost.getFetchOptions(variables))
 
   return {
     props: {
@@ -134,16 +126,13 @@ export async function getStaticProps() {
 }
 
 // usage outside of react component
-const data = await queryClient.fetchQuery({
-  queryKey: usePost.getKey(variables),
-  queryFn: usePost.queryFn
-})
+const data = await queryClient.fetchQuery(usePost.getFetchOptions(variables))
 
 // useQueries example
 const queries = useQueries({
   queries: [
-    { queryKey: usePost.getKey(variables), queryFn: usePost.queryFn },
-    { queryKey: useProjects.getKey(), queryFn: useProjects.queryFn },
+   usePost.getFetchOptions(variables),
+   useProjects.getFetchOptions(),
   ],
 })
 
@@ -162,14 +151,15 @@ Options
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
-- `useDefaultOptions: () => QueryHookOptions`
+- `use: Middleware[]`
   - Optional
-  - If u wanna inject return values from hooks into query, u can use this option.
+  - array of middleware functions [(details)](#middleware)
 
 Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
+- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
@@ -201,7 +191,7 @@ const useProjects = createInfiniteQuery<Response, Variables, Error>({
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  defaultPageParam: 1,
+  initialPageParam: 1,
 })
 
 const variables = { active: true }
@@ -242,10 +232,7 @@ export default function Page() {
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchInfiniteQuery({
-    queryKey: useProjects.getKey(variables),
-    queryFn: useProjects.queryFn,
-  })
+  await queryClient.prefetchInfiniteQuery(useProjects.getFetchOptions(variables))
 
   return {
     props: {
@@ -255,16 +242,10 @@ export async function getStaticProps() {
 }
 
 // usage outside of react component
-const data = await queryClient.fetchInfiniteQuery({
-  queryKey: useProjects.getKey(variables),
-  queryFn: useProjects.queryFn,
-})
+const data = await queryClient.fetchInfiniteQuery(useProjects.getFetchOptions(variables))
 
 // usage outside of react component
-const data = await queryClient.fetchInfiniteQuery({
-  queryKey: useProjects.getKey(variables),
-  queryFn: useProjects.queryFn,
-})
+const data = await queryClient.fetchInfiniteQuery(useProjects.getFetchOptions(variables))
 ```
 
 ### Additional API Reference
@@ -278,14 +259,15 @@ Options
   - Optional
   - Set this to `false` to disable this query from automatically running.
   - If set to a function, the function will be executed with the latest data to compute the boolean
-- `useDefaultOptions: () => InfiniteQueryHookOptions`
+- `use: Middleware[]`
   - Optional
-  - If u wanna inject return values from hooks into query, u can use this option.
+  - array of middleware functions [(details)](#middleware)
 
 Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
+- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
@@ -422,47 +404,97 @@ useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 
 Options
 
-- `useDefaultOptions: () => MutationHookOptions`
+- `use: Middleware[]`
   - Optional
-  - If u wanna inject return values from hooks into mutation, u can use this option.
+  - array of middleware functions [(details)](#middleware)
 
 Returns
 
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
+## Middleware
+
+The middleware feature is a new addition in SWR 1.0 that enables you to execute logic before and after SWR hooks.
+
+### Usage
+
+```ts
+import { Middleware, MutationHook, QueryHook } from 'react-query-kit'
+
+const myMiddleware: Middleware<
+  QueryHook<Response, Variables>
+> = useQueryNext => {
+  return options => {
+    const { userId } = useAuth()
+    return useQueryNext({
+      ...options,
+      variables: options.variables ?? { id: userId },
+    })
+  }
+}
+
+const useUser = createQuery<Response, Variables>({
+  // ...
+  use: [myMiddleware],
+})
+
+// global middlewares
+const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
+  return options => {
+    // ...
+    return useQueryNext(options)
+  }
+}
+const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
+  return options => {
+    // ...
+    return useMutationNext(options)
+  }
+}
+
+const queryClient = createQueryClient({
+  queries: {
+    use: [queryMiddleware],
+  },
+  mutations: {
+    use: [mutationMiddleware],
+  },
+})
+```
+
+### Multiple Middleware
+
+This feature is inspired by the [Middleware feature from SWR](https://swr.vercel.app/docs/middleware).
+
+Each middleware wraps the next middleware, and the last one just wraps the useQuery. For example:
+
+```jsx
+createQuery({ use: [a, b, c] })
+```
+
+The order of middleware executions will be a → b → c, as shown below:
+
+```plaintext
+enter a
+  enter b
+    enter c
+      useQuery()
+    exit  c
+  exit  b
+exit  a
+```
+
 ## Type inference
 
 You can extract the TypeScript type of any custom hook with `inferVariables` or `inferData`
 
 ```ts
-import { inferVariables, inferData, inferFnData } from 'react-query-kit'
+import { inferData, inferFnData, inferVariables } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
 type FnData = inferFnData<typeof usePost>
-```
-
-## Caution
-
-Since the `variables` type of `createQuery` or `createInfiniteQuery` defaults to `any`, the `variables` option of a custom hook can pass any value when you don't set the type of `varibables`, as below
-
-```ts
-const usePost = createQuery<Response>({...})
-usePost({
-  // This will not throw type errors
-  variables: {foo: 1}
-})
-```
-
-For stricter type validation, when you don't want to pass the `variables` option, I suggest you use the `void` type as the `variables` type, as shown below. When you pass value to variables, usePost will throw a TypeError.
-
-```ts
-const usePost = createQuery<Response, void>({...})
-usePost({
-  // This will throw a type error
-  variables: {foo: 1}
-})
 ```
 
 ## Issues

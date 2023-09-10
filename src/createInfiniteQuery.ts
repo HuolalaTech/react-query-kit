@@ -1,93 +1,40 @@
-import type { QueryClient } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
+
 import { createBaseQuery } from './createBaseQuery'
 import type {
   AdditionalCreateOptions,
   CompatibleUseInfiniteQueryOptions,
-  CompatibleWithV4,
+  DefaultError,
   InfiniteQueryHook,
-  InfiniteQueryHookOptions,
+  Middleware,
 } from './types'
 
 export interface CreateInfiniteQueryOptions<
-  TFnData,
+  TFnData = unknown,
   TVariables = any,
-  Error = unknown,
+  TError = DefaultError,
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<
         TFnData,
         TVariables,
         TFnData,
-        Error,
+        TError,
         TPageParam
       >,
       'queryKey' | 'queryFn' | 'enabled' | 'select'
     >,
-    AdditionalCreateOptions<TFnData, TVariables, TPageParam> {}
+    AdditionalCreateOptions<TFnData, TVariables, TPageParam> {
+  use?: Middleware<InfiniteQueryHook<TFnData, TVariables, TError, TPageParam>>[]
+}
 
 export function createInfiniteQuery<
   TFnData,
   TVariables = any,
-  Error = unknown,
+  TError = DefaultError,
   TPageParam = number
 >(
-  options: CreateInfiniteQueryOptions<
-    TFnData,
-    TVariables,
-    Error,
-    TPageParam
-  > & {
-    useDefaultOptions: () => Omit<
-      InfiniteQueryHookOptions<
-        TFnData,
-        Error,
-        TVariables,
-        TVariables,
-        TPageParam
-      >,
-      'select'
-    > & { variables: TVariables }
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables | void>
-
-export function createInfiniteQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown,
-  TPageParam = number
->(
-  options: CreateInfiniteQueryOptions<
-    TFnData,
-    TVariables,
-    Error,
-    TPageParam
-  > & {
-    useDefaultOptions: () => Omit<
-      InfiniteQueryHookOptions<
-        TFnData,
-        Error,
-        TVariables,
-        TPageParam,
-        TVariables
-      >,
-      'select' | 'variables'
-    >
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
-
-export function createInfiniteQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown,
-  TPageParam = number
->(
-  options: CreateInfiniteQueryOptions<TFnData, TVariables, Error, TPageParam>,
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): InfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
-
-export function createInfiniteQuery(options: any, queryClient?: any) {
-  return createBaseQuery(options, useInfiniteQuery, queryClient)
+  options: CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
+): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
+  return createBaseQuery(options, useInfiniteQuery)
 }

@@ -36,6 +36,7 @@
     "prefer-const": "error",
     "curly": ["warn", "multi-line", "consistent"],
     "no-console": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "import/no-unresolved": ["error", { "commonjs": true, "amd": true }],
     "import/export": "error",
     "@typescript-eslint/no-duplicate-imports": ["error"],
@@ -52,30 +53,7 @@
       "error",
       { "fn": "it", "withinDescribe": "it" }
     ],
-    "import/order": [
-      "error",
-      {
-        "alphabetize": { "order": "asc", "caseInsensitive": true },
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index",
-          "object"
-        ],
-        "newlines-between": "never",
-        "pathGroups": [
-          {
-            "pattern": "react",
-            "group": "builtin",
-            "position": "before"
-          }
-        ],
-        "pathGroupsExcludedImportTypes": ["builtin"]
-      }
-    ],
+    "import/order": "off",
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
     "sort-imports": [

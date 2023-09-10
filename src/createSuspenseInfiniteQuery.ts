@@ -1,25 +1,25 @@
-import type { QueryClient } from '@tanstack/react-query'
 import { useInfiniteQuery } from '@tanstack/react-query'
+
 import { createBaseQuery } from './createBaseQuery'
 import type {
   AdditionalCreateOptions,
   CompatibleUseInfiniteQueryOptions,
-  CompatibleWithV4,
+  DefaultError,
+  Middleware,
   SuspenseInfiniteQueryHook,
-  SuspenseInfiniteQueryHookOptions,
 } from './types'
 
 export interface CreateSuspenseInfiniteQueryOptions<
-  TFnData,
+  TFnData = unknown,
   TVariables = any,
-  Error = unknown,
+  TError = DefaultError,
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<
         TFnData,
         TVariables,
         TFnData,
-        Error,
+        TError,
         TPageParam
       >,
       | 'queryKey'
@@ -32,83 +32,24 @@ export interface CreateSuspenseInfiniteQueryOptions<
       | 'keepPreviousData'
       | 'useErrorBoundary'
     >,
-    Omit<AdditionalCreateOptions<TFnData, TVariables, TPageParam>, 'enabled'> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables, TPageParam>, 'enabled'> {
+  use?: Middleware<SuspenseInfiniteQueryHook<TFnData, TVariables, TVariables>>[]
+}
 
 export function createSuspenseInfiniteQuery<
   TFnData,
   TVariables = any,
-  Error = unknown,
+  TError = DefaultError,
   TPageParam = number
 >(
   options: CreateSuspenseInfiniteQueryOptions<
     TFnData,
     TVariables,
-    Error,
+    TError,
     TPageParam
-  > & {
-    useDefaultOptions: () => Omit<
-      SuspenseInfiniteQueryHookOptions<
-        TFnData,
-        Error,
-        TVariables,
-        TVariables,
-        TPageParam
-      >,
-      'select'
-    > & { variables: TVariables }
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseInfiniteQueryHook<
-  TFnData,
-  TVariables,
-  Error,
-  TPageParam,
-  TVariables | void
->
-
-export function createSuspenseInfiniteQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown,
-  TPageParam = number
->(
-  options: CreateSuspenseInfiniteQueryOptions<
-    TFnData,
-    TVariables,
-    Error,
-    TPageParam
-  > & {
-    useDefaultOptions: () => Omit<
-      SuspenseInfiniteQueryHookOptions<
-        TFnData,
-        Error,
-        TVariables,
-        TPageParam,
-        TVariables
-      >,
-      'select' | 'variables'
-    >
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseInfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
-
-export function createSuspenseInfiniteQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown,
-  TPageParam = number
->(
-  options: CreateSuspenseInfiniteQueryOptions<
-    TFnData,
-    TVariables,
-    Error,
-    TPageParam
-  >,
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseInfiniteQueryHook<TFnData, TVariables, Error, TPageParam, TVariables>
-
-export function createSuspenseInfiniteQuery(options: any, queryClient?: any) {
-  return createBaseQuery(options, useInfiniteQuery, queryClient, {
+  >
+): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
+  return createBaseQuery(options, useInfiniteQuery, {
     enabled: true,
     suspense: true,
     throwOnError: true,

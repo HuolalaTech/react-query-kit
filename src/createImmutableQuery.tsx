@@ -1,20 +1,21 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+
 import { createBaseQuery } from './createBaseQuery'
 import type {
   AdditionalCreateOptions,
-  CompatibleWithV4,
+  DefaultError,
   ImmutableQueryHook,
-  ImmutableQueryHookOptions,
+  Middleware,
   inferQueryKey,
 } from './types'
 
 export interface CreateImmutableQueryOptions<
-  TFnData,
+  TFnData = unknown,
   TVariables = any,
-  Error = unknown
+  TError = DefaultError
 > extends Omit<
-      UseQueryOptions<TFnData, Error, TFnData, inferQueryKey<TVariables>>,
+      UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
       | 'queryKey'
       | 'queryFn'
       | 'enabled'
@@ -28,47 +29,18 @@ export interface CreateImmutableQueryOptions<
       | 'gcTime'
       | 'cacheTime'
     >,
-    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {
+  use?: Middleware<ImmutableQueryHook<TFnData, TVariables, TError>>[]
+}
 
 export function createImmutableQuery<
   TFnData,
   TVariables = any,
-  Error = unknown
+  TError = DefaultError
 >(
-  options: CreateImmutableQueryOptions<TFnData, TVariables, Error> & {
-    useDefaultOptions: () => Omit<
-      ImmutableQueryHookOptions<TFnData, Error, TFnData, TVariables>,
-      'select'
-    > & { variables: TVariables }
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): ImmutableQueryHook<TFnData, TVariables, Error, TVariables | void>
-
-export function createImmutableQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown
->(
-  options: CreateImmutableQueryOptions<TFnData, TVariables, Error> & {
-    useDefaultOptions: () => Omit<
-      ImmutableQueryHookOptions<TFnData, Error, TFnData, TVariables>,
-      'select' | 'variables'
-    >
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): ImmutableQueryHook<TFnData, TVariables, Error, TVariables>
-
-export function createImmutableQuery<
-  TFnData,
-  TVariables = any,
-  Error = unknown
->(
-  options: CreateImmutableQueryOptions<TFnData, TVariables, Error>,
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): ImmutableQueryHook<TFnData, TVariables, Error, TVariables>
-
-export function createImmutableQuery(options: any, queryClient?: any) {
-  return createBaseQuery(options, useQuery, queryClient, {
+  options: CreateImmutableQueryOptions<TFnData, TVariables, TError>
+): ImmutableQueryHook<TFnData, TVariables, TError> {
+  return createBaseQuery(options, useQuery, {
     refetchInterval: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

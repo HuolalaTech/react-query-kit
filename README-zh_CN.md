@@ -42,8 +42,8 @@
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [createMutation](#createmutation)
+  - [中间件](#中间件)
   - [类型推导](#类型推导)
-  - [注意事项](#注意事项)
 - [问题](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -86,13 +86,6 @@ const usePost = createQuery<Response, Variables, Error>({
   // 如果你只想在有id时且没有数据时请求，可以这么设置
   enabled: (data, variables) => !data && variables.id,
   suspense: true,
-   // 你也可以通过 useDefaultOptions 传入默认选项
-  useDefaultOptions: () => {
-    const { id } = useSomething()
-    return {
-      variables: { id }
-    }
-  }
 })
 
 const variables = { id: 1 }
@@ -117,7 +110,7 @@ console.log(usePost.getKey(variables)) //  ['/posts', { id: 1 }]
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchQuery(usePost.getKey(variables), usePost.queryFn)
+  await queryClient.prefetchQuery(usePost.getFetchOptions(variables))
 
   return {
     props: {
@@ -128,15 +121,14 @@ export async function getStaticProps() {
 
 // 在 react 组件外使用
 const data = await queryClient.fetchQuery(
-  usePost.getKey(variables),
-  usePost.queryFn
+  usePost.getFetchOptions(variables)
 )
 
 // useQueries 例子
 const queries = useQueries({
   queries: [
-    { queryKey: usePost.getKey(variables), queryFn: usePost.queryFn },
-    { queryKey: useProjects.getKey(), queryFn: useProjects.queryFn },
+    usePost.getFetchOptions(variables)，
+    useProjects.getFetchOptions(),
   ],
 })
 
@@ -155,14 +147,15 @@ Options
   - 可选
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
-- `useDefaultOptions: () => QueryHookOptions`
+- `use: Middleware[]`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前 query 中，你可以使用这个选项。
+  - 中间件函数数组 [(详情)](#中间件)
 
 Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
+- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
@@ -236,8 +229,7 @@ export async function getStaticProps() {
   const queryClient = new QueryClient()
 
   await queryClient.prefetchInfiniteQuery(
-    useProjects.getKey(variables),
-    useProjects.queryFn
+    useProjects.getFetchOptions(variables)
   )
 
   return {
@@ -249,8 +241,7 @@ export async function getStaticProps() {
 
 // 在 react 组件外使用
 const data = await queryClient.fetchInfiniteQuery(
-  useProjects.getKey(variables),
-  useProjects.queryFn
+  useProjects.getFetchOptions(variables)
 )
 ```
 
@@ -265,14 +256,15 @@ Options
   - 可选
   - 将此设置为 `false` 以禁用此查询自动运行。
   - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
-- `useDefaultOptions: () => InfiniteQueryHookOptions`
+- `use: Middleware[]`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前 query 中，你可以使用这个选项。
+  - 中间件函数数组 [(详情)](#中间件)
 
 Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
+- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
 
@@ -411,47 +403,87 @@ useAddTodo.mutationFn({ title: 'Do Laundry', content: 'content...' })
 
 Options
 
-- `useDefaultOptions: () => MutationHookOptions`
+- `use: Middleware[]`
   - 可选
-  - 如果你想将其他钩子的返回值注入到当前 mutation 中，你可以使用这个选项。
+  - 中间件函数数组 [(详情)](#中间件)
 
 Returns
 
 - `getKey: () => MutationKey`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
+## 中间件
+
+此功能的灵感来自于 [SWR 的中间件功能](https://swr.vercel.app/docs/middleware)。
+
+中间件接收 hook，可以在运行它之前和之后执行逻辑。如果有多个中间件，则每个中间件包装下一个中间件。列表中的最后一个中间件将接收原始的 hook。
+
+### 使用
+
+```ts
+import { Middleware, MutationHook, QueryHook } from 'react-query-kit'
+
+const myMiddleware: Middleware<
+  QueryHook<Response, Variables>
+> = useQueryNext => {
+  return options => {
+    const { userId } = useAuth()
+    return useQueryNext({
+      ...options,
+      variables: options.variables ?? { id: userId },
+    })
+  }
+}
+
+const useUser = createQuery<Response, Variables>({
+  // ...
+  use: [myMiddleware],
+})
+
+// 全局中间件
+const queryMiddleware = Middleware<QueryHook>
+const mutationMiddleware = Middleware<MutationHook>
+
+const queryClient = createQueryClient({
+  queries: {
+    use: [queryMiddleware],
+  },
+  mutations: {
+    use: [mutationMiddleware],
+  },
+})
+```
+
+### 多个中间件
+
+每个中间件包装下一个中间件，最后一个只包装 useQuery hook。例如：
+
+```jsx
+createQuery({ use: [a, b, c] })
+```
+
+中间件执行的顺序是 `a → b → c`，如下所示：
+
+```plaintext
+enter a
+  enter b
+    enter c
+      useQuery()
+    exit  c
+  exit  b
+exit  a
+```
+
 ## 类型推导
 
 您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
-import { inferVariables, inferData, inferFnData } from 'react-query-kit'
+import { inferData, inferFnData, inferVariables } from 'react-query-kit'
 
 type Variables = inferVariables<typeof usePost>
 type Data = inferData<typeof usePost>
 type FnData = inferFnData<typeof usePost>
-```
-
-## 注意事项
-
-由于 `createQuery` 或 `createInfiniteQuery` 的 `varibables` 类型默认为 `any`，当你没有设置 `varibables` 的类型时，自定义钩子的 `varibables` 选项可以传递任何值，如下所示
-
-```ts
-const usePost = createQuery<Response>({...})
-usePost({
-  // 这将不会抛出类型错误
-  variables: {foo: 1}
-})
-```
-
-为了进行更严格的类型验证，当你不想传递`variables`选项时，我建议你使用`void`类型作为`variables`类型，如下图。当你向变量传递值时，usePost 会抛出一个 TypeError。
-
-```ts
-const usePost = createQuery<Response, void>({...})
-usePost({
-  // 这将抛出一个类型错误
-  variables: {foo: 1}
-})
 ```
 
 ## Issues

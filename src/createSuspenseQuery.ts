@@ -1,20 +1,20 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { DefaultError, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+
 import { createBaseQuery } from './createBaseQuery'
 import type {
   AdditionalCreateOptions,
-  CompatibleWithV4,
+  Middleware,
   SuspenseQueryHook,
-  SuspenseQueryHookOptions,
   inferQueryKey,
 } from './types'
 
 export interface CreateSuspenseQueryOptions<
-  TFnData,
+  TFnData = unknown,
   TVariables = any,
-  Error = unknown
+  TError = DefaultError
 > extends Omit<
-      UseQueryOptions<TFnData, Error, TFnData, inferQueryKey<TVariables>>,
+      UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
       | 'queryKey'
       | 'queryFn'
       | 'enabled'
@@ -25,35 +25,18 @@ export interface CreateSuspenseQueryOptions<
       | 'keepPreviousData'
       | 'useErrorBoundary'
     >,
-    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {}
+    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {
+  use?: Middleware<SuspenseQueryHook<TFnData, TVariables, TVariables>>[]
+}
 
-export function createSuspenseQuery<TFnData, TVariables = any, Error = unknown>(
-  options: CreateSuspenseQueryOptions<TFnData, TVariables, Error> & {
-    useDefaultOptions: () => Omit<
-      SuspenseQueryHookOptions<TFnData, Error, TFnData, TVariables>,
-      'select'
-    > & { variables: TVariables }
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseQueryHook<TFnData, TVariables, Error, TVariables | void>
-
-export function createSuspenseQuery<TFnData, TVariables = any, Error = unknown>(
-  options: CreateSuspenseQueryOptions<TFnData, TVariables, Error> & {
-    useDefaultOptions: () => Omit<
-      SuspenseQueryHookOptions<TFnData, Error, TFnData, TVariables>,
-      'select' | 'variables'
-    >
-  },
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseQueryHook<TFnData, TVariables, Error, TVariables>
-
-export function createSuspenseQuery<TFnData, TVariables = any, Error = unknown>(
-  options: CreateSuspenseQueryOptions<TFnData, TVariables, Error>,
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): SuspenseQueryHook<TFnData, TVariables, Error, TVariables>
-
-export function createSuspenseQuery(options: any, queryClient?: any) {
-  return createBaseQuery(options, useQuery, queryClient, {
+export function createSuspenseQuery<
+  TFnData,
+  TVariables = any,
+  TError = DefaultError
+>(
+  options: CreateSuspenseQueryOptions<TFnData, TVariables, TError>
+): SuspenseQueryHook<TFnData, TVariables, TError> {
+  return createBaseQuery(options, useQuery, {
     enabled: true,
     suspense: true,
     throwOnError: true,

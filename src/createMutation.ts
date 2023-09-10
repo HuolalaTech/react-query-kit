@@ -1,50 +1,33 @@
 import { useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
-import type {
-  CompatibleWithV4,
-  MutationHook,
-  MutationHookOptions,
-} from './types'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
-export interface CreateMutationOptions<TData, TError, TVariables, TContext>
-  extends UseMutationOptions<TData, TError, TVariables, TContext> {
-  useDefaultOptions?: () => MutationHookOptions<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  >
+import type { DefaultError, Middleware, MutationHook } from './types'
+import { withMiddlewares } from './utils'
+
+export interface CreateMutationOptions<
+  TData = unknown,
+  TVariables = void,
+  TError = DefaultError,
+  TContext = unknown
+> extends UseMutationOptions<TData, TError, TVariables, TContext> {
+  use?: Middleware<MutationHook<TData, TError, TVariables>>[]
 }
 
 export function createMutation<
   TData = unknown,
   TVariables = void,
-  TError = unknown,
+  TError = DefaultError,
   TContext = unknown
 >(
-  {
-    useDefaultOptions,
-    ...defaultOptions
-  }: CreateMutationOptions<TData, TError, TVariables, TContext>,
-  queryClient?: CompatibleWithV4<QueryClient, void>
-): MutationHook<TData, TError, TVariables> {
+  defaultOptions: CreateMutationOptions<TData, TVariables, TError, TContext>
+): MutationHook<TData, TVariables, TError> {
   const getKey = () => defaultOptions.mutationKey
 
-  const useGeneratedMutation = (
-    options?: MutationHookOptions<TData, TError, TVariables, TContext>
-  ) => {
-    return useMutation(
-      {
-        ...defaultOptions,
-        ...useDefaultOptions?.(),
-        ...options,
-      },
-      queryClient
-    )
-  }
-
-  return Object.assign(useGeneratedMutation, {
-    getKey,
-    mutationFn: defaultOptions.mutationFn,
-  }) as MutationHook<TData, TError, TVariables>
+  return Object.assign(
+    withMiddlewares(useMutation, defaultOptions, 'mutations'),
+    {
+      getKey,
+      mutationFn: defaultOptions.mutationFn,
+    }
+  ) as MutationHook<TData, TVariables, TError>
 }

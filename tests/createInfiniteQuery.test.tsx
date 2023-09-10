@@ -20,6 +20,7 @@ describe('createInfiniteQuery', () => {
       getNextPageParam: lastPage => lastPage.nextCursor,
       enabled: data => !data,
     })
+
     expect(useGeneratedQuery.getPrimaryKey()).toBe(primaryKey)
     expect(useGeneratedQuery.getKey()).toEqual([primaryKey])
     expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])

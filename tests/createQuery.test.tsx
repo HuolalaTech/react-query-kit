@@ -1,9 +1,11 @@
-import * as React from 'react'
 import { QueryClient } from '@tanstack/react-query'
-import { waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
+import { waitFor } from '@testing-library/react'
+import * as React from 'react'
+
 import { createQuery } from '../src'
-import type { QueryHookResult } from '../src'
+import type { QueryHook, QueryHookResult } from '../src'
+import { Middleware } from '../src/types'
 import { renderWithClient, uniqueKey } from './utils'
 
 describe('createQuery', () => {
@@ -21,17 +23,28 @@ describe('createQuery', () => {
     expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
   })
 
-  it('should return the correct variables from useDefaultOptions', async () => {
+  it('should return the correct variables from middleware', async () => {
     const variables = { id: 1 }
+
+    const myMiddileware: Middleware<
+      QueryHook<string, { id: number }>
+    > = useQueryNext => {
+      return options => {
+        return useQueryNext({
+          ...options,
+          variables: options?.variables ?? variables,
+        })
+      }
+    }
+
     const useGeneratedQuery = createQuery<string, { id: number }>({
       primaryKey: uniqueKey(),
       queryFn: () => {
         return 'test'
       },
-      useDefaultOptions: () => {
-        return { variables }
-      },
+      use: [myMiddileware],
     })
+
     const states: QueryHookResult<any, any>[] = []
 
     function Page() {
@@ -58,9 +71,15 @@ describe('createQuery', () => {
       queryFn: () => {
         return 'test'
       },
-      useDefaultOptions: () => {
-        return { variables: { id: 2 } }
-      },
+      use: [
+        useNext => {
+          return options =>
+            useNext({
+              ...options,
+              variables: options?.variables ?? variables,
+            })
+        },
+      ],
     })
     const variables = { id: 1 }
     const states: QueryHookResult<any, any>[] = []

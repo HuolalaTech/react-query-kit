@@ -1,13 +1,17 @@
 import type {
+  GetNextPageParamFunction,
+  GetPreviousPageParamFunction,
   InfiniteData,
   InfiniteQueryObserverSuccessResult,
   MutationFunction,
   MutationKey,
+  QueryClient,
   QueryFunction,
   QueryKey,
   QueryKeyHashFunction,
   QueryObserverSuccessResult,
   SetDataOptions,
+  Updater,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseMutationOptions,
@@ -18,13 +22,7 @@ import type {
 
 // utils
 
-export declare type DataUpdateFunction<TInput, TOutput> = (
-  input: TInput
-) => TOutput
-
-export declare type Updater<TInput, TOutput> =
-  | TOutput
-  | DataUpdateFunction<TInput, TOutput>
+export type DefaultError = Error
 
 export type CompatibleWithV4<V5, V4> =
   InfiniteData<unknown> extends UseInfiniteQueryResult<
@@ -42,16 +40,34 @@ export type CompatibleQueryFunction<
   QueryFunction<T, TQueryKey>
 >
 
+export type CompatibleInfiniteQueryPageParamsOptions<
+  TQueryFnData = unknown,
+  TPageParam = unknown
+> = CompatibleWithV4<
+  {
+    getPreviousPageParam?: GetPreviousPageParamFunction<
+      TPageParam,
+      TQueryFnData
+    >
+    getNextPageParam: GetNextPageParamFunction<TPageParam, TQueryFnData>
+    initialPageParam: TPageParam
+  },
+  {
+    getPreviousPageParam?: GetPreviousPageParamFunction<TQueryFnData>
+    getNextPageParam: GetNextPageParamFunction<TQueryFnData>
+  }
+>
+
 export type CompatibleUseInfiniteQueryOptions<
   TFnData,
   TVariables,
   TData,
-  Error,
+  TError,
   TPageParam
 > = CompatibleWithV4<
   UseInfiniteQueryOptions<
     TFnData,
-    Error,
+    TError,
     TData,
     TFnData,
     inferQueryKey<TVariables>,
@@ -59,7 +75,7 @@ export type CompatibleUseInfiniteQueryOptions<
   >,
   UseInfiniteQueryOptions<
     TFnData,
-    Error,
+    TError,
     TData,
     TFnData,
     inferQueryKey<TVariables>
@@ -87,34 +103,31 @@ export type AdditionalCreateOptions<TFnData, TVariables, TPageParam = never> = {
     TPageParam
   >
   enabled?: inferEnabled<TFnData, TVariables, TPageParam>
+  variables?: TVariables
 }
+
+export type Middleware<
+  T extends (...args: any) => any = QueryHook<any, any, any>
+> = (hook: T) => (...args: Parameters<T>) => ReturnType<T>
 
 export type AdditionalQueryHookOptions<
   TFnData,
   TVariables,
-  TPageParam = never,
-  TOptVariables = TVariables
+  TPageParam = never
 > = {
   enabled?: inferEnabled<TFnData, TVariables, TPageParam>
-} & (TOptVariables extends void
-  ? {
-      variables?: TVariables
-    }
-  : {
-      variables: TVariables
-    })
+  variables?: TVariables
+}
 
-type inferPartialQueryKey<TVariables> = TVariables extends Record<any, any>
-  ?
-      | {
-          [P in keyof TVariables]?: TVariables[P]
-        }
-      | void
-  : TVariables | void
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T
 
 export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
   getPrimaryKey: () => string
-  getKey: <V extends inferPartialQueryKey<TVariables> | void = void>(
+  getKey: <V extends DeepPartial<TVariables> | void = void>(
     variables?: V
   ) => inferQueryKey<V>
   queryFn: CompatibleQueryFunction<
@@ -123,26 +136,41 @@ export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
     TPageParam
   >
   queryKeyHashFn: QueryKeyHashFunction<inferQueryKey<TVariables>>
+  getFetchOptions: (
+    variables: TVariables extends void ? TVariables | void : TVariables
+  ) => [TPageParam] extends [never]
+    ? {
+        queryKey: inferQueryKey<TVariables>
+        queryFn: CompatibleQueryFunction<
+          TFnData,
+          inferQueryKey<TVariables>,
+          TPageParam
+        >
+        queryKeyHashFn?: QueryKeyHashFunction<inferQueryKey<TVariables>>
+      }
+    : {
+        queryKey: inferQueryKey<TVariables>
+        queryFn: CompatibleQueryFunction<
+          TFnData,
+          inferQueryKey<TVariables>,
+          TPageParam
+        >
+        queryKeyHashFn?: QueryKeyHashFunction<inferQueryKey<TVariables>>
+      } & CompatibleInfiniteQueryPageParamsOptions<TFnData, TPageParam>
 }
 
 // query hook
 
-export type QueryHookOptions<
-  TFnData,
-  Error,
-  TData,
-  TVariables,
-  TOptVariables = TVariables
-> = Omit<
-  UseQueryOptions<TFnData, Error, TData, inferQueryKey<TVariables>>,
+export type QueryHookOptions<TFnData, TError, TData, TVariables> = Omit<
+  UseQueryOptions<TFnData, TError, TData, inferQueryKey<TVariables>>,
   'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'enabled'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>
+  AdditionalQueryHookOptions<TFnData, TVariables>
 
 export type QueryHookResult<
-  TFnData,
-  TVariables,
-  TError = unknown,
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError,
   TData = TFnData
 > = UseQueryResult<TData, TError> & {
   queryKey: inferQueryKey<TVariables>
@@ -154,56 +182,40 @@ export type QueryHookResult<
 }
 
 export interface QueryHook<
-  TFnData,
-  TVariables,
-  TError = unknown,
-  TOptVariables = TVariables
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError
 > extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
-    options: TOptVariables extends void
-      ? QueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TOptVariables
-        > | void
-      : QueryHookOptions<TFnData, TError, TData, TVariables, TOptVariables>
+    options?: QueryHookOptions<TFnData, TError, TData, TVariables>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): QueryHookResult<TFnData, TVariables, TError, TData>
 }
 
 // immutable query hook
 
-export type ImmutableQueryHookOptions<
-  TFnData,
-  Error,
-  TData,
-  TVariables,
-  TOptVariables = TVariables
-> = Omit<
-  UseQueryOptions<TFnData, Error, TData, inferQueryKey<TVariables>>,
-  | 'queryKey'
-  | 'queryFn'
-  | 'queryKeyHashFn'
-  | 'enabled'
-  | 'refetchInterval'
-  | 'refetchIntervalInBackground'
-  | 'refetchOnMount'
-  | 'refetchOnReconnect'
-  | 'refetchOnWindowFocus'
-  | 'staleTime'
-  | 'gcTime'
-  | 'cacheTime'
-> &
+export type ImmutableQueryHookOptions<TFnData, TError, TData, TVariables> =
   Omit<
-    AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>,
-    'enabled'
-  >
+    UseQueryOptions<TFnData, TError, TData, inferQueryKey<TVariables>>,
+    | 'queryKey'
+    | 'queryFn'
+    | 'queryKeyHashFn'
+    | 'enabled'
+    | 'refetchInterval'
+    | 'refetchIntervalInBackground'
+    | 'refetchOnMount'
+    | 'refetchOnReconnect'
+    | 'refetchOnWindowFocus'
+    | 'staleTime'
+    | 'gcTime'
+    | 'cacheTime'
+  > &
+    Omit<AdditionalQueryHookOptions<TFnData, TVariables>, 'enabled'>
 
 export type ImmutableQueryHookResult<
-  TFnData,
-  TVariables,
-  TError = unknown,
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError,
   TData = TFnData
 > = UseQueryResult<TData, TError> & {
   queryKey: inferQueryKey<TVariables>
@@ -214,41 +226,18 @@ export type ImmutableQueryHookResult<
   ) => TFnData | undefined
 }
 
-export interface ImmutableQueryHook<
-  TFnData,
-  TVariables,
-  TError = unknown,
-  TOptVariables = TVariables
-> extends ExposeMethods<TFnData, TVariables> {
+export interface ImmutableQueryHook<TFnData, TVariables, TError = DefaultError>
+  extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
-    options: TOptVariables extends void
-      ? ImmutableQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TOptVariables
-        > | void
-      : ImmutableQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TOptVariables
-        >
+    options?: ImmutableQueryHookOptions<TFnData, TError, TData, TVariables>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): ImmutableQueryHookResult<TFnData, TVariables, TError, TData>
 }
 
 // suspense query hook
 
-export type SuspenseQueryHookOptions<
-  TFnData,
-  Error,
-  TData,
-  TVariables,
-  TOptVariables = TVariables
-> = Omit<
-  UseQueryOptions<TFnData, Error, TData, inferQueryKey<TVariables>>,
+export type SuspenseQueryHookOptions<TFnData, TError, TData, TVariables> = Omit<
+  UseQueryOptions<TFnData, TError, TData, inferQueryKey<TVariables>>,
   | 'queryKey'
   | 'queryFn'
   | 'queryKeyHashFn'
@@ -259,15 +248,12 @@ export type SuspenseQueryHookOptions<
   | 'keepPreviousData'
   | 'useErrorBoundary'
 > &
-  Omit<
-    AdditionalQueryHookOptions<TFnData, TVariables, TOptVariables>,
-    'enabled'
-  >
+  Omit<AdditionalQueryHookOptions<TFnData, TVariables>, 'enabled'>
 
 export type SuspenseQueryHookResult<
   TFnData,
   TVariables,
-  TError = unknown,
+  TError = DefaultError,
   TData = TFnData
 > = Omit<
   QueryObserverSuccessResult<TData, TError>,
@@ -282,27 +268,13 @@ export type SuspenseQueryHookResult<
 }
 
 export interface SuspenseQueryHook<
-  TFnData,
-  TVariables,
-  TError = unknown,
-  TOptVariables = TVariables
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError
 > extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
-    options: TOptVariables extends void
-      ? SuspenseQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TOptVariables
-        > | void
-      : SuspenseQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TOptVariables
-        >
+    options?: SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): SuspenseQueryHookResult<TFnData, TVariables, TError, TData>
 }
 
@@ -310,17 +282,16 @@ export interface SuspenseQueryHook<
 
 export type InfiniteQueryHookOptions<
   TFnData,
-  Error,
+  TError,
   TData,
   TVariables,
-  TPageParam = number,
-  TOptVariables = TVariables
+  TPageParam = number
 > = Omit<
   CompatibleUseInfiniteQueryOptions<
     TFnData,
     TVariables,
     TData,
-    Error,
+    TError,
     TPageParam
   >,
   | 'queryKey'
@@ -331,12 +302,12 @@ export type InfiniteQueryHookOptions<
   | 'getPreviousPageParam'
   | 'getNextPageParam'
 > &
-  AdditionalQueryHookOptions<TFnData, TVariables, TPageParam, TOptVariables>
+  AdditionalQueryHookOptions<TFnData, TVariables, TPageParam>
 
 export type InfiniteQueryHookResult<
   TFnData,
   TVariables,
-  TError = unknown,
+  TError = DefaultError,
   TData = CompatibleWithV4<InfiniteData<TFnData>, TFnData>
 > = UseInfiniteQueryResult<TData, TError> & {
   queryKey: inferQueryKey<TVariables>
@@ -351,30 +322,20 @@ export type InfiniteQueryHookResult<
 }
 
 export interface InfiniteQueryHook<
-  TFnData,
-  TVariables,
-  TError = unknown,
-  TPageParam = number,
-  TOptVariables = TVariables
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError,
+  TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
-    options: TOptVariables extends void
-      ? InfiniteQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TPageParam,
-          TOptVariables
-        > | void
-      : InfiniteQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TPageParam,
-          TOptVariables
-        >
+    options?: InfiniteQueryHookOptions<
+      TFnData,
+      TError,
+      TData,
+      TVariables,
+      TPageParam
+    >,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): InfiniteQueryHookResult<TFnData, TVariables, TError, TData>
 }
 
@@ -382,17 +343,16 @@ export interface InfiniteQueryHook<
 
 export type SuspenseInfiniteQueryHookOptions<
   TFnData,
-  Error,
+  TError,
   TData,
   TVariables,
-  TPageParam = number,
-  TOptVariables = TVariables
+  TPageParam = number
 > = Omit<
   CompatibleUseInfiniteQueryOptions<
     TFnData,
     TVariables,
     TData,
-    Error,
+    TError,
     TPageParam
   >,
   | 'queryKey'
@@ -408,15 +368,12 @@ export type SuspenseInfiniteQueryHookOptions<
   | 'keepPreviousData'
   | 'useErrorBoundary'
 > &
-  Omit<
-    AdditionalQueryHookOptions<TFnData, TVariables, TPageParam, TOptVariables>,
-    'enabled'
-  >
+  Omit<AdditionalQueryHookOptions<TFnData, TVariables, TPageParam>, 'enabled'>
 
 export type SuspenseInfiniteQueryHookResult<
   TFnData,
   TVariables,
-  TError = unknown,
+  TError = DefaultError,
   TData = CompatibleWithV4<InfiniteData<TFnData>, TFnData>
 > = Omit<
   InfiniteQueryObserverSuccessResult<CompatibleWithV4<TData, TFnData>, TError>,
@@ -434,30 +391,20 @@ export type SuspenseInfiniteQueryHookResult<
 }
 
 export interface SuspenseInfiniteQueryHook<
-  TFnData,
-  TVariables,
-  TError = unknown,
-  TPageParam = number,
-  TOptVariables = TVariables
+  TFnData = unknown,
+  TVariables = any,
+  TError = DefaultError,
+  TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
-    options: TOptVariables extends void
-      ? SuspenseInfiniteQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TPageParam,
-          TOptVariables
-        > | void
-      : SuspenseInfiniteQueryHookOptions<
-          TFnData,
-          TError,
-          TData,
-          TVariables,
-          TPageParam,
-          TOptVariables
-        >
+    options?: SuspenseInfiniteQueryHookOptions<
+      TFnData,
+      TError,
+      TData,
+      TVariables,
+      TPageParam
+    >,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): SuspenseInfiniteQueryHookResult<TFnData, TVariables, TError, TData>
 }
 
@@ -468,9 +415,14 @@ export type MutationHookOptions<TData, TError, TVariables, TContext> = Omit<
   'mutationFn' | 'mutationKey'
 >
 
-export interface MutationHook<TData, TError, TVariables> {
+export interface MutationHook<
+  TData = unknown,
+  TVariables = any,
+  TError = unknown
+> {
   <TContext>(
-    options?: MutationHookOptions<TData, TError, TVariables, TContext>
+    options?: MutationHookOptions<TData, TError, TVariables, TContext>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
   ): UseMutationResult<TData, TError, TVariables, TContext>
   getKey: () => MutationKey | undefined
   mutationFn: MutationFunction<TData, TVariables>
@@ -486,9 +438,9 @@ export type inferVariables<T> = T extends QueryHook<any, infer TVariables, any>
   ? TVariables
   : T extends InfiniteQueryHook<any, infer TVariables, any>
   ? TVariables
-  : T extends SuspenseQueryHook<any, infer TVariables, any>
+  : T extends SuspenseInfiniteQueryHook<any, infer TVariables, any>
   ? TVariables
-  : T extends MutationHook<any, any, infer TVariables>
+  : T extends MutationHook<any, infer TVariables, any>
   ? TVariables
   : never
 

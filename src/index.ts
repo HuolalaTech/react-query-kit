@@ -4,6 +4,7 @@ export * from './createSuspenseQuery'
 export * from './createInfiniteQuery'
 export * from './createSuspenseInfiniteQuery'
 export * from './createMutation'
+export { getQueryKey } from './utils'
 export type {
   QueryHookOptions,
   QueryHook,
@@ -25,4 +26,5 @@ export type {
   inferVariables,
   inferData,
   inferFnData,
+  Middleware,
 } from './types'

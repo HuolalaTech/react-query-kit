@@ -9,4 +9,8 @@ module.exports = {
   jsxBracketSameLine: false,
   arrowParens: 'avoid',
   endOfLine: 'auto',
+  plugins: [require('@trivago/prettier-plugin-sort-imports')],
+  importOrder: ['^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 }
