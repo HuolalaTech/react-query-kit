@@ -415,7 +415,9 @@ Returns
 
 ## Middleware
 
-The middleware feature is a new addition in SWR 1.0 that enables you to execute logic before and after SWR hooks.
+This feature is inspired by the [Middleware feature from SWR](https://swr.vercel.app/docs/middleware). The middleware feature is a new addition in ReactQueryKit 1.5.0 that enables you to execute logic before and after hooks.
+
+Middleware receive the hook and can execute logic before and after running it. If there are multiple middleware, each middleware wraps the next middleware. The last middleware in the list will receive the original hook.
 
 ### Usage
 
@@ -464,8 +466,6 @@ const queryClient = createQueryClient({
 ```
 
 ### Multiple Middleware
-
-This feature is inspired by the [Middleware feature from SWR](https://swr.vercel.app/docs/middleware).
 
 Each middleware wraps the next middleware, and the last one just wraps the useQuery. For example:
 
