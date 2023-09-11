@@ -1,5 +1,13 @@
 <div align="center">
-<h1>react-query-kit</h1>
+
+<br />
+<br />
+
+<p align="center">
+  <a aria-label="NPM version" href="https://quaere-site.vercel.app">
+    <img alt="" src="./assets/logo.svg" height="40">
+  </a>
+</p>
 
 <p>🕊️ 一个用于 ReactQuery 的工具包，它能使 ReactQuery 更易复用和类型安全</p>
 
