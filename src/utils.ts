@@ -30,9 +30,6 @@ export const withMiddlewares = (
     const middleware: Middleware[] = configUse.concat(use)
 
     for (let i = middleware.length; i--; ) {
-      if (middleware[i] === undefined) {
-        console.log(middleware[i], middleware)
-      }
       next = middleware[i]!(next)
     }
 
