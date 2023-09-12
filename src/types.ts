@@ -439,3 +439,41 @@ export type inferFnData<T> = T extends QueryHook<infer TData, any, any>
   : T extends MutationHook<infer TData, any, any>
   ? TData
   : never
+
+export type inferOptions<T> = T extends QueryHook<
+  infer TFnData,
+  infer TVariables,
+  infer TError
+>
+  ? QueryHookOptions<TFnData, TError, TFnData, TVariables>
+  : T extends SuspenseQueryHook<infer TFnData, infer TVariables, infer TError>
+  ? SuspenseQueryHookOptions<TFnData, TError, TFnData, TVariables>
+  : T extends InfiniteQueryHook<
+      infer TFnData,
+      infer TVariables,
+      infer TError,
+      infer TPageParam
+    >
+  ? InfiniteQueryHookOptions<
+      TFnData,
+      TError,
+      CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
+      TVariables,
+      TPageParam
+    >
+  : T extends SuspenseInfiniteQueryHook<
+      infer TFnData,
+      infer TVariables,
+      infer TError,
+      infer TPageParam
+    >
+  ? SuspenseInfiniteQueryHookOptions<
+      TFnData,
+      TError,
+      CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
+      TVariables,
+      TPageParam
+    >
+  : T extends MutationHook<infer TFnData, infer TVariables, infer TError>
+  ? MutationHookOptions<TFnData, TError, TVariables, unknown>
+  : never

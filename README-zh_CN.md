@@ -464,13 +464,14 @@ exit  a
 您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
-import { inferData, inferFnData, inferVariables } from 'react-query-kit'
+import { inferData, inferFnData, inferVariables, inferOptions } from 'react-query-kit'
 
 const useProjects = createInfiniteQuery<Response, Variables>(...)
 
-inferVariables<typeof usePost> // Variables
-inferData<typeof usePost> // InfiniteData<Response>
-inferFnData<typeof usePost> // Response
+inferVariables<typeof useProjects> // Variables
+inferData<typeof useProjects> // InfiniteData<Response>
+inferFnData<typeof useProjects> // Response
+inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
 
 ## Issues

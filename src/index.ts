@@ -22,5 +22,6 @@ export type {
   inferVariables,
   inferData,
   inferFnData,
+  inferOptions,
   Middleware,
 } from './types'
