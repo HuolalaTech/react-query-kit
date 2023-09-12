@@ -36,7 +36,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
   use?: Middleware<SuspenseInfiniteQueryHook<TFnData, TVariables, TVariables>>[]
 }
 
-export function createSuspenseInfiniteQuery<
+export const createSuspenseInfiniteQuery = <
   TFnData,
   TVariables = any,
   TError = DefaultError,
@@ -48,7 +48,7 @@ export function createSuspenseInfiniteQuery<
     TError,
     TPageParam
   >
-): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
+): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
   return createBaseQuery(options, useInfiniteQuery, {
     enabled: true,
     suspense: true,

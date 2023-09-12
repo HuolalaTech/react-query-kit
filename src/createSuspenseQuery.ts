@@ -29,13 +29,13 @@ export interface CreateSuspenseQueryOptions<
   use?: Middleware<SuspenseQueryHook<TFnData, TVariables, TVariables>>[]
 }
 
-export function createSuspenseQuery<
+export const createSuspenseQuery = <
   TFnData,
   TVariables = any,
   TError = DefaultError
 >(
   options: CreateSuspenseQueryOptions<TFnData, TVariables, TError>
-): SuspenseQueryHook<TFnData, TVariables, TError> {
+): SuspenseQueryHook<TFnData, TVariables, TError> => {
   return createBaseQuery(options, useQuery, {
     enabled: true,
     suspense: true,

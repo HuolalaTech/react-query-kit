@@ -28,13 +28,13 @@ export interface CreateInfiniteQueryOptions<
   use?: Middleware<InfiniteQueryHook<TFnData, TVariables, TError, TPageParam>>[]
 }
 
-export function createInfiniteQuery<
+export const createInfiniteQuery = <
   TFnData,
   TVariables = any,
   TError = DefaultError,
   TPageParam = number
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
-): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
+): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
   return createBaseQuery(options, useInfiniteQuery)
 }

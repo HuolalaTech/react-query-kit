@@ -1,5 +1,4 @@
 export * from './createQuery'
-export * from './createImmutableQuery'
 export * from './createSuspenseQuery'
 export * from './createInfiniteQuery'
 export * from './createSuspenseInfiniteQuery'
@@ -9,9 +8,6 @@ export type {
   QueryHookOptions,
   QueryHook,
   QueryHookResult,
-  ImmutableQueryHookOptions,
-  ImmutableQueryHook,
-  ImmutableQueryHookResult,
   InfiniteQueryHookOptions,
   InfiniteQueryHook,
   InfiniteQueryHookResult,

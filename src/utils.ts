@@ -5,35 +5,43 @@ import { CompatibleWithV4, Middleware } from './types'
 export const useCompatibeQueryClient = (
   options?: any,
   queryClient?: CompatibleWithV4<QueryClient, void>
-) =>
-  // @ts-ignore
-  useQueryClient(options?.context ? { context: options.context } : queryClient)
+) => {
+  return useQueryClient(
+    // compatible with ReactQuery v4
+    // @ts-ignore
+    options?.context ? { context: options.context } : queryClient
+  )
+}
 
-export const withMiddlewares = (
+export const withMiddleware = (
   hook: any,
   defaultOptions: any,
   type: 'queries' | 'mutations'
 ) => {
-  const { use = [], ...restOptions } = defaultOptions
-
   return function useMiddleware(
     options?: { client?: QueryClient; use?: Middleware[] },
     queryClient?: CompatibleWithV4<QueryClient, void>
   ) {
     const client = useCompatibeQueryClient(options, queryClient)
+    const [middleware, opts] = [
+      client.getDefaultOptions()[type],
+      defaultOptions,
+      options,
+    ].reduce(
+      (acc, item = {}) => {
+        const [middleware, opts] = acc
+        const { use = [], ...rest } = item
+        return [[...middleware, ...use], { ...opts, ...rest }]
+      },
+      [[], {}]
+    )
 
     let next = hook
-
-    const { use: configUse = [], ...configOptions } =
-      (client.getDefaultOptions()[type] as any) || {}
-
-    const middleware: Middleware[] = configUse.concat(use)
-
     for (let i = middleware.length; i--; ) {
-      next = middleware[i]!(next)
+      next = middleware[i](next)
     }
 
-    return next({ ...configOptions, ...restOptions, ...options }, queryClient)
+    return next(opts, queryClient)
   }
 }
 

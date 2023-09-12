@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
 import type { DefaultError, Middleware, MutationHook } from './types'
-import { withMiddlewares } from './utils'
+import { withMiddleware } from './utils'
 
 export interface CreateMutationOptions<
   TData = unknown,
@@ -13,18 +13,18 @@ export interface CreateMutationOptions<
   use?: Middleware<MutationHook<TData, TError, TVariables>>[]
 }
 
-export function createMutation<
+export const createMutation = <
   TData = unknown,
   TVariables = void,
   TError = DefaultError,
   TContext = unknown
 >(
   defaultOptions: CreateMutationOptions<TData, TVariables, TError, TContext>
-): MutationHook<TData, TVariables, TError> {
+): MutationHook<TData, TVariables, TError> => {
   const getKey = () => defaultOptions.mutationKey
 
   return Object.assign(
-    withMiddlewares(useMutation, defaultOptions, 'mutations'),
+    withMiddleware(useMutation, defaultOptions, 'mutations'),
     {
       getKey,
       mutationFn: defaultOptions.mutationFn,

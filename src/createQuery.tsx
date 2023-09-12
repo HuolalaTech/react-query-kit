@@ -22,8 +22,8 @@ export interface CreateQueryOptions<
   use?: Middleware<QueryHook<TFnData, TVariables, TError>>[]
 }
 
-export function createQuery<TFnData, TVariables = any, TError = DefaultError>(
+export const createQuery = <TFnData, TVariables = any, TError = DefaultError>(
   options: CreateQueryOptions<TFnData, TVariables, TError>
-): QueryHook<TFnData, TVariables, TError> {
+): QueryHook<TFnData, TVariables, TError> => {
   return createBaseQuery(options, useQuery)
 }

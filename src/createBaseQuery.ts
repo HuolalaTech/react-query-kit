@@ -11,7 +11,7 @@ import type {
   CompatibleWithV4,
   Middleware,
 } from './types'
-import { getQueryKey, useCompatibeQueryClient, withMiddlewares } from './utils'
+import { getQueryKey, useCompatibeQueryClient, withMiddleware } from './utils'
 
 interface CreateQueryOptions
   extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
@@ -30,7 +30,8 @@ export function createBaseQuery(
   useRQHook: (options: any, queryClient?: any) => any,
   overrideOptions?: QueryBaseHookOptions
 ): any {
-  const { primaryKey } = defaultOptions as CreateQueryOptions
+  const { primaryKey, queryFn, queryKeyHashFn } =
+    defaultOptions as CreateQueryOptions
 
   if (process.env.NODE_ENV !== 'production') {
     // @ts-ignore
@@ -48,55 +49,53 @@ export function createBaseQuery(
   const getFetchOptions = (variables: any) => {
     return {
       queryKey: getKey(variables),
-      queryFn: defaultOptions.queryFn,
-      queryKeyHashFn: defaultOptions.queryKeyHashFn,
+      queryFn,
+      queryKeyHashFn,
       getPreviousPageParam: (defaultOptions as any).getPreviousPageParam,
       getNextPageParam: (defaultOptions as any).getNextPageParam,
       initialPageParam: (defaultOptions as any).initialPageParam,
     }
   }
 
-  const useGeneratedQuery = (
+  const useBaseHook = (
     options: QueryBaseHookOptions,
     queryClient?: CompatibleWithV4<QueryClient, void>
   ) => {
     const client = useCompatibeQueryClient(options, queryClient)
-
     const { enabled, variables, ...mergedOptions } = {
       ...options,
       ...overrideOptions,
     } as QueryBaseHookOptions
-
     const queryKey = getKey(variables)
 
-    const result = useRQHook(
+    return Object.assign(
+      useRQHook(
+        {
+          ...mergedOptions,
+          enabled:
+            typeof enabled === 'function'
+              ? enabled(client.getQueryData(queryKey), variables)
+              : enabled,
+          queryKey,
+        },
+        client
+      ),
       {
-        ...mergedOptions,
-        enabled:
-          typeof enabled === 'function'
-            ? enabled(client.getQueryData(queryKey), variables)
-            : enabled,
-        queryKey,
-      },
-      client
+        queryKey: queryKey,
+        variables,
+        setData: (
+          updater: Updater<any, any>,
+          setDataOptions?: SetDataOptions
+        ) => client.setQueryData(queryKey, updater, setDataOptions),
+      }
     )
-
-    return Object.assign(result, {
-      queryKey: queryKey,
-      variables,
-      setData: (updater: Updater<any, any>, setDataOptions?: SetDataOptions) =>
-        client.setQueryData(queryKey, updater, setDataOptions),
-    })
   }
 
-  return Object.assign(
-    withMiddlewares(useGeneratedQuery, defaultOptions, 'queries'),
-    {
-      getPrimaryKey,
-      getKey,
-      queryFn: defaultOptions.queryFn,
-      queryKeyHashFn: defaultOptions.queryKeyHashFn,
-      getFetchOptions,
-    }
-  )
+  return Object.assign(withMiddleware(useBaseHook, defaultOptions, 'queries'), {
+    getPrimaryKey,
+    getKey,
+    queryFn,
+    queryKeyHashFn,
+    getFetchOptions,
+  })
 }

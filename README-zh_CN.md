@@ -46,7 +46,6 @@
 - 使用
   - [createQuery](#createquery)
   - [createInfiniteQuery](#createinfinitequery)
-  - [createImmutableQuery](#createimmutablequery)
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [createMutation](#createmutation)
@@ -94,6 +93,8 @@ const usePost = createQuery<Response, Variables, Error>({
   // 如果你只想在有id时且没有数据时请求，可以这么设置
   enabled: (data, variables) => !data && variables.id,
   suspense: true,
+  // 你还可以通过中间件来定制这个 hook 的行为
+  use: [myMiddleware]
 })
 
 const variables = { id: 1 }
@@ -136,7 +137,7 @@ const data = await queryClient.fetchQuery(
 const queries = useQueries({
   queries: [
     usePost.getFetchOptions(variables)，
-    useProjects.getFetchOptions(),
+    useUser.getFetchOptions(),
   ],
 })
 
@@ -284,30 +285,6 @@ Returns
   - 自定义 hook 的 variables.
 - `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
   - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
-
-## createImmutableQuery
-
-如果资源是不可变的，即使我们再怎么重新请求也永远不会发生任何改变，那么我们可以禁用它的所有的自动重新请求。
-ReactQueryKit 提供了一个辅助函数 `createImmutableQuery` 来标记资源为不可变的：
-
-```ts
-import { createImmutableQuery } from 'react-query-kit'
-
-createImmutableQuery({
-  ...options,
-})
-
-// 相当于
-createQuery({
-  ...options,
-  refetchInterval: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-  refetchOnWindowFocus: false,
-  staleTime: Infinity,
-  gcTime: Infinity,
-})
-```
 
 ## createSuspenseQuery
 
@@ -489,9 +466,11 @@ exit  a
 ```ts
 import { inferData, inferFnData, inferVariables } from 'react-query-kit'
 
-type Variables = inferVariables<typeof usePost>
-type Data = inferData<typeof usePost>
-type FnData = inferFnData<typeof usePost>
+const useProjects = createInfiniteQuery<Response, Variables>(...)
+
+inferVariables<typeof usePost> // Variables
+inferData<typeof usePost> // InfiniteData<Response>
+inferFnData<typeof usePost> // Response
 ```
 
 ## Issues

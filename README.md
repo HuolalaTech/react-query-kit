@@ -46,7 +46,6 @@ English | [简体中文](./README-zh_CN.md)
 - Usage
   - [createQuery](#createquery)
   - [createInfiniteQuery](#createinfinitequery)
-  - [createImmutableQuery](#createimmutablequery)
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [createMutation](#createmutation)
@@ -140,7 +139,7 @@ const data = await queryClient.fetchQuery(usePost.getFetchOptions(variables))
 const queries = useQueries({
   queries: [
    usePost.getFetchOptions(variables),
-   useProjects.getFetchOptions(),
+   useUser.getFetchOptions(),
   ],
 })
 
@@ -287,30 +286,6 @@ Returns
   - The variables of this custom query.
 - `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
   - it's args similar with `queryClient.setQueryData` but without `queryKey`
-
-## createImmutableQuery
-
-If the resource is immutable, no matter how many times we request it again, it will never change. In this case, we can disable all automatic re-requests for it.
-ReactQueryKit provides a helper function `createImmutableQuery` to mark a resource as immutable.
-
-```ts
-import { createImmutableQuery } from 'react-query-kit'
-
-createImmutableQuery({
-  ...options,
-})
-
-// equals to
-createQuery({
-  ...options,
-  refetchInterval: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-  refetchOnWindowFocus: false,
-  staleTime: Infinity,
-  gcTime: Infinity,
-})
-```
 
 ## createSuspenseQuery
 
@@ -500,9 +475,11 @@ You can extract the TypeScript type of any custom hook with `inferVariables` or 
 ```ts
 import { inferData, inferFnData, inferVariables } from 'react-query-kit'
 
-type Variables = inferVariables<typeof usePost>
-type Data = inferData<typeof usePost>
-type FnData = inferFnData<typeof usePost>
+const useProjects = createInfiniteQuery<Response, Variables>(...)
+
+inferVariables<typeof usePost> // Variables
+inferData<typeof usePost> // InfiniteData<Response>
+inferFnData<typeof usePost> // Response
 ```
 
 ## Issues
