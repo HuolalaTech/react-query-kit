@@ -28,9 +28,9 @@
 
 - 使 `queryKey` 与 `queryFn` 强相关
 - 以类型安全的方式管理 `queryKey`
-- 快速生成自定义 ReactQuery 钩子
-- 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery 钩子
-- 为自定义 ReactQuery 钩子设置默认选项更容易和更清晰
+- 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery hook
+- 为自定义 ReactQuery hook 设置默认选项更容易和更清晰
+- 中间件
 
 ![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
 
@@ -90,8 +90,6 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey 相等于 '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
-  // 如果你只想在有id时且没有数据时请求，可以这么设置
-  enabled: (data, variables) => !data && variables.id,
   suspense: true,
   // 你还可以通过中间件来定制这个 hook 的行为
   use: [myMiddleware]
@@ -152,10 +150,6 @@ Options
 - `primaryKey: string`
   - 必填
   - `primaryKey` 将是 `queryKey` 数组的第一个元素
-- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - 可选
-  - 将此设置为 `false` 以禁用此查询自动运行。
-  - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 - `use: Middleware[]`
   - 可选
   - 中间件函数数组 [(详情)](#中间件)
@@ -167,15 +161,6 @@ Expose Methods
 - `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
-
-Returns
-
-- `queryKey: [primaryKey, TVariables]`
-  - 自定义 hook 的 queryKey.
-- `variables: TVariables`
-  - 自定义 hook 的 variables.
-- `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-  - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createInfiniteQuery
 
@@ -261,10 +246,6 @@ Options
 - `primaryKey: string`
   - 必填
   - `primaryKey` 将是 `queryKey` 数组的第一个元素
-- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - 可选
-  - 将此设置为 `false` 以禁用此查询自动运行。
-  - 如果设置为函数，该函数将使用最新数据执行以计算布尔值
 - `use: Middleware[]`
   - 可选
   - 中间件函数数组 [(详情)](#中间件)
@@ -273,18 +254,9 @@ Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
+- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
-
-Returns
-
-- `queryKey: [primaryKey, TVariables]`
-  - 自定义 hook 的 queryKey.
-- `variables: TVariables`
-  - 自定义 hook 的 variables.
-- `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-  - 它的参数与 `queryClient.setQueryData` 类似，但不需要传入 `queryKey`
 
 ## createSuspenseQuery
 
@@ -406,16 +378,21 @@ Returns
 ### 使用
 
 ```ts
-import { Middleware, MutationHook, QueryHook } from 'react-query-kit'
+import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
 const myMiddleware: Middleware<
   QueryHook<Response, Variables>
 > = useQueryNext => {
   return options => {
     const { userId } = useAuth()
+    const client = useQueryClient()
+    const variables = options.variables ?? { id: userId }
+    const hasData = () => !!client.getQueryData(useUser.getKey(variables))
+
     return useQueryNext({
       ...options,
-      variables: options.variables ?? { id: userId },
+      variables,
+      enabled: options.enabled ?? !hasData(),
     })
   }
 }
@@ -426,12 +403,28 @@ const useUser = createQuery<Response, Variables>({
 })
 
 // 全局中间件
-const queryMiddleware = Middleware<QueryHook>
-const mutationMiddleware = Middleware<MutationHook>
+const disabledIfHasData: Middleware<QueryHook> = useQueryNext => {
+  return options => {
+    const client = useQueryClient()
+    const hasData = () =>
+      !!client.getQueryData(getKey(options.primaryKey, options.variables))
+
+    return useQueryNext({
+      ...options,
+      enabled: options.enabled ?? !hasData(),
+    })
+  }
+}
+const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
+  return options => {
+    // ...
+    return useMutationNext(options)
+  }
+}
 
 const queryClient = createQueryClient({
   queries: {
-    use: [queryMiddleware],
+    use: [disabledIfHasData],
   },
   mutations: {
     use: [mutationMiddleware],
@@ -461,16 +454,16 @@ exit  a
 
 ## 类型推导
 
-您可以使用 `inferVariables` 或 `inferData` 提取任何自定义 hook 的 TypeScript 类型
+您可以使用 `inferData` 或 `inferVariables` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
 import { inferData, inferFnData, inferVariables, inferOptions } from 'react-query-kit'
 
 const useProjects = createInfiniteQuery<Response, Variables>(...)
 
-inferVariables<typeof useProjects> // Variables
 inferData<typeof useProjects> // InfiniteData<Response>
 inferFnData<typeof useProjects> // Response
+inferVariables<typeof useProjects> // Variables
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
 

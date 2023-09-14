@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/react'
 import * as React from 'react'
 
 import { createQuery } from '../src'
-import type { QueryHook, QueryHookResult } from '../src'
+import type { QueryHookResult } from '../src'
 import { Middleware } from '../src/types'
 import { renderWithClient, uniqueKey } from './utils'
 
@@ -23,16 +23,13 @@ describe('createQuery', () => {
     expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
   })
 
-  it('should return the correct variables from middleware', async () => {
-    const variables = { id: 1 }
-
-    const myMiddileware: Middleware<
-      QueryHook<string, { id: number }>
-    > = useQueryNext => {
+  it('should return the correct initial data from middleware', async () => {
+    const myMiddileware: Middleware = useQueryNext => {
       return options => {
         return useQueryNext({
           ...options,
-          variables: options?.variables ?? variables,
+          initialData: 'initialData',
+          enabled: false,
         })
       }
     }
@@ -57,15 +54,10 @@ describe('createQuery', () => {
 
     const rendered = renderWithClient(queryClient, <Page />)
 
-    await waitFor(() => rendered.getByText('test'))
-
-    expect(states[0]?.variables).toBe(variables)
-    expect(states[0]?.queryKey).toStrictEqual(
-      useGeneratedQuery.getKey(variables)
-    )
+    await waitFor(() => rendered.getByText('initialData'))
   })
 
-  it('should return the correct variables', async () => {
+  it('should return the correct initial data', async () => {
     const useGeneratedQuery = createQuery<string, { id: number }>({
       primaryKey: uniqueKey(),
       queryFn: () => {
@@ -76,16 +68,16 @@ describe('createQuery', () => {
           return options =>
             useNext({
               ...options,
-              variables: options?.variables ?? variables,
+              initialData: options.initialData ?? 'initialData',
+              enabled: false,
             })
         },
       ],
     })
-    const variables = { id: 1 }
     const states: QueryHookResult<any, any>[] = []
 
     function Page() {
-      const state = useGeneratedQuery({ variables })
+      const state = useGeneratedQuery({ initialData: 'stateData' })
 
       states.push(state)
 
@@ -94,12 +86,7 @@ describe('createQuery', () => {
 
     const rendered = renderWithClient(queryClient, <Page />)
 
-    await waitFor(() => rendered.getByText('test'))
-
-    expect(states[0]?.variables).toBe(variables)
-    expect(states[0]?.queryKey).toStrictEqual(
-      useGeneratedQuery.getKey(variables)
-    )
+    await waitFor(() => rendered.getByText('stateData'))
   })
 
   it('should return the selected data', async () => {
@@ -126,34 +113,5 @@ describe('createQuery', () => {
     const rendered = renderWithClient(queryClient, <Page />)
 
     await waitFor(() => rendered.getByText('selectedData'))
-  })
-
-  it('should update the data when invoke setData', async () => {
-    const useGeneratedQuery = createQuery<string>({
-      primaryKey: uniqueKey(),
-      queryFn: () => {
-        return 'test'
-      },
-    })
-    const states: QueryHookResult<any, any>[] = []
-
-    function Page() {
-      const state = useGeneratedQuery({
-        enabled: false,
-      })
-
-      React.useEffect(() => {
-        state.setData('updatedData')
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [])
-
-      states.push(state)
-
-      return <span>{state.data}</span>
-    }
-
-    const rendered = renderWithClient(queryClient, <Page />)
-
-    await waitFor(() => rendered.getByText('updatedData'))
   })
 })

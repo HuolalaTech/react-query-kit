@@ -1,33 +1,8 @@
-import type { DefaultError, UseQueryOptions } from '@tanstack/react-query'
+import type { DefaultError } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
-import type {
-  AdditionalCreateOptions,
-  Middleware,
-  SuspenseQueryHook,
-  inferQueryKey,
-} from './types'
-
-export interface CreateSuspenseQueryOptions<
-  TFnData = unknown,
-  TVariables = any,
-  TError = DefaultError
-> extends Omit<
-      UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
-      | 'queryKey'
-      | 'queryFn'
-      | 'enabled'
-      | 'select'
-      | 'suspense'
-      | 'throwOnError'
-      | 'placeholderData'
-      | 'keepPreviousData'
-      | 'useErrorBoundary'
-    >,
-    Omit<AdditionalCreateOptions<TFnData, TVariables>, 'enabled'> {
-  use?: Middleware<SuspenseQueryHook<TFnData, TVariables, TVariables>>[]
-}
+import type { CreateSuspenseQueryOptions, SuspenseQueryHook } from './types'
 
 export const createSuspenseQuery = <
   TFnData,

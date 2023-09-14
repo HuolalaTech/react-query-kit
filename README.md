@@ -28,9 +28,9 @@
 
 - Make `queryKey` strongly related with `queryFn`
 - Manage `queryKey` in a type-safe way
-- Generate a custom ReactQuery hook quickly
 - Make `queryClient`'s operations clearly associated with custom ReactQuery hooks
 - Set defaultOptions for custom ReactQuery hooks easier and clearer
+- Middleware
 
 ![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
 
@@ -93,8 +93,6 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey equals to '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
-  // if u only wanna fetch once
-  enabled: (data) => !data,
   suspense: true,
   // u can also pass middleware to cutomize this hook's behavior
   use: [myMiddleware]
@@ -154,10 +152,6 @@ Options
 - `primaryKey: string`
   - Required
   - `primaryKey` will be the first element of the array of `queryKey`
-- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - Optional
-  - Set this to `false` to disable this query from automatically running.
-  - If set to a function, the function will be executed with the latest data to compute the boolean
 - `use: Middleware[]`
   - Optional
   - array of middleware functions [(details)](#middleware)
@@ -169,15 +163,6 @@ Expose Methods
 - `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
-
-Returns
-
-- `queryKey: [primaryKey, TVariables]`
-  - The query key of this custom query.
-- `variables: TVariables`
-  - The variables of this custom query.
-- `setData: (updater: Updater<TData>, options?: SetDataOptions) => TData | undefined`
-  - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
 ## createInfiniteQuery
 
@@ -239,7 +224,9 @@ export default function Page() {
 export async function getStaticProps() {
   const queryClient = new QueryClient()
 
-  await queryClient.prefetchInfiniteQuery(useProjects.getFetchOptions(variables))
+  await queryClient.prefetchInfiniteQuery(
+    useProjects.getFetchOptions(variables)
+  )
 
   return {
     props: {
@@ -249,10 +236,9 @@ export async function getStaticProps() {
 }
 
 // usage outside of react component
-const data = await queryClient.fetchInfiniteQuery(useProjects.getFetchOptions(variables))
-
-// usage outside of react component
-const data = await queryClient.fetchInfiniteQuery(useProjects.getFetchOptions(variables))
+const data = await queryClient.fetchInfiniteQuery(
+  useProjects.getFetchOptions(variables)
+)
 ```
 
 ### Additional API Reference
@@ -262,10 +248,6 @@ Options
 - `primaryKey: string`
   - Required
   - `primaryKey` will be the first element of the arrary of `queryKey`
-- `enabled: boolean | ((data: TData, variables: TVariables) => boolean)`
-  - Optional
-  - Set this to `false` to disable this query from automatically running.
-  - If set to a function, the function will be executed with the latest data to compute the boolean
 - `use: Middleware[]`
   - Optional
   - array of middleware functions [(details)](#middleware)
@@ -277,15 +259,6 @@ Expose Methods
 - `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
-
-Returns
-
-- `queryKey: [primaryKey, TVariables]`
-  - The query key of this custom query.
-- `variables: TVariables`
-  - The variables of this custom query.
-- `setData: (updater: Updater<InfiniteData<TFnData>>, options?: SetDataOptions) => TData | undefined`
-  - it's args similar with `queryClient.setQueryData` but without `queryKey`
 
 ## createSuspenseQuery
 
@@ -405,16 +378,21 @@ Middleware receive the hook and can execute logic before and after running it. I
 ### Usage
 
 ```ts
-import { Middleware, MutationHook, QueryHook } from 'react-query-kit'
+import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
 const myMiddleware: Middleware<
   QueryHook<Response, Variables>
 > = useQueryNext => {
   return options => {
     const { userId } = useAuth()
+    const client = useQueryClient()
+    const variables = options.variables ?? { id: userId }
+    const hasData = () => !!client.getQueryData(useUser.getKey(variables))
+
     return useQueryNext({
       ...options,
-      variables: options.variables ?? { id: userId },
+      variables,
+      enabled: options.enabled ?? !hasData(),
     })
   }
 }
@@ -425,10 +403,16 @@ const useUser = createQuery<Response, Variables>({
 })
 
 // global middlewares
-const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
+const disabledIfHasData: Middleware<QueryHook> = useQueryNext => {
   return options => {
-    // ...
-    return useQueryNext(options)
+    const client = useQueryClient()
+    const hasData = () =>
+      !!client.getQueryData(getKey(options.primaryKey, options.variables))
+
+    return useQueryNext({
+      ...options,
+      enabled: options.enabled ?? !hasData(),
+    })
   }
 }
 const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
@@ -440,7 +424,7 @@ const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
 
 const queryClient = createQueryClient({
   queries: {
-    use: [queryMiddleware],
+    use: [disabledIfHasData],
   },
   mutations: {
     use: [mutationMiddleware],
@@ -470,16 +454,16 @@ exit  a
 
 ## Type inference
 
-You can extract the TypeScript type of any custom hook with `inferVariables` or `inferData`
+You can extract the TypeScript type of any custom hook with `inferData` or `inferVariables`
 
 ```ts
 import { inferData, inferFnData, inferVariables, inferOptions } from 'react-query-kit'
 
 const useProjects = createInfiniteQuery<Response, Variables>(...)
 
-inferVariables<typeof useProjects> // Variables
 inferData<typeof useProjects> // InfiniteData<Response>
 inferFnData<typeof useProjects> // Response
+inferVariables<typeof useProjects> // Variables
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
 

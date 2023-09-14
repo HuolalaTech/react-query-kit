@@ -1,37 +1,42 @@
 import type {
   QueryClient,
-  SetDataOptions,
-  Updater,
   UseBaseQueryOptions,
+  UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 
 import type {
   AdditionalCreateOptions,
-  AdditionalQueryHookOptions,
   CompatibleWithV4,
   Middleware,
 } from './types'
-import { getQueryKey, useCompatibeQueryClient, withMiddleware } from './utils'
+import { getKey as getQueryKey, withMiddleware } from './utils'
 
-interface CreateQueryOptions
-  extends Omit<UseBaseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>,
+interface CreateBaseQueryOptions
+  extends Omit<UseInfiniteQueryOptions, 'queryKey' | 'queryFn'>,
     AdditionalCreateOptions<any, any> {
   use?: Middleware[]
 }
 
 type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
-  'queryKey' | 'queryFn' | 'enabled'
-> &
-  AdditionalQueryHookOptions<any, any>
+  'queryKey' | 'queryFn'
+> & {
+  variables?: any
+}
 
 export function createBaseQuery(
   defaultOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
   overrideOptions?: QueryBaseHookOptions
 ): any {
-  const { primaryKey, queryFn, queryKeyHashFn } =
-    defaultOptions as CreateQueryOptions
+  const {
+    primaryKey,
+    queryFn,
+    queryKeyHashFn,
+    getPreviousPageParam,
+    getNextPageParam,
+    initialPageParam,
+  } = defaultOptions as CreateBaseQueryOptions
 
   if (process.env.NODE_ENV !== 'production') {
     // @ts-ignore
@@ -51,43 +56,23 @@ export function createBaseQuery(
       queryKey: getKey(variables),
       queryFn,
       queryKeyHashFn,
-      getPreviousPageParam: (defaultOptions as any).getPreviousPageParam,
-      getNextPageParam: (defaultOptions as any).getNextPageParam,
-      initialPageParam: (defaultOptions as any).initialPageParam,
+      getPreviousPageParam,
+      getNextPageParam,
+      initialPageParam,
     }
   }
 
   const useBaseHook = (
-    options: QueryBaseHookOptions,
+    { variables, ...rest }: QueryBaseHookOptions,
     queryClient?: CompatibleWithV4<QueryClient, void>
   ) => {
-    const client = useCompatibeQueryClient(options, queryClient)
-    const { enabled, variables, ...mergedOptions } = {
-      ...options,
-      ...overrideOptions,
-    } as QueryBaseHookOptions
-    const queryKey = getKey(variables)
-
-    return Object.assign(
-      useRQHook(
-        {
-          ...mergedOptions,
-          enabled:
-            typeof enabled === 'function'
-              ? enabled(client.getQueryData(queryKey), variables)
-              : enabled,
-          queryKey,
-        },
-        client
-      ),
+    return useRQHook(
       {
-        queryKey: queryKey,
-        variables,
-        setData: (
-          updater: Updater<any, any>,
-          setDataOptions?: SetDataOptions
-        ) => client.setQueryData(queryKey, updater, setDataOptions),
-      }
+        ...rest,
+        ...overrideOptions,
+        queryKey: getKey(variables),
+      },
+      queryClient
     )
   }
 

@@ -56,12 +56,7 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "*"
-  },
-  "peerDependenciesMeta": {
-    "@tanstack/react-query": {
-      "optional": true
-    }
+    "@tanstack/react-query": ">= 4.0.0"
   },
   "sideEffects": false,
   "scripts": {
