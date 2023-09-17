@@ -422,12 +422,14 @@ const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
   }
 }
 
-const queryClient = createQueryClient({
-  queries: {
-    use: [disabledIfHasData],
-  },
-  mutations: {
-    use: [mutationMiddleware],
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      use: [queryMiddleware],
+    },
+    mutations: {
+      use: [mutationMiddleware],
+    },
   },
 })
 ```
