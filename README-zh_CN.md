@@ -378,6 +378,7 @@ Returns
 ### 使用
 
 ```ts
+import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
 const myMiddleware: Middleware<
@@ -403,22 +404,18 @@ const useUser = createQuery<Response, Variables>({
 })
 
 // 全局中间件
-const disabledIfHasData: Middleware<QueryHook> = useQueryNext => {
-  return options => {
-    const client = useQueryClient()
-    const hasData = () =>
-      !!client.getQueryData(getKey(options.primaryKey, options.variables))
-
-    return useQueryNext({
-      ...options,
-      enabled: options.enabled ?? !hasData(),
-    })
+const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
+  return (options, queryClient) => {
+    // 你还可以通过函数 getKey 获取 queryKey
+    const queryKey = getKey(options.primaryKey, options.variables)
+    // ...
+    return useQueryNext(options, queryClient)
   }
 }
 const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
-  return options => {
+  return (options, queryClient) => {
     // ...
-    return useMutationNext(options)
+    return useMutationNext(options, queryClient)
   }
 }
 
@@ -432,6 +429,32 @@ const queryClient = new QueryClient({
     },
   },
 })
+```
+
+### 扩展
+
+中间件将从上级合并。例如：
+
+```jsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      use: [a],
+    },
+  },
+})
+
+const useSomething = createQuery({
+  use: [b],
+})
+
+useSomething({ use: [c] })
+```
+
+相当于：
+
+```js
+createQuery({ use: [a, b, c] })
 ```
 
 ### 多个中间件

@@ -378,6 +378,7 @@ Middleware receive the hook and can execute logic before and after running it. I
 ### Usage
 
 ```ts
+import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
 const myMiddleware: Middleware<
@@ -403,22 +404,18 @@ const useUser = createQuery<Response, Variables>({
 })
 
 // global middlewares
-const disabledIfHasData: Middleware<QueryHook> = useQueryNext => {
-  return options => {
-    const client = useQueryClient()
-    const hasData = () =>
-      !!client.getQueryData(getKey(options.primaryKey, options.variables))
-
-    return useQueryNext({
-      ...options,
-      enabled: options.enabled ?? !hasData(),
-    })
+const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
+  return (options, queryClient) => {
+    // u can also get queryKey via function getKey
+    const queryKey = getKey(options.primaryKey, options.variables)
+    // ...
+    return useQueryNext(options, queryClient)
   }
 }
 const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
-  return options => {
+  return (options, queryClient) => {
     // ...
-    return useMutationNext(options)
+    return useMutationNext(options, queryClient)
   }
 }
 
@@ -432,6 +429,32 @@ const queryClient = new QueryClient({
     },
   },
 })
+```
+
+### Extend
+
+Middleware will be merged from superior. For example:
+
+```jsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      use: [a],
+    },
+  },
+})
+
+const useSomething = createQuery({
+  use: [b],
+})
+
+useSomething({ use: [c] })
+```
+
+is equivalent to:
+
+```js
+createQuery({ use: [a, b, c] })
 ```
 
 ### Multiple Middleware
