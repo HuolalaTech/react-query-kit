@@ -16,7 +16,7 @@
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
   <a href="https://unpkg.com/browse/react-query-kit@latest/build/umd/index.production.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/umd/index.production.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
-  <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
+  <a href="https://github.com/liaoliao666/react-query-kit/blob/main/LICENSE"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://img.shields.io/github/stars/liaoliao666/react-query-kit.svg?style=social&amp;label=Star" alt="GitHub Stars" target="\_parent"></a>
 </p>
@@ -384,17 +384,20 @@ import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 const myMiddleware: Middleware<
   QueryHook<Response, Variables>
 > = useQueryNext => {
-  return options => {
+  return (options, queryClient) => {
     const { userId } = useAuth()
-    const client = useQueryClient()
+    const client = useQueryClient(queryClient)
     const variables = options.variables ?? { id: userId }
     const hasData = () => !!client.getQueryData(useUser.getKey(variables))
 
-    return useQueryNext({
-      ...options,
-      variables,
-      enabled: options.enabled ?? !hasData(),
-    })
+    return useQueryNext(
+      {
+        ...options,
+        variables,
+        enabled: options.enabled ?? !hasData(),
+      },
+      queryClient
+    )
   }
 }
 
@@ -482,13 +485,14 @@ exit  a
 You can extract the TypeScript type of any custom hook with `inferData` or `inferVariables`
 
 ```ts
-import { inferData, inferFnData, inferVariables, inferOptions } from 'react-query-kit'
+import { inferData, inferFnData, inferError, inferVariables, inferOptions } from 'react-query-kit'
 
-const useProjects = createInfiniteQuery<Response, Variables>(...)
+const useProjects = createInfiniteQuery<Response, Variables, Error>(...)
 
 inferData<typeof useProjects> // InfiniteData<Response>
 inferFnData<typeof useProjects> // Response
 inferVariables<typeof useProjects> // Variables
+inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
 

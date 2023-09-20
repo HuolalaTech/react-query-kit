@@ -94,14 +94,14 @@ export type AdditionalCreateOptions<TFnData, TVariables, TPageParam = never> = {
   variables?: TVariables
 }
 
-type inferMiddleware<T extends (...args: any) => any> = (
+type inferMiddlewareHook<T extends (...args: any) => any> = (
   options: inferCreateOptions<T>,
   queryClient?: CompatibleWithV4<QueryClient, void>
 ) => ReturnType<T>
 
 export type Middleware<
   T extends (...args: any) => any = QueryHook<any, any, any>
-> = (hook: inferMiddleware<T>) => inferMiddleware<T>
+> = (hook: inferMiddlewareHook<T>) => inferMiddlewareHook<T>
 
 export type DeepPartial<T> = T extends object
   ? {
@@ -456,6 +456,18 @@ export type inferFnData<T> = T extends QueryHook<infer TData, any, any>
   ? TData
   : T extends MutationHook<infer TData, any, any>
   ? TData
+  : never
+
+export type inferError<T> = T extends QueryHook<any, any, infer TError>
+  ? TError
+  : T extends SuspenseQueryHook<any, any, infer TError>
+  ? TError
+  : T extends InfiniteQueryHook<any, any, infer TError>
+  ? TError
+  : T extends SuspenseInfiniteQueryHook<any, any, infer TError>
+  ? TError
+  : T extends MutationHook<any, any, infer TError>
+  ? TError
   : never
 
 export type inferOptions<T> = T extends QueryHook<

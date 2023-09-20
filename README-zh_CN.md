@@ -384,17 +384,20 @@ import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 const myMiddleware: Middleware<
   QueryHook<Response, Variables>
 > = useQueryNext => {
-  return options => {
+  return (options, queryClient) => {
     const { userId } = useAuth()
-    const client = useQueryClient()
+    const client = useQueryClient(queryClient)
     const variables = options.variables ?? { id: userId }
     const hasData = () => !!client.getQueryData(useUser.getKey(variables))
 
-    return useQueryNext({
-      ...options,
-      variables,
-      enabled: options.enabled ?? !hasData(),
-    })
+    return useQueryNext(
+      {
+        ...options,
+        variables,
+        enabled: options.enabled ?? !hasData(),
+      },
+      queryClient
+    )
   }
 }
 
@@ -482,13 +485,14 @@ exit  a
 您可以使用 `inferData` 或 `inferVariables` 提取任何自定义 hook 的 TypeScript 类型
 
 ```ts
-import { inferData, inferFnData, inferVariables, inferOptions } from 'react-query-kit'
+import { inferData, inferFnData, inferError, inferVariables, inferOptions } from 'react-query-kit'
 
 const useProjects = createInfiniteQuery<Response, Variables>(...)
 
 inferData<typeof useProjects> // InfiniteData<Response>
 inferFnData<typeof useProjects> // Response
 inferVariables<typeof useProjects> // Variables
+inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
 
