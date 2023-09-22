@@ -384,20 +384,17 @@ import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 const myMiddleware: Middleware<
   QueryHook<Response, Variables>
 > = useQueryNext => {
-  return (options, queryClient) => {
+  return options => {
     const { userId } = useAuth()
-    const client = useQueryClient(queryClient)
+    const client = useQueryClient()
     const variables = options.variables ?? { id: userId }
     const hasData = () => !!client.getQueryData(useUser.getKey(variables))
 
-    return useQueryNext(
-      {
-        ...options,
-        variables,
-        enabled: options.enabled ?? !hasData(),
-      },
-      queryClient
-    )
+    return useQueryNext({
+      ...options,
+      variables,
+      enabled: options.enabled ?? !hasData(),
+    })
   }
 }
 
@@ -408,17 +405,17 @@ const useUser = createQuery<Response, Variables>({
 
 // global middlewares
 const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
-  return (options, queryClient) => {
+  return options => {
     // u can also get queryKey via function getKey
     const queryKey = getKey(options.primaryKey, options.variables)
     // ...
-    return useQueryNext(options, queryClient)
+    return useQueryNext(options)
   }
 }
 const mutationMiddleware: Middleware<MutationHook> = useMutationNext => {
-  return (options, queryClient) => {
+  return options => {
     // ...
-    return useMutationNext(options, queryClient)
+    return useMutationNext(options)
   }
 }
 
@@ -478,6 +475,33 @@ enter a
     exit  c
   exit  b
 exit  a
+```
+
+### Multiple QueryClient
+
+In ReactQuery v5, the `QueryClient` will be the second argument to `useQuery` and `useMutation`. If u have multiple `QueryClient` in global, u should receive `QueryClient` in middleware hook.
+
+```ts
+const m1 = useQueryNext => {
+  return (options, queryClient) => {
+    const client = useQueryClient(queryClient)
+    // ...
+    return useQueryNext(options, queryClient)
+  }
+}
+const m2 = useQueryNext => {
+  return options => {
+    const client = useQueryClient()
+    // ...
+    return useQueryNext(options)
+  }
+}
+const useSomething = createQuery({ use: [m1, m2] })
+
+function Example() {
+  // This will causes m2 to receive the wrong QueryClient.
+  useSomething({...}, anotherQueryClient)
+}
 ```
 
 ## Type inference
