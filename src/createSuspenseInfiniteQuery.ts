@@ -3,14 +3,14 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { createBaseQuery } from './createBaseQuery'
 import type {
   CreateSuspenseInfiniteQueryOptions,
-  DefaultError,
   SuspenseInfiniteQueryHook,
 } from './types'
+import { suspenseOptions } from './utils'
 
 export const createSuspenseInfiniteQuery = <
   TFnData,
   TVariables = any,
-  TError = DefaultError,
+  TError = Error,
   TPageParam = number
 >(
   options: CreateSuspenseInfiniteQueryOptions<
@@ -20,12 +20,5 @@ export const createSuspenseInfiniteQuery = <
     TPageParam
   >
 ): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
-  return createBaseQuery(options, useInfiniteQuery, {
-    enabled: true,
-    suspense: true,
-    throwOnError: true,
-    // compatible with ReactQuery v4
-    // @ts-ignore
-    useErrorBoundary: true,
-  })
+  return createBaseQuery(options, useInfiniteQuery, suspenseOptions)
 }

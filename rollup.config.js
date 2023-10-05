@@ -6,7 +6,7 @@ import size from 'rollup-plugin-size'
 import { terser } from 'rollup-plugin-terser'
 import visualizer from 'rollup-plugin-visualizer'
 
-const umdDevPlugin = type =>
+const replaceDevPlugin = type =>
   replace({
     'process.env.NODE_ENV': `"${type}"`,
     delimiters: ['', ''],
@@ -35,6 +35,7 @@ export default function rollup() {
     cjs(options),
     umdDev(options),
     umdProd(options),
+    esmZip(options),
   ]
 }
 
@@ -103,7 +104,7 @@ function umdDev({ input, external, globals, jsName }) {
       babelPlugin,
       commonJS(),
       nodeResolve({ extensions }),
-      umdDevPlugin('development'),
+      replaceDevPlugin('development'),
     ],
   }
 }
@@ -124,7 +125,30 @@ function umdProd({ input, external, globals, jsName }) {
       babelPlugin,
       commonJS(),
       nodeResolve({ extensions }),
-      umdDevPlugin('production'),
+      replaceDevPlugin('production'),
+      terser({
+        mangle: true,
+        compress: true,
+      }),
+    ],
+  }
+}
+
+function esmZip({ input, external, globals, jsName }) {
+  return {
+    external,
+    input,
+    output: {
+      format: 'esm',
+      file: `build/zip/zip.esm.js`,
+      name: jsName,
+      globals,
+    },
+    plugins: [
+      babelPlugin,
+      commonJS(),
+      nodeResolve({ extensions }),
+      replaceDevPlugin('production'),
       terser({
         mangle: true,
         compress: true,

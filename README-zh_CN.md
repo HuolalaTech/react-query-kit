@@ -4,7 +4,7 @@
 <br />
 
 <p align="center">
-  <a aria-label="NPM version" href="https://quaere-site.vercel.app">
+  <a aria-label="NPM version" href="./assets/logo.svg">
     <img alt="" src="./assets/logo.svg" height="40">
   </a>
 </p>
@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
-  <a href="https://unpkg.com/browse/react-query-kit@latest/build/umd/index.production.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/umd/index.production.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
+  <a href="https://unpkg.com/browse/react-query-kit@latest/build/zip/zip.esm.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/zip/zip.esm.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -90,7 +90,6 @@ const usePost = createQuery<Response, Variables, Error>({
     // primaryKey 相等于 '/posts'
     return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
   },
-  suspense: true,
   // 你还可以通过中间件来定制这个 hook 的行为
   use: [myMiddleware]
 })
@@ -100,7 +99,7 @@ const variables = { id: 1 }
 // example
 export default function Page() {
   // queryKey 相等于 ['/posts', { id: 1 }]
-  const { data } = usePost({ variables, suspense: true })
+  const { data } = usePost({ variables })
 
   return (
     <div>
@@ -158,9 +157,9 @@ Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn })`
 
 ## createInfiniteQuery
 
@@ -190,7 +189,7 @@ const variables = { active: true }
 export default function Page() {
   // queryKey equals to ['projects', { active: true }]
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useProjects({ variables, suspense: true })
+    useProjects({ variables })
 
   return (
     <div>
@@ -254,9 +253,9 @@ Expose Methods
 
 - `getPrimaryKey: () => primaryKey`
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `getFetchOptions: (variables: TVariables) => {queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam}`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam })`
 
 ## createSuspenseQuery
 

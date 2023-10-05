@@ -1,6 +1,6 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
 
-import { CompatibleWithV4, Middleware, inferQueryKey } from './types'
+import { Middleware, inferQueryKey } from './types'
 
 export const withMiddleware = (
   hook: any,
@@ -9,7 +9,7 @@ export const withMiddleware = (
 ) => {
   return function useMiddleware(
     options?: { client?: QueryClient; use?: Middleware[] },
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    queryClient?: QueryClient
   ) {
     const [middleware, opts] = [
       useQueryClient(
@@ -20,9 +20,9 @@ export const withMiddleware = (
       defaultOptions,
       options,
     ].reduce(
-      ([middleware, opts], { use = [], ...rest } = {}) => [
-        [...middleware, ...use],
-        { ...opts, ...rest },
+      ([_middleware, _opts], { use = [], ...rest } = {}) => [
+        [..._middleware, ...use],
+        { ..._opts, ...rest },
       ],
       [[], {}]
     )
@@ -34,6 +34,13 @@ export const withMiddleware = (
 
     return next(opts, queryClient)
   }
+}
+
+export const suspenseOptions = {
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+  useErrorBoundary: true,
 }
 
 export const getKey = <TVariables>(

@@ -4,17 +4,14 @@ import type {
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 
-import type {
-  AdditionalCreateOptions,
-  CompatibleWithV4,
-  Middleware,
-} from './types'
+import type { AdditionalQueryOptions, Middleware } from './types'
 import { getKey as getQueryKey, withMiddleware } from './utils'
 
 interface CreateBaseQueryOptions
   extends Omit<UseInfiniteQueryOptions, 'queryKey' | 'queryFn'>,
-    AdditionalCreateOptions<any, any> {
+    AdditionalQueryOptions<any, any> {
   use?: Middleware[]
+  variables?: any
 }
 
 type QueryBaseHookOptions = Omit<
@@ -24,20 +21,11 @@ type QueryBaseHookOptions = Omit<
   variables?: any
 }
 
-export function createBaseQuery(
+export const createBaseQuery = (
   defaultOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
   overrideOptions?: QueryBaseHookOptions
-): any {
-  const {
-    primaryKey,
-    queryFn,
-    queryKeyHashFn,
-    getPreviousPageParam,
-    getNextPageParam,
-    initialPageParam,
-  } = defaultOptions as CreateBaseQueryOptions
-
+): any => {
   if (process.env.NODE_ENV !== 'production') {
     // @ts-ignore
     if (defaultOptions.useDefaultOptions) {
@@ -46,6 +34,15 @@ export function createBaseQuery(
       )
     }
   }
+
+  const {
+    primaryKey,
+    queryFn,
+    queryKeyHashFn,
+    getPreviousPageParam,
+    getNextPageParam,
+    initialPageParam,
+  } = defaultOptions as CreateBaseQueryOptions
 
   const getPrimaryKey = () => primaryKey
 
@@ -63,12 +60,12 @@ export function createBaseQuery(
   }
 
   const useBaseHook = (
-    { variables, ...rest }: QueryBaseHookOptions,
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    { variables, ...restOptions }: QueryBaseHookOptions,
+    queryClient?: QueryClient
   ) => {
     return useRQHook(
       {
-        ...rest,
+        ...restOptions,
         ...overrideOptions,
         queryKey: getKey(variables),
       },
