@@ -14,13 +14,18 @@ describe('createQuery', () => {
   it('should return the correct key', () => {
     const primaryKey = uniqueKey()
     const variables = { id: 1 }
+    const queryFn = () => {}
     const useGeneratedQuery = createQuery<void, { id: number }>({
       primaryKey,
-      queryFn: () => {},
+      queryFn,
     })
     expect(useGeneratedQuery.getPrimaryKey()).toBe(primaryKey)
     expect(useGeneratedQuery.getKey()).toEqual([primaryKey])
     expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
+    expect(useGeneratedQuery.getFetchOptions(variables)).toEqual({
+      queryKey: [primaryKey, variables],
+      queryFn,
+    })
   })
 
   it('should return the correct initial data from middleware', async () => {
