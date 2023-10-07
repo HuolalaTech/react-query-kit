@@ -1,6 +1,6 @@
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 
-import { Middleware, inferQueryKey } from './types'
+import type { Middleware, inferQueryKey } from './types'
 
 export const withMiddleware = (
   hook: any,
