@@ -13,17 +13,14 @@ export const withMiddleware = (
   ) {
     const [middleware, opts] = [
       useQueryClient(
-        // compatible with ReactQuery v4
         // @ts-ignore
+        // compatible with ReactQuery v4
         options?.context ? { context: options.context } : queryClient
       ).getDefaultOptions()[type],
       defaultOptions,
       options,
     ].reduce(
-      ([_middleware, _opts], { use = [], ...rest } = {}) => [
-        [..._middleware, ...use],
-        { ..._opts, ...rest },
-      ],
+      ([u, o1], { use = [], ...o2 } = {}) => [[...u, ...use], { ...o1, ...o2 }],
       [[], {}]
     )
 

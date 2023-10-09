@@ -399,7 +399,16 @@ const myMiddleware: Middleware<
 
 const useUser = createQuery<Response, Variables>({
   // ...
-  use: [myMiddleware],
+  use: [
+    myMiddleware,
+    // or just difined inside of `use`
+    function myMiddleware2(useQueryNext) {
+      return options => {
+        // ...
+        return useQueryNext(options)
+      }
+    },
+  ],
 })
 
 // global middlewares
@@ -481,26 +490,21 @@ exit  a
 In ReactQuery v5, the `QueryClient` will be the second argument to `useQuery` and `useMutation`. If u have multiple `QueryClient` in global, u should receive `QueryClient` in middleware hook.
 
 ```ts
-const m1 = useQueryNext => {
-  return (options, queryClient) => {
-    const client = useQueryClient(queryClient)
-    // ...
-    return useQueryNext(options, queryClient)
-  }
-}
-const m2 = useQueryNext => {
-  return options => {
-    const client = useQueryClient()
-    // ...
-    return useQueryNext(options)
-  }
-}
-const useSomething = createQuery({ use: [m1, m2] })
+const useSomething = createQuery({
+  use: [
+    function myMiddleware(useQueryNext) {
+      // u should receive queryClient as the second argument here
+      return (options, queryClient) => {
+        const client = useQueryClient(queryClient)
+        // ...
+        return useQueryNext(options, queryClient)
+      }
+    },
+  ],
+})
 
-function Example() {
-  // This will causes m2 to receive the wrong QueryClient.
-  useSomething({...}, anotherQueryClient)
-}
+// if u need to pass an another QueryClient
+useSomething({...}, anotherQueryClient)
 ```
 
 ## Type inference

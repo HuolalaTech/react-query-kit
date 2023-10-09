@@ -399,7 +399,16 @@ const myMiddleware: Middleware<
 
 const useUser = createQuery<Response, Variables>({
   // ...
-  use: [myMiddleware],
+  use: [
+    myMiddleware,
+    // 或者直接定义在 `use` 数组内
+    function myMiddleware2(useQueryNext) {
+      return options => {
+        // ...
+        return useQueryNext(options)
+      }
+    },
+  ],
 })
 
 // 全局中间件
@@ -478,29 +487,24 @@ exit  a
 
 ### 多个 QueryClient
 
-在 ReactQuery v5 中，`QueryClient` 将是 `useQuery` 和 `useMutation` 的第二个参数。 如果你在全局中有多个 `QueryClient`，你应该在中间件钩子中接收 queryClient。
+在 ReactQuery v5 中，`QueryClient` 将是 `useQuery` 和 `useMutation` 的第二个参数。 如果你在全局中有多个 `QueryClient`，你应该在中间件钩子中接收 `QueryClient`
 
 ```ts
-const m1 = useQueryNext => {
-  return (options, queryClient) => {
-    const client = useQueryClient(queryClient)
-    // ...
-    return useQueryNext(options, queryClient)
-  }
-}
-const m2 = useQueryNext => {
-  return options => {
-    const client = useQueryClient()
-    // ...
-    return useQueryNext(options)
-  }
-}
-const useSomething = createQuery({ use: [m1, m2] })
+const useSomething = createQuery({
+  use: [
+    function myMiddleware(useQueryNext) {
+      // 你应该接收 queryClient 作为第二个参数
+      return (options, queryClient) => {
+        const client = useQueryClient(queryClient)
+        // ...
+        return useQueryNext(options, queryClient)
+      }
+    },
+  ],
+})
 
-function Example() {
-  // 这会导致m2接收到错误的 QueryClient。
-  useSomething({...}, anotherQueryClient)
-}
+// 如果你传入另一个 QueryClient
+useSomething({...}, anotherQueryClient)
 ```
 
 ## 类型推导
