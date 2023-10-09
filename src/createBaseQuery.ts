@@ -60,14 +60,14 @@ export const createBaseQuery = (
   }
 
   const useBaseHook = (
-    { variables, ...restOptions }: QueryBaseHookOptions,
+    options: QueryBaseHookOptions,
     queryClient?: QueryClient
   ) => {
     return useRQHook(
       {
-        ...restOptions,
+        ...options,
         ...overrideOptions,
-        queryKey: getKey(variables),
+        queryKey: getKey(options.variables),
       },
       queryClient
     )

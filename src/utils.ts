@@ -15,13 +15,16 @@ export const withMiddleware = (
       useQueryClient(
         // @ts-ignore
         // compatible with ReactQuery v4
-        options?.context ? { context: options.context } : queryClient
+        options?.context ? options : queryClient
       ).getDefaultOptions()[type],
       defaultOptions,
       options,
     ].reduce(
-      ([u, o1], { use = [], ...o2 } = {}) => [[...u, ...use], { ...o1, ...o2 }],
-      [[], {}]
+      ([u1, o1], { use: u2 = [], ...o2 } = {}) => [
+        [...u1, ...u2],
+        { ...o1, ...o2 },
+      ],
+      [[]]
     )
 
     let next = hook
