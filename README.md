@@ -401,7 +401,7 @@ const useUser = createQuery<Response, Variables>({
   // ...
   use: [
     myMiddleware,
-    // or just difined inside of `use`
+    // or just defined inside of `use`
     function myMiddleware2(useQueryNext) {
       return options => {
         // ...
