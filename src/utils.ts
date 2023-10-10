@@ -35,6 +35,13 @@ export const withMiddleware = (
   }
 }
 
+export const suspenseOptions = {
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+  useErrorBoundary: true,
+}
+
 export const getKey = <TVariables = void>(
   primaryKey: string,
   variables?: TVariables
@@ -42,11 +49,4 @@ export const getKey = <TVariables = void>(
   return (
     variables === undefined ? [primaryKey] : [primaryKey, variables]
   ) as inferQueryKey<TVariables>
-}
-
-export const suspenseOptions = {
-  enabled: true,
-  suspense: true,
-  throwOnError: true,
-  useErrorBoundary: true,
 }
