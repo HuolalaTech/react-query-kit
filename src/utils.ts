@@ -13,8 +13,7 @@ export const withMiddleware = (
   ) {
     const [middleware, opts] = [
       useQueryClient(
-        // @ts-ignore
-        // compatible with ReactQuery v4
+        // @ts-ignore Compatible with ReactQuery v4
         options?.context ? options : queryClient
       ).getDefaultOptions()[type],
       defaultOptions,
@@ -36,18 +35,18 @@ export const withMiddleware = (
   }
 }
 
-export const suspenseOptions = {
-  enabled: true,
-  suspense: true,
-  throwOnError: true,
-  useErrorBoundary: true,
-}
-
-export const getKey = <TVariables>(
+export const getKey = <TVariables = void>(
   primaryKey: string,
   variables?: TVariables
 ) => {
   return (
     variables === undefined ? [primaryKey] : [primaryKey, variables]
   ) as inferQueryKey<TVariables>
+}
+
+export const suspenseOptions = {
+  enabled: true,
+  suspense: true,
+  throwOnError: true,
+  useErrorBoundary: true,
 }
