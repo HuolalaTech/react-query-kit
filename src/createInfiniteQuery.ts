@@ -5,7 +5,7 @@ import type { CreateInfiniteQueryOptions, InfiniteQueryHook } from './types'
 
 export const createInfiniteQuery = <
   TFnData,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 >(

@@ -148,7 +148,7 @@ export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
 
 export interface CreateQueryOptions<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
@@ -182,7 +182,7 @@ export interface QueryHook<TFnData = unknown, TVariables = any, TError = Error>
 
 export interface CreateSuspenseQueryOptions<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
@@ -224,7 +224,7 @@ export type SuspenseQueryHookResult<TData, TError> = Omit<
 
 export interface SuspenseQueryHook<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error
 > extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
@@ -237,7 +237,7 @@ export interface SuspenseQueryHook<
 
 export interface CreateInfiniteQueryOptions<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 > extends Omit<
@@ -286,7 +286,7 @@ export type InfiniteQueryHookResult<TData, TError> = UseInfiniteQueryResult<
 
 export interface InfiniteQueryHook<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
@@ -306,7 +306,7 @@ export interface InfiniteQueryHook<
 
 export interface CreateSuspenseInfiniteQueryOptions<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 > extends Omit<
@@ -369,7 +369,7 @@ export type SuspenseInfiniteQueryHookResult<TData, TError> = Omit<
 
 export interface SuspenseInfiniteQueryHook<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
@@ -408,13 +408,13 @@ export interface MutationHookOptions<TData, TError, TVariables, TContext>
 export type MutationHookResult<
   TData = unknown,
   TError = Error,
-  TVariables = unknown,
+  TVariables = void,
   TContext = unknown
 > = UseMutationResult<TData, TError, TVariables, TContext>
 
 export interface MutationHook<
   TData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = unknown
 > {
   <TContext>(

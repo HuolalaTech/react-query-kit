@@ -9,7 +9,7 @@ import { suspenseOptions } from './utils'
 
 export const createSuspenseInfiniteQuery = <
   TFnData,
-  TVariables = any,
+  TVariables = void,
   TError = Error,
   TPageParam = number
 >(
