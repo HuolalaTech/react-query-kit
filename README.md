@@ -135,8 +135,8 @@ const data = await queryClient.fetchQuery(usePost.getFetchOptions(variables))
 // useQueries example
 const queries = useQueries({
   queries: [
-   usePost.getFetchOptions(variables),
-   useUser.getFetchOptions(),
+   usePost.getOptions(variables),
+   useUser.getOptions(),
   ],
 })
 
@@ -161,6 +161,7 @@ Expose Methods
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `getOptions: (variables: TVariables) => UseQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn })`
 
 ## createInfiniteQuery
@@ -257,6 +258,7 @@ Expose Methods
 - `getKey: (variables: TVariables) => [primaryKey, variables]`
 - `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
 - `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `getOptions: (variables: TVariables) => UseInfiniteQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam })`
 
 ## createSuspenseQuery

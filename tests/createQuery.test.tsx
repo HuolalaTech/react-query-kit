@@ -22,6 +22,11 @@ describe('createQuery', () => {
     expect(useGeneratedQuery.getPrimaryKey()).toBe(primaryKey)
     expect(useGeneratedQuery.getKey()).toEqual([primaryKey])
     expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
+    expect(useGeneratedQuery.getOptions(variables)).toEqual({
+      primaryKey,
+      queryKey: [primaryKey, variables],
+      queryFn,
+    })
     expect(useGeneratedQuery.getFetchOptions(variables)).toEqual({
       queryKey: [primaryKey, variables],
       queryFn,

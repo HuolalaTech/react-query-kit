@@ -139,6 +139,9 @@ export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
         >
         queryKeyHashFn?: QueryKeyHashFunction<inferQueryKey<TVariables>>
       } & CompatibleInfiniteQueryPageParamsOptions<TFnData, TPageParam>
+  // TODO This seems pretty hacky for select & useQueries.
+  // But not work to infer TError, Hope to fix it.
+  getOptions: ExposeMethods<TFnData, TVariables, TPageParam>['getFetchOptions']
 }
 
 // query hook

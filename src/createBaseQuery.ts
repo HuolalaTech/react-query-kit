@@ -39,14 +39,14 @@ export const createBaseQuery = (
 
   if (process.env.NODE_ENV !== 'production') {
     if (existedPrimaryKeys.has(primaryKey)) {
-      throw new Error(`[Bug] Duplicated primaryKey: ${primaryKey}`)
+      console.error(`[Bug] Duplicated primaryKey: ${primaryKey}`)
     } else {
       existedPrimaryKeys.add(primaryKey)
     }
 
     // @ts-ignore
     if (defaultOptions.useDefaultOptions) {
-      throw new Error(
+      console.error(
         '[Bug] useDefaultOptions is not supported, please use middleware instead.'
       )
     }
@@ -55,6 +55,13 @@ export const createBaseQuery = (
   const getPrimaryKey = () => primaryKey
 
   const getKey = (variables?: any) => getQueryKey(primaryKey, variables)
+
+  const getOptions = (variables: any) => {
+    return {
+      ...defaultOptions,
+      queryKey: getKey(variables),
+    }
+  }
 
   const getFetchOptions = (variables: any) => {
     return {
@@ -86,6 +93,7 @@ export const createBaseQuery = (
     getKey,
     queryFn,
     queryKeyHashFn,
+    getOptions,
     getFetchOptions,
   })
 }
