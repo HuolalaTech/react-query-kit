@@ -21,13 +21,20 @@ type QueryBaseHookOptions = Omit<
   variables?: any
 }
 
-const existedPrimaryKeys = new Set<string>()
-
 export const createBaseQuery = (
   defaultOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
   overrideOptions?: QueryBaseHookOptions
 ): any => {
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore
+    if (defaultOptions.useDefaultOptions) {
+      console.error(
+        '[Bug] useDefaultOptions is not supported, please use middleware instead.'
+      )
+    }
+  }
+
   const {
     primaryKey,
     queryFn,
@@ -36,21 +43,6 @@ export const createBaseQuery = (
     getNextPageParam,
     initialPageParam,
   } = defaultOptions as CreateBaseQueryOptions
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (existedPrimaryKeys.has(primaryKey)) {
-      console.error(`[Bug] Duplicated primaryKey: ${primaryKey}`)
-    } else {
-      existedPrimaryKeys.add(primaryKey)
-    }
-
-    // @ts-ignore
-    if (defaultOptions.useDefaultOptions) {
-      console.error(
-        '[Bug] useDefaultOptions is not supported, please use middleware instead.'
-      )
-    }
-  }
 
   const getPrimaryKey = () => primaryKey
 

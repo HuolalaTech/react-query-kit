@@ -39,6 +39,7 @@ export const suspenseOptions = {
   enabled: true,
   suspense: true,
   throwOnError: true,
+  // Compatible with ReactQuery v4
   useErrorBoundary: true,
 }
 
