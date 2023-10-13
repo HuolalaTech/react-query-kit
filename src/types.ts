@@ -1,4 +1,5 @@
 import type {
+  DefinedUseQueryResult,
   GetNextPageParamFunction,
   GetPreviousPageParamFunction,
   InfiniteData,
@@ -77,6 +78,17 @@ type CompatibleUseInfiniteQueryOptions<
     inferQueryKey<TVariables>
   >
 >
+
+type CompatibleInfiniteData<TFnData, TPageParam> = CompatibleWithV4<
+  InfiniteData<TFnData, TPageParam>,
+  InfiniteData<TFnData>
+>
+
+type NonUndefinedGuard<T> = T extends undefined ? never : T
+
+type WithRequired<T, K extends keyof T> = T & {
+  [_ in K]: {}
+}
 
 export type inferQueryKey<TVariables> = TVariables extends void
   ? [string]
@@ -168,10 +180,26 @@ export interface QueryHookOptions<TFnData, TError, TData, TVariables>
   variables?: TVariables
 }
 
+export type DefinedQueryHookOptions<TFnData, TError, TData, TVariables> = Omit<
+  QueryHookOptions<TFnData, TError, TData, TVariables>,
+  'initialData'
+> & {
+  initialData: NonUndefinedGuard<TFnData> | (() => NonUndefinedGuard<TFnData>)
+}
+
 export type QueryHookResult<TData, TError> = UseQueryResult<TData, TError>
+
+export type DefinedQueryHookResult<TData, TError> = DefinedUseQueryResult<
+  TData,
+  TError
+>
 
 export interface QueryHook<TFnData = unknown, TVariables = any, TError = Error>
   extends ExposeMethods<TFnData, TVariables> {
+  <TData = TFnData>(
+    options: DefinedQueryHookOptions<TFnData, TError, TData, TVariables>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
+  ): DefinedQueryHookResult<TData, TError>
   <TData = TFnData>(
     options?: QueryHookOptions<TFnData, TError, TData, TVariables>,
     queryClient?: CompatibleWithV4<QueryClient, void>
@@ -279,9 +307,29 @@ export interface InfiniteQueryHookOptions<
   variables?: TVariables
 }
 
+export type DefinedInfiniteQueryHookOptions<
+  TFnData,
+  TError,
+  TData,
+  TVariables,
+  TPageParam = number
+> = Omit<
+  InfiniteQueryHookOptions<TFnData, TError, TData, TVariables, TPageParam>,
+  'initialData'
+> & {
+  initialData:
+    | CompatibleInfiniteData<TFnData, TPageParam>
+    | (() => NonUndefinedGuard<CompatibleInfiniteData<TFnData, TPageParam>>)
+}
+
 export type InfiniteQueryHookResult<TData, TError> = UseInfiniteQueryResult<
   TData,
   TError
+>
+
+export type DefinedInfiniteQueryHookResult<TData, TError> = WithRequired<
+  UseInfiniteQueryResult<TData, TError>,
+  'data'
 >
 
 export interface InfiniteQueryHook<
@@ -290,6 +338,16 @@ export interface InfiniteQueryHook<
   TError = Error,
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
+  <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
+    options: DefinedInfiniteQueryHookOptions<
+      TFnData,
+      TError,
+      TData,
+      TVariables,
+      TPageParam
+    >,
+    queryClient?: CompatibleWithV4<QueryClient, void>
+  ): DefinedInfiniteQueryHookResult<TData, TError>
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
     options?: InfiniteQueryHookOptions<
       TFnData,
@@ -444,9 +502,9 @@ export type inferData<T> = T extends QueryHook<infer TData, any, any>
   : T extends SuspenseQueryHook<infer TData, any, any>
   ? TData
   : T extends InfiniteQueryHook<infer TData, any, any, infer TPageParam>
-  ? CompatibleWithV4<InfiniteData<TData, TPageParam>, InfiniteData<TData>>
+  ? CompatibleInfiniteData<TData, TPageParam>
   : T extends SuspenseInfiniteQueryHook<infer TData, any, any, infer TPageParam>
-  ? CompatibleWithV4<InfiniteData<TData, TPageParam>, InfiniteData<TData>>
+  ? CompatibleInfiniteData<TData, TPageParam>
   : T extends MutationHook<infer TData, any, any>
   ? TData
   : never
