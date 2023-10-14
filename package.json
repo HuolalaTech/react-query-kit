@@ -58,6 +58,11 @@
   "peerDependencies": {
     "@tanstack/react-query": "^4 || ^5"
   },
+  "peerDependenciesMeta": {
+    "@tanstack/react-query": {
+      "optional": true
+    }
+  },
   "sideEffects": false,
   "scripts": {
     "build": "rollup --config rollup.config.js && npm run typecheck",
