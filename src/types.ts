@@ -1,4 +1,5 @@
 import type {
+  DefaultError,
   DefinedUseQueryResult,
   GetNextPageParamFunction,
   GetPreviousPageParamFunction,
@@ -90,6 +91,8 @@ type WithRequired<T, K extends keyof T> = T & {
   [_ in K]: {}
 }
 
+export type CompatibleError = CompatibleWithV4<DefaultError, Error>
+
 export type inferQueryKey<TVariables> = TVariables extends void
   ? [string]
   : [string, TVariables]
@@ -161,7 +164,7 @@ export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
 export interface CreateQueryOptions<
   TFnData = unknown,
   TVariables = void,
-  TError = Error
+  TError = CompatibleError
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
       'queryKey' | 'queryFn' | 'select'
@@ -194,8 +197,11 @@ export type DefinedQueryHookResult<TData, TError> = DefinedUseQueryResult<
   TError
 >
 
-export interface QueryHook<TFnData = unknown, TVariables = any, TError = Error>
-  extends ExposeMethods<TFnData, TVariables> {
+export interface QueryHook<
+  TFnData = unknown,
+  TVariables = any,
+  TError = CompatibleError
+> extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options: DefinedQueryHookOptions<TFnData, TError, TData, TVariables>,
     queryClient?: CompatibleWithV4<QueryClient, void>
@@ -211,7 +217,7 @@ export interface QueryHook<TFnData = unknown, TVariables = any, TError = Error>
 export interface CreateSuspenseQueryOptions<
   TFnData = unknown,
   TVariables = void,
-  TError = Error
+  TError = CompatibleError
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
       | 'queryKey'
@@ -253,7 +259,7 @@ export type SuspenseQueryHookResult<TData, TError> = Omit<
 export interface SuspenseQueryHook<
   TFnData = unknown,
   TVariables = void,
-  TError = Error
+  TError = CompatibleError
 > extends ExposeMethods<TFnData, TVariables> {
   <TData = TFnData>(
     options?: SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>,
@@ -266,7 +272,7 @@ export interface SuspenseQueryHook<
 export interface CreateInfiniteQueryOptions<
   TFnData = unknown,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<
@@ -335,7 +341,7 @@ export type DefinedInfiniteQueryHookResult<TData, TError> = WithRequired<
 export interface InfiniteQueryHook<
   TFnData = unknown,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
@@ -365,7 +371,7 @@ export interface InfiniteQueryHook<
 export interface CreateSuspenseInfiniteQueryOptions<
   TFnData = unknown,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<
@@ -428,7 +434,7 @@ export type SuspenseInfiniteQueryHookResult<TData, TError> = Omit<
 export interface SuspenseInfiniteQueryHook<
   TFnData = unknown,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
@@ -448,7 +454,7 @@ export interface SuspenseInfiniteQueryHook<
 export interface CreateMutationOptions<
   TData = unknown,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TContext = unknown
 > extends UseMutationOptions<TData, TError, TVariables, TContext> {
   use?: Middleware<MutationHook<TData, TError, TVariables>>[]
@@ -465,7 +471,7 @@ export interface MutationHookOptions<TData, TError, TVariables, TContext>
 
 export type MutationHookResult<
   TData = unknown,
-  TError = Error,
+  TError = CompatibleError,
   TVariables = void,
   TContext = unknown
 > = UseMutationResult<TData, TError, TVariables, TContext>

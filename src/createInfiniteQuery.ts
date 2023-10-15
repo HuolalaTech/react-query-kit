@@ -1,12 +1,16 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
-import type { CreateInfiniteQueryOptions, InfiniteQueryHook } from './types'
+import type {
+  CompatibleError,
+  CreateInfiniteQueryOptions,
+  InfiniteQueryHook,
+} from './types'
 
 export const createInfiniteQuery = <
   TFnData,
   TVariables = void,
-  TError = Error,
+  TError = CompatibleError,
   TPageParam = number
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
