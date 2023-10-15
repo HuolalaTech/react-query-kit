@@ -1,5 +1,6 @@
 import type {
   DefaultError,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
   GetNextPageParamFunction,
   GetPreviousPageParamFunction,
@@ -333,9 +334,9 @@ export type InfiniteQueryHookResult<TData, TError> = UseInfiniteQueryResult<
   TError
 >
 
-export type DefinedInfiniteQueryHookResult<TData, TError> = WithRequired<
-  UseInfiniteQueryResult<TData, TError>,
-  'data'
+export type DefinedInfiniteQueryHookResult<TData, TError> = CompatibleWithV4<
+  DefinedUseInfiniteQueryResult<TData, TError>,
+  WithRequired<UseInfiniteQueryResult<TData, TError>, 'data'>
 >
 
 export interface InfiniteQueryHook<
