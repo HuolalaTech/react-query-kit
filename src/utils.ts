@@ -2,6 +2,7 @@ import {
   type Query,
   type QueryClient,
   useQueryClient,
+  useSuspenseQuery,
 } from '@tanstack/react-query'
 
 import type { Middleware, inferQueryKey } from './types'
@@ -18,7 +19,7 @@ export const withMiddleware = (
     const [middleware, opts] = [
       useQueryClient(
         // @ts-ignore Compatible with ReactQuery v4
-        options?.context ? options : queryClient
+        useSuspenseQuery ? queryClient : options
       ).getDefaultOptions()[type],
       defaultOptions,
       options,
@@ -39,15 +40,12 @@ export const withMiddleware = (
   }
 }
 
-const defaultThrowOnError = (_error: unknown, query: Query) =>
-  query.state.data === undefined
-
+// Compatible with ReactQuery v4
 export const suspenseOptions = {
   enabled: true,
   suspense: true,
-  throwOnError: defaultThrowOnError,
-  // Compatible with ReactQuery v4
-  useErrorBoundary: defaultThrowOnError,
+  useErrorBoundary: (_error: unknown, query: Query) =>
+    query.state.data === undefined,
 }
 
 export const getKey = <TVariables = void>(
