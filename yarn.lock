@@ -1681,13 +1681,12 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.0.0-rc.12.tgz#0748043960b749888d6762bf6ed795ca7d761153"
   integrity sha512-gEgRIkFMjxhu+rbomSxAYTA+aPaPrLffJwFCpfd/AqJ8PTlnredJnFfFskCbR6oZo/1XEuDORFW9c6b4gOnEKQ==
 
-"@tanstack/react-query@^5.0.0-rc.12":
-  version "5.0.0-rc.12"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.0.0-rc.12.tgz#26c61cff5c33c1be1033795de56f57eb7bb8d19a"
-  integrity sha512-pUb6xkHs2YFb9N6/34ZMut4LG0yO+uqjDaoWmxOsmIZVwPYCNrsRjI8kaF/6F+5gyxJp6hzFHH4Jlukbx/tReA==
+"@tanstack/react-query@^5.0.0-rc.16":
+  version "5.0.0-rc.16"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.0.0-rc.16.tgz#0f92f918e33652249955ae8d7878bc065affdd03"
+  integrity sha512-6KA2UINzseZYqMxBaKHAj4/JOGUWqKsZEQ8eRgIo7iwWfk1wp8Pmr2Iq7xoQt5VXdjb3VFO7ox4utDIqb3uAGw==
   dependencies:
     "@tanstack/query-core" "5.0.0-rc.12"
-    client-only "0.0.1"
 
 "@testing-library/dom@^9.0.0":
   version "9.3.0"
@@ -2491,11 +2490,6 @@ cjs-module-lexer@^1.0.0:
   version "1.2.2"
   resolved "https://mirrors.cloud.tencent.com/npm/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz"
   integrity sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==
-
-client-only@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
-  integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
 
 cliui@^6.0.0:
   version "6.0.0"

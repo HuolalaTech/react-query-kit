@@ -123,7 +123,7 @@ type DeepPartial<T> = T extends object
     }
   : T
 
-export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
+export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
   getPrimaryKey: () => string
   getKey: <V extends DeepPartial<TVariables> | void = void>(
     variables?: V
@@ -155,9 +155,29 @@ export type ExposeMethods<TFnData, TVariables, TPageParam = never> = {
         >
         queryKeyHashFn?: QueryKeyHashFunction<inferQueryKey<TVariables>>
       } & CompatibleInfiniteQueryPageParamsOptions<TFnData, TPageParam>
-  // TODO This seems pretty hacky for select & useQueries.
-  // But not work to infer TError, Hope to fix it.
-  getOptions: ExposeMethods<TFnData, TVariables, TPageParam>['getFetchOptions']
+  getOptions: (
+    variables: TVariables extends void ? TVariables | void : TVariables
+  ) => [TPageParam] extends [never]
+    ? CompatibleWithV4<
+        UseQueryOptions<TFnData, TError, TFnData, inferQueryKey<TVariables>>,
+        // Not work to infer TError in v4
+        {
+          queryKey: inferQueryKey<TVariables>
+          queryFn: CompatibleQueryFunction<
+            TFnData,
+            inferQueryKey<TVariables>,
+            TPageParam
+          >
+          queryKeyHashFn?: QueryKeyHashFunction<inferQueryKey<TVariables>>
+        }
+      >
+    : CompatibleUseInfiniteQueryOptions<
+        TFnData,
+        TVariables,
+        TFnData,
+        TError,
+        TPageParam
+      >
 }
 
 // query hook
@@ -184,10 +204,11 @@ export interface QueryHookOptions<TFnData, TError, TData, TVariables>
   variables?: TVariables
 }
 
-export type DefinedQueryHookOptions<TFnData, TError, TData, TVariables> = Omit<
-  QueryHookOptions<TFnData, TError, TData, TVariables>,
-  'initialData'
-> & {
+export interface DefinedQueryHookOptions<TFnData, TError, TData, TVariables>
+  extends Omit<
+    QueryHookOptions<TFnData, TError, TData, TVariables>,
+    'initialData'
+  > {
   initialData: NonUndefinedGuard<TFnData> | (() => NonUndefinedGuard<TFnData>)
 }
 
@@ -202,7 +223,7 @@ export interface QueryHook<
   TFnData = unknown,
   TVariables = any,
   TError = CompatibleError
-> extends ExposeMethods<TFnData, TVariables> {
+> extends ExposeMethods<TFnData, TVariables, TError> {
   <TData = TFnData>(
     options: DefinedQueryHookOptions<TFnData, TError, TData, TVariables>,
     queryClient?: CompatibleWithV4<QueryClient, void>
@@ -261,7 +282,7 @@ export interface SuspenseQueryHook<
   TFnData = unknown,
   TVariables = void,
   TError = CompatibleError
-> extends ExposeMethods<TFnData, TVariables> {
+> extends ExposeMethods<TFnData, TVariables, TError> {
   <TData = TFnData>(
     options?: SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>,
     queryClient?: CompatibleWithV4<QueryClient, void>
@@ -314,18 +335,18 @@ export interface InfiniteQueryHookOptions<
   variables?: TVariables
 }
 
-export type DefinedInfiniteQueryHookOptions<
+export interface DefinedInfiniteQueryHookOptions<
   TFnData,
   TError,
   TData,
   TVariables,
   TPageParam = number
-> = Omit<
-  InfiniteQueryHookOptions<TFnData, TError, TData, TVariables, TPageParam>,
-  'initialData'
-> & {
+> extends Omit<
+    InfiniteQueryHookOptions<TFnData, TError, TData, TVariables, TPageParam>,
+    'initialData'
+  > {
   initialData:
-    | CompatibleInfiniteData<TFnData, TPageParam>
+    | NonUndefinedGuard<CompatibleInfiniteData<TFnData, TPageParam>>
     | (() => NonUndefinedGuard<CompatibleInfiniteData<TFnData, TPageParam>>)
 }
 
@@ -344,7 +365,7 @@ export interface InfiniteQueryHook<
   TVariables = void,
   TError = CompatibleError,
   TPageParam = number
-> extends ExposeMethods<TFnData, TVariables, TPageParam> {
+> extends ExposeMethods<TFnData, TVariables, TError, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
     options: DefinedInfiniteQueryHookOptions<
       TFnData,
@@ -437,7 +458,7 @@ export interface SuspenseInfiniteQueryHook<
   TVariables = void,
   TError = CompatibleError,
   TPageParam = number
-> extends ExposeMethods<TFnData, TVariables, TPageParam> {
+> extends ExposeMethods<TFnData, TVariables, TError, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
     options?: SuspenseInfiniteQueryHookOptions<
       TFnData,
