@@ -54,5 +54,5 @@ export const getKey = <TVariables = void>(
 ) => {
   return (
     variables === undefined ? [primaryKey] : [primaryKey, variables]
-  ) as inferQueryKey<TVariables>
+  ) as inferQueryKey<unknown, TVariables>
 }

@@ -32,8 +32,6 @@
 - 为自定义 ReactQuery hook 设置默认选项更容易和更清晰
 - 中间件
 
-![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
-
 [English](./README.md) | 简体中文
 
 ## Table of Contents
@@ -137,6 +135,9 @@ const queries = useQueries({
     useUser.getOptions(),
   ],
 })
+
+// getQueryData
+queryClient.getQueryData(usePost.getKey(variables)) // Response
 
 // setQueryData
 queryClient.setQueryData(usePost.getKey(variables), {...})

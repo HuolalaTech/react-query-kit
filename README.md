@@ -32,8 +32,6 @@
 - Set defaultOptions for custom ReactQuery hooks easier and clearer
 - Middleware
 
-![react-query-kit.gif](https://files.catbox.moe/cw5hex.gif)
-
 English | [简体中文](./README-zh_CN.md)
 
 ## Table of Contents
@@ -82,7 +80,7 @@ $ yarn add react-query-kit
 
 ```tsx
 import { QueryClient, dehydrate } from '@tanstack/react-query'
-import { createQuery, inferData } from 'react-query-kit'
+import { createQuery } from 'react-query-kit'
 
 type Response = { title: string; content: string }
 type Variables = { id: number }
@@ -140,8 +138,11 @@ const queries = useQueries({
   ],
 })
 
+// getQueryData
+queryClient.getQueryData(usePost.getKey(variables)) // Response
+
 // setQueryData
-queryClient.setQueryData<inferData<typeof usePost>>(usePost.getKey(variables), {...})
+queryClient.setQueryData(usePost.getKey(variables), {...})
 ```
 
 ### Additional API Reference
