@@ -34,7 +34,7 @@ type CompatibleWithV4<V5, V4> =
 type CompatibleQueryFunction<
   T = unknown,
   TQueryKey extends QueryKey = QueryKey,
-  TPageParam = unknown
+  TPageParam = never
 > = CompatibleWithV4<
   QueryFunction<T, TQueryKey, TPageParam>,
   QueryFunction<T, TQueryKey>
@@ -106,9 +106,7 @@ export type inferQueryKey<
 > = CompatibleWithV4<
   DataTag<
     GetQueryKey<TVariables>,
-    [TPageParam] extends [never]
-      ? TFnData
-      : CompatibleInfiniteData<TFnData, TPageParam>
+    [TPageParam] extends [never] ? TFnData : InfiniteData<TFnData, TPageParam>
   >,
   GetQueryKey<TVariables>
 >
@@ -155,14 +153,13 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
     variables: TVariables extends void ? TVariables | void : TVariables
   ) => [TPageParam] extends [never]
     ? {
-        queryKey: inferQueryKey<TFnData, TVariables, TPageParam>
+        queryKey: inferQueryKey<TFnData, TVariables>
         queryFn: CompatibleQueryFunction<
           TFnData,
-          inferQueryKey<TFnData, TVariables, TPageParam>,
-          TPageParam
+          inferQueryKey<TFnData, TVariables>
         >
         queryKeyHashFn?: QueryKeyHashFunction<
-          inferQueryKey<TFnData, TVariables, TPageParam>
+          inferQueryKey<TFnData, TVariables>
         >
       }
     : {
@@ -184,24 +181,13 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
           TFnData,
           TError,
           TFnData,
-          inferQueryKey<
-            TVariables,
-            [TPageParam] extends [never]
-              ? TFnData
-              : CompatibleInfiniteData<TFnData, TPageParam>
-          >
+          DataTag<GetQueryKey<TVariables>, TFnData>
         >,
         // Not work to infer TError in v4
         {
-          queryKey: inferQueryKey<TFnData, TVariables, TPageParam>
-          queryFn: CompatibleQueryFunction<
-            TFnData,
-            inferQueryKey<TFnData, TVariables, TPageParam>,
-            TPageParam
-          >
-          queryKeyHashFn?: QueryKeyHashFunction<
-            inferQueryKey<TFnData, TVariables, TPageParam>
-          >
+          queryKey: GetQueryKey<TVariables>
+          queryFn: QueryFunction<TFnData, GetQueryKey<TVariables>>
+          queryKeyHashFn?: QueryKeyHashFunction<GetQueryKey<TVariables>>
         }
       >
     : CompatibleUseInfiniteQueryOptions<
