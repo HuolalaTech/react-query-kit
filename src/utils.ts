@@ -1,9 +1,4 @@
-import {
-  type Query,
-  type QueryClient,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import type { Middleware, inferQueryKey } from './types'
 
@@ -13,13 +8,13 @@ export const withMiddleware = (
   type: 'queries' | 'mutations'
 ) => {
   return function useMiddleware(
-    options?: { client?: QueryClient; use?: Middleware[] },
-    queryClient?: QueryClient
+    options?: { client?: ReactQuery.QueryClient; use?: Middleware[] },
+    queryClient?: ReactQuery.QueryClient
   ) {
     const [middleware, opts] = [
-      useQueryClient(
+      ReactQuery.useQueryClient(
         // @ts-ignore Compatible with ReactQuery v4
-        useSuspenseQuery ? queryClient : options
+        isV5() ? queryClient : options
       ).getDefaultOptions()[type],
       defaultOptions,
       options,
@@ -44,9 +39,11 @@ export const withMiddleware = (
 export const suspenseOptions = {
   enabled: true,
   suspense: true,
-  useErrorBoundary: (_error: unknown, query: Query) =>
+  useErrorBoundary: (_error: unknown, query: ReactQuery.Query) =>
     query.state.data === undefined,
 }
+
+export const isV5 = () => !!ReactQuery.useSuspenseQuery
 
 export const getKey = <TVariables = void>(
   primaryKey: string,

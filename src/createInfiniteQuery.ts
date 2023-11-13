@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
 import type {
@@ -15,5 +15,5 @@ export const createInfiniteQuery = <
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
 ): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
-  return createBaseQuery(options, useInfiniteQuery)
+  return createBaseQuery(options, ReactQuery.useInfiniteQuery)
 }

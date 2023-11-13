@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
 import type { CompatibleError, CreateQueryOptions, QueryHook } from './types'
@@ -10,5 +10,5 @@ export const createQuery = <
 >(
   options: CreateQueryOptions<TFnData, TVariables, TError>
 ): QueryHook<TFnData, TVariables, TError> => {
-  return createBaseQuery(options, useQuery)
+  return createBaseQuery(options, ReactQuery.useQuery)
 }

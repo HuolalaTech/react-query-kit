@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import type {
   CompatibleError,
@@ -18,7 +18,7 @@ export const createMutation = <
   const getKey = () => defaultOptions.mutationKey
 
   return Object.assign(
-    withMiddleware(useMutation, defaultOptions, 'mutations'),
+    withMiddleware(ReactQuery.useMutation, defaultOptions, 'mutations'),
     {
       getKey,
       mutationFn: defaultOptions.mutationFn,

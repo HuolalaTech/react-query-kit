@@ -1,4 +1,4 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
 import type {
@@ -6,7 +6,7 @@ import type {
   CreateSuspenseQueryOptions,
   SuspenseQueryHook,
 } from './types'
-import { suspenseOptions } from './utils'
+import { isV5, suspenseOptions } from './utils'
 
 export const createSuspenseQuery = <
   TFnData,
@@ -15,7 +15,7 @@ export const createSuspenseQuery = <
 >(
   options: CreateSuspenseQueryOptions<TFnData, TVariables, TError>
 ): SuspenseQueryHook<TFnData, TVariables, TError> => {
-  return useSuspenseQuery
-    ? createBaseQuery(options, useSuspenseQuery)
-    : createBaseQuery(options, useQuery, suspenseOptions)
+  return isV5()
+    ? createBaseQuery(options, ReactQuery.useSuspenseQuery)
+    : createBaseQuery(options, ReactQuery.useQuery, suspenseOptions)
 }

@@ -1,7 +1,4 @@
-import {
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-} from '@tanstack/react-query'
+import * as ReactQuery from '@tanstack/react-query'
 
 import { createBaseQuery } from './createBaseQuery'
 import type {
@@ -9,7 +6,7 @@ import type {
   CreateSuspenseInfiniteQueryOptions,
   SuspenseInfiniteQueryHook,
 } from './types'
-import { suspenseOptions } from './utils'
+import { isV5, suspenseOptions } from './utils'
 
 export const createSuspenseInfiniteQuery = <
   TFnData,
@@ -24,7 +21,7 @@ export const createSuspenseInfiniteQuery = <
     TPageParam
   >
 ): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
-  return useSuspenseInfiniteQuery
-    ? createBaseQuery(options, useSuspenseInfiniteQuery)
-    : createBaseQuery(options, useInfiniteQuery, suspenseOptions)
+  return isV5()
+    ? createBaseQuery(options, ReactQuery.useSuspenseInfiniteQuery)
+    : createBaseQuery(options, ReactQuery.useInfiniteQuery, suspenseOptions)
 }
