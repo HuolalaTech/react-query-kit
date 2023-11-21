@@ -1,14 +1,15 @@
 import type {
   QueryClient,
+  QueryFunctionContext,
   UseBaseQueryOptions,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 
 import type { AdditionalQueryOptions, Middleware } from './types'
-import { getKey as getQueryKey, withMiddleware } from './utils'
+import { getKey as getFullKey, withMiddleware } from './utils'
 
 interface CreateBaseQueryOptions
-  extends Omit<UseInfiniteQueryOptions, 'queryKey' | 'queryFn'>,
+  extends Omit<UseInfiniteQueryOptions, 'queryFn'>,
     AdditionalQueryOptions<any, any> {
   use?: Middleware[]
   variables?: any
@@ -18,13 +19,14 @@ type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
   'queryKey' | 'queryFn'
 > & {
+  fetcher?: any
   variables?: any
 }
 
 export const createBaseQuery = (
   defaultOptions: any,
   useRQHook: (options: any, queryClient?: any) => any,
-  overrideOptions?: QueryBaseHookOptions
+  overrideOptions?: Partial<UseInfiniteQueryOptions>
 ): any => {
   if (process.env.NODE_ENV !== 'production') {
     // @ts-ignore
@@ -33,36 +35,47 @@ export const createBaseQuery = (
         '[Bug] useDefaultOptions is not supported, please use middleware instead.'
       )
     }
+
+    // @ts-ignore
+    if (defaultOptions.queryFn) {
+      console.error(
+        '[Bug] queryFn is not supported, please use fetcher instead.'
+      )
+    }
   }
 
   const {
-    primaryKey,
-    queryFn,
+    queryKey,
+    fetcher,
     queryKeyHashFn,
     getPreviousPageParam,
     getNextPageParam,
     initialPageParam,
   } = defaultOptions as CreateBaseQueryOptions
 
-  const getPrimaryKey = () => primaryKey
+  const getQueryOptions = (fetcherFn: any, variables: any) => {
+    return {
+      queryFn: (context: QueryFunctionContext) => fetcherFn(variables, context),
+      queryKey: getFullKey(queryKey, variables),
+    }
+  }
 
-  const getKey = (variables?: any) => getQueryKey(primaryKey, variables)
+  const getKey = (variables?: any) => getFullKey(queryKey, variables)
 
   const getOptions = (variables: any) => {
     return {
       ...defaultOptions,
-      queryKey: getKey(variables),
+      ...getQueryOptions(fetcher, variables),
     }
   }
 
   const getFetchOptions = (variables: any) => {
     return {
-      queryKey: getKey(variables),
-      queryFn,
       queryKeyHashFn,
       getPreviousPageParam,
       getNextPageParam,
       initialPageParam,
+      ...getQueryOptions(fetcher, variables),
     }
   }
 
@@ -74,17 +87,15 @@ export const createBaseQuery = (
       {
         ...options,
         ...overrideOptions,
-        queryKey: getKey(options.variables),
+        ...getQueryOptions(options.fetcher, options.variables),
       },
       queryClient
     )
   }
 
   return Object.assign(withMiddleware(useBaseHook, defaultOptions, 'queries'), {
-    getPrimaryKey,
+    fetcher,
     getKey,
-    queryFn,
-    queryKeyHashFn,
     getOptions,
     getFetchOptions,
   })

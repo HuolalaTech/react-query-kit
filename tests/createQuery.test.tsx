@@ -6,31 +6,34 @@ import * as React from 'react'
 import { createQuery } from '../src'
 import type { QueryHookResult } from '../src'
 import { Middleware } from '../src/types'
-import { renderWithClient, uniqueKey } from './utils'
+import { omit, renderWithClient, uniqueKey } from './utils'
 
 describe('createQuery', () => {
   const queryClient = new QueryClient()
 
   it('should return the correct key', () => {
-    const primaryKey = uniqueKey()
+    const key = uniqueKey()
     const variables = { id: 1 }
-    const queryFn = () => {}
-    const useGeneratedQuery = createQuery<void, { id: number }>({
-      primaryKey,
-      queryFn,
+    const fetcher = (_variables: { id: number }) => {
+      return 'test'
+    }
+    const useGeneratedQuery = createQuery({
+      queryKey: key,
+      fetcher,
     })
-    expect(useGeneratedQuery.getPrimaryKey()).toBe(primaryKey)
-    expect(useGeneratedQuery.getKey()).toEqual([primaryKey])
-    expect(useGeneratedQuery.getKey(variables)).toEqual([primaryKey, variables])
-    expect(useGeneratedQuery.getOptions(variables)).toEqual({
-      primaryKey,
-      queryKey: [primaryKey, variables],
-      queryFn,
+    expect(useGeneratedQuery.getKey()).toEqual(key)
+    expect(useGeneratedQuery.getKey(variables)).toEqual([...key, variables])
+    expect(omit(useGeneratedQuery.getOptions(variables), 'queryFn')).toEqual({
+      queryKey: [...key, variables],
+      fetcher,
     })
-    expect(useGeneratedQuery.getFetchOptions(variables)).toEqual({
-      queryKey: [primaryKey, variables],
-      queryFn,
+    expect(
+      omit(useGeneratedQuery.getFetchOptions(variables), 'queryFn')
+    ).toEqual({
+      queryKey: [...key, variables],
     })
+
+    queryClient.prefetchQuery(useGeneratedQuery.getFetchOptions(variables))
   })
 
   it('should return the correct initial data from middleware', async () => {
@@ -44,9 +47,9 @@ describe('createQuery', () => {
       }
     }
 
-    const useGeneratedQuery = createQuery<string, { id: number }>({
-      primaryKey: uniqueKey(),
-      queryFn: () => {
+    const useGeneratedQuery = createQuery({
+      queryKey: uniqueKey(),
+      fetcher: (_variables: { id: number }) => {
         return 'test'
       },
       use: [myMiddileware],
@@ -69,8 +72,8 @@ describe('createQuery', () => {
 
   it('should return the correct initial data', async () => {
     const useGeneratedQuery = createQuery<string, { id: number }>({
-      primaryKey: uniqueKey(),
-      queryFn: () => {
+      queryKey: uniqueKey(),
+      fetcher: () => {
         return 'test'
       },
       use: [
@@ -101,8 +104,8 @@ describe('createQuery', () => {
 
   it('should return the selected data', async () => {
     const useGeneratedQuery = createQuery<string>({
-      primaryKey: uniqueKey(),
-      queryFn: () => {
+      queryKey: uniqueKey(),
+      fetcher: () => {
         return 'test'
       },
     })

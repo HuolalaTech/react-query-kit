@@ -26,10 +26,9 @@
 
 ## Motivation
 
-- 使 `queryKey` 与 `queryFn` 强相关
 - 以类型安全的方式管理 `queryKey`
-- 让 `queryClient` 的操作更清楚地关联到哪个自定义 ReactQuery hook
-- 为自定义 ReactQuery hook 设置默认选项更容易和更清晰
+- 让 `queryClient` 的操作更清楚地关联到哪个自定义 hook
+- 可以从任何自定义 ReactQuery 挂钩中提取的 TypeScript 类型
 - 中间件
 
 [English](./README.md) | 简体中文
@@ -49,7 +48,9 @@
   - [createMutation](#createmutation)
   - [中间件](#中间件)
   - [类型推导](#类型推导)
-- [问题](#issues)
+- [常见问题](#常见问题)
+- [迁移](#迁移)
+- [Issues](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
 - [LICENSE](#license)
@@ -59,10 +60,12 @@
 ## Installation
 
 ```bash
-$ npm i react-query-kit
+$ npm i react-query-kit@beta
 # or
-$ yarn add react-query-kit
+$ yarn add react-query-kit@beta
 ```
+
+如果您还在使用 React Query Kit v2？ 请在此处查看 v2 文档：https://github.com/liaoliao666/react-query-kit/tree/v2#readme.
 
 # Examples
 
@@ -82,11 +85,10 @@ import { createQuery } from 'react-query-kit'
 type Response = { title: string; content: string }
 type Variables = { id: number }
 
-const usePost = createQuery<Response, Variables, Error>({
-  primaryKey: '/posts',
-  queryFn: ({ queryKey: [primaryKey, variables] }) => {
-    // primaryKey 相等于 '/posts'
-    return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: Variables): Promise<Response> => {
+    return fetch(`/posts/${variables.id}`).then(res => res.json())
   },
   // 你还可以通过中间件来定制这个 hook 的行为
   use: [myMiddleware]
@@ -147,19 +149,20 @@ queryClient.setQueryData(usePost.getKey(variables), {...})
 
 Options
 
-- `primaryKey: string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
   - 必填
-  - `primaryKey` 将是 `queryKey` 数组的第一个元素
+  - 用于请求数据的函数。 第二个参数是“queryFn”的“QueryFunctionContext”
+- `variables?: TVariables`
+  - 可选
+  - `variables` 将是 fetcher 的第一个参数和 `queryKey` 数组的最后一个元素
 - `use: Middleware[]`
   - 可选
   - 中间件函数数组 [(详情)](#中间件)
 
 Expose Methods
 
-- `getPrimaryKey: () => primaryKey`
-- `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
-- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
+- `getKey: (variables: TVariables) => QueryKey`
 - `getOptions: (variables: TVariables) => UseInfiniteQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn })`
 
@@ -174,15 +177,15 @@ import { createInfiniteQuery } from 'react-query-kit'
 type Response = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
-const useProjects = createInfiniteQuery<Response, Variables, Error>({
-  primaryKey: 'projects',
-  queryFn: ({ queryKey: [_primaryKey, variables], pageParam }) => {
+const useProjects = createInfiniteQuery({
+  queryKey: ['projects'],
+  fetcher: (variables: Variables, { pageParam }): Promise<Response> => {
     return fetch(
       `/projects?cursor=${pageParam}?active=${variables.active}`
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  defaultPageParam: 1,
+  initialPageParam: 0,
 })
 
 const variables = { active: true }
@@ -244,19 +247,20 @@ const data = await queryClient.fetchInfiniteQuery(
 
 Options
 
-- `primaryKey: string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
   - 必填
-  - `primaryKey` 将是 `queryKey` 数组的第一个元素
+  - 查询将用于请求数据的函数。 第二个参数是“queryFn”的“QueryFunctionContext”
+- `variables?: TVariables`
+  - 可选
+  - `variables` 将是 fetcher 的第一个参数和 `queryKey` 数组的最后一个元素
 - `use: Middleware[]`
   - 可选
   - 中间件函数数组 [(详情)](#中间件)
 
 Expose Methods
 
-- `getPrimaryKey: () => primaryKey`
-- `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
-- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
+- `getKey: (variables: TVariables) => QueryKey`
 - `getOptions: (variables: TVariables) => UseInfiniteQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam })`
 
@@ -369,6 +373,7 @@ Options
 Returns
 
 - `getKey: () => MutationKey`
+- `getOptions: () => UseMutationOptions`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
 ## 中间件
@@ -383,42 +388,31 @@ Returns
 import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
-const myMiddleware: Middleware<
-  QueryHook<Response, Variables>
-> = useQueryNext => {
+const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
   return options => {
-    const { userId } = useAuth()
-    const client = useQueryClient()
-    const variables = options.variables ?? { id: userId }
-    const hasData = () => !!client.getQueryData(useUser.getKey(variables))
+    const logger = useLogger()
+    const fetcher = (variables, context) => {
+      logger.log(context.queryKey, variables)
+      return options.fetcher(variables, context)
+    }
 
     return useQueryNext({
       ...options,
-      variables,
-      enabled: options.enabled ?? !hasData(),
+      fetcher,
     })
   }
 }
 
 const useUser = createQuery<Response, Variables>({
   // ...
-  use: [
-    myMiddleware,
-    // 或者直接定义在 `use` 数组内
-    function myMiddleware2(useQueryNext) {
-      return options => {
-        // ...
-        return useQueryNext(options)
-      }
-    },
-  ],
+  use: [logger],
 })
 
 // 全局中间件
 const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
   return options => {
     // 你还可以通过函数 getKey 获取 queryKey
-    const queryKey = getKey(options.primaryKey, options.variables)
+    const fullKey = getKey(options.queryKey, options.variables)
     // ...
     return useQueryNext(options)
   }
@@ -525,6 +519,69 @@ inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
+
+## 常见问题
+
+### `getFetchOptions` 和 `getOptions` 有什么不同
+
+`getFetchOptions` 只会返回必要的选项，而像 `staleTime` 和 `retry` 等选项会被忽略
+
+```ts
+const useTest1 = createQuery({
+  staleTime: Infinity,
+})
+
+// 只有在第一次请求
+queryClient.prefetchQuery(useTest1.getOptions())
+// 永远会去请求
+queryClient.prefetchQuery(useTest1.getFetchOptions())
+
+const useTest2 = createQuery({
+  retry: 3,
+})
+
+// 会自动重试3次
+queryClient.prefetchQuery(useTest2.getOptions())
+// 不会自动重试
+queryClient.prefetchQuery(useTest2.getFetchOptions())
+```
+
+### `fetcher` 和 `queryFn` 有什么不同
+
+ReactQueryKit 会自动将 `fetcher` 转换为 `queryFn`，例如
+
+```ts
+const useTest = createQuery({
+  queryKey: ['test'],
+  fetcher: (variables, context) => {
+    // ...
+  },
+})
+
+// => useTest.getOptions(variables):
+// {
+//   queryKey: ['test', variables],
+//   queryFn: (context) => fetcher(variables, context)
+// }
+```
+
+## 迁移
+
+从 ReactQueryKit 2 升级 → ReactQueryKit 3
+
+```diff
+createQuery({
+-  primaryKey: 'posts',
+-  queryFn: ({ queryKey: [_primaryKey, variables] }) => {},
++  queryKey: ['posts'],
++  fetcher: variables => {},
+})
+```
+
+您可以从 ReactQueryKit 3 中受益
+
+- 支持传入数组 `queryKey`
+- 支持推断 fetcher 的类型，您可以自动享受首选的类型。
 
 ## Issues
 

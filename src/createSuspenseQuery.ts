@@ -15,7 +15,7 @@ export const createSuspenseQuery = <
 >(
   options: CreateSuspenseQueryOptions<TFnData, TVariables, TError>
 ): SuspenseQueryHook<TFnData, TVariables, TError> => {
-  return isV5()
+  return isV5
     ? createBaseQuery(options, ReactQuery.useSuspenseQuery)
     : createBaseQuery(options, ReactQuery.useQuery, suspenseOptions)
 }

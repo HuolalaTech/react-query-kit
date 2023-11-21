@@ -26,10 +26,9 @@
 
 ## What could you benefit from it
 
-- Make `queryKey` strongly related with `queryFn`
 - Manage `queryKey` in a type-safe way
 - Make `queryClient`'s operations clearly associated with custom ReactQuery hooks
-- Set defaultOptions for custom ReactQuery hooks easier and clearer
+- You can extract the TypeScript type of any custom ReactQuery hooks
 - Middleware
 
 English | [简体中文](./README-zh_CN.md)
@@ -49,6 +48,8 @@ English | [简体中文](./README-zh_CN.md)
   - [createMutation](#createmutation)
   - [Middleware](#middleware)
   - [Type inference](#type-inference)
+- [FAQ](#faq)
+- [Migration](#migration)
 - [Issues](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
@@ -62,10 +63,12 @@ This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `dependencies`:
 
 ```bash
-$ npm i react-query-kit
+$ npm i react-query-kit@beta
 # or
-$ yarn add react-query-kit
+$ yarn add react-query-kit@beta
 ```
+
+If you still on React Query Kit v2? Check out the v2 docs here: https://github.com/liaoliao666/react-query-kit/tree/v2#readme.
 
 # Examples
 
@@ -85,11 +88,10 @@ import { createQuery } from 'react-query-kit'
 type Response = { title: string; content: string }
 type Variables = { id: number }
 
-const usePost = createQuery<Response, Variables, Error>({
-  primaryKey: '/posts',
-  queryFn: ({ queryKey: [primaryKey, variables] }) => {
-    // primaryKey equals to '/posts'
-    return fetch(`${primaryKey}/${variables.id}`).then(res => res.json())
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: Variables): Promise<Response> => {
+    return fetch(`/posts/${variables.id}`).then(res => res.json())
   },
   // u can also pass middleware to cutomize this hook's behavior
   use: [myMiddleware]
@@ -100,7 +102,7 @@ const variables = { id: 1 }
 
 // example
 export default function Page() {
-  // queryKey equals to ['/posts', { id: 1 }]
+  // queryKey will be `['posts', { id: 1 }]` if u passed variables
   const { data } = usePost({ variables })
 
   return (
@@ -111,8 +113,8 @@ export default function Page() {
   )
 }
 
-console.log(usePost.getKey()) //  ['/posts']
-console.log(usePost.getKey(variables)) //  ['/posts', { id: 1 }]
+console.log(usePost.getKey()) //  ['posts']
+console.log(usePost.getKey(variables)) //  ['posts', { id: 1 }]
 
 // nextjs example
 export async function getStaticProps() {
@@ -149,19 +151,20 @@ queryClient.setQueryData(usePost.getKey(variables), {...})
 
 Options
 
-- `primaryKey: string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
   - Required
-  - `primaryKey` will be the first element of the array of `queryKey`
+  - The function that the query will use to request data. And The second param is the `QueryFunctionContext` of `queryFn`.
+- `variables?: TVariables`
+  - Optional
+  - `variables` will be the frist param of fetcher and the last element of the `queryKey` array
 - `use: Middleware[]`
   - Optional
   - array of middleware functions [(details)](#middleware)
 
 Expose Methods
 
-- `getPrimaryKey: () => primaryKey`
-- `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
-- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
+- `getKey: (variables: TVariables) => QueryKey`
 - `getOptions: (variables: TVariables) => UseQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn })`
 
@@ -176,15 +179,15 @@ import { createInfiniteQuery } from 'react-query-kit'
 type Response = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
-const useProjects = createInfiniteQuery<Response, Variables, Error>({
-  primaryKey: 'projects',
-  queryFn: ({ queryKey: [_primaryKey, variables], pageParam }) => {
+const useProjects = createInfiniteQuery({
+  queryKey: ['projects'],
+  fetcher: (variables: Variables, { pageParam }): Promise<Response> => {
     return fetch(
       `/projects?cursor=${pageParam}?active=${variables.active}`
     ).then(res => res.json())
   },
   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  initialPageParam: 1,
+  initialPageParam: 0,
 })
 
 const variables = { active: true }
@@ -246,19 +249,20 @@ const data = await queryClient.fetchInfiniteQuery(
 
 Options
 
-- `primaryKey: string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
   - Required
-  - `primaryKey` will be the first element of the arrary of `queryKey`
+  - The function that the query will use to request data. And The second param is the `QueryFunctionContext` of `queryFn`.
+- `variables?: TVariables`
+  - Optional
+  - `variables` will be the frist param of fetcher and the last element of the `queryKey` array
 - `use: Middleware[]`
   - Optional
   - array of middleware functions [(details)](#middleware)
 
 Expose Methods
 
-- `getPrimaryKey: () => primaryKey`
-- `getKey: (variables: TVariables) => [primaryKey, variables]`
-- `queryFn: QueryFunction<TFnData, [primaryKey, TVariables]>`
-- `queryKeyHashFn: (queryKey: [primaryKey, TVariables]) => string`
+- `fetcher: (variables: TVariables, context: QueryFunctionContext<QueryKey, TPageParam>) => TFnData | Promise<TFnData>`
+- `getKey: (variables: TVariables) => QueryKey`
 - `getOptions: (variables: TVariables) => UseInfiniteQueryOptions`
 - `getFetchOptions: (variables: TVariables) => ({ queryKey, queryFn, queryKeyHashFn, getNextPageParam, getPreviousPageParam, initialPageParam })`
 
@@ -369,6 +373,7 @@ Options
 Returns
 
 - `getKey: () => MutationKey`
+- `getOptions: () => UseMutationOptions`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
 ## Middleware
@@ -383,42 +388,31 @@ Middleware receive the hook and can execute logic before and after running it. I
 import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
-const myMiddleware: Middleware<
-  QueryHook<Response, Variables>
-> = useQueryNext => {
+const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
   return options => {
-    const { userId } = useAuth()
-    const client = useQueryClient()
-    const variables = options.variables ?? { id: userId }
-    const hasData = () => !!client.getQueryData(useUser.getKey(variables))
+    const logger = useLogger()
+    const fetcher = (variables, context) => {
+      logger.log(context.queryKey, variables)
+      return options.fetcher(variables, context)
+    }
 
     return useQueryNext({
       ...options,
-      variables,
-      enabled: options.enabled ?? !hasData(),
+      fetcher,
     })
   }
 }
 
 const useUser = createQuery<Response, Variables>({
   // ...
-  use: [
-    myMiddleware,
-    // or just defined inside of `use`
-    function myMiddleware2(useQueryNext) {
-      return options => {
-        // ...
-        return useQueryNext(options)
-      }
-    },
-  ],
+  use: [logger],
 })
 
 // global middlewares
 const queryMiddleware: Middleware<QueryHook> = useQueryNext => {
   return options => {
     // u can also get queryKey via function getKey
-    const queryKey = getKey(options.primaryKey, options.variables)
+    const fullKey = getKey(options.queryKey, options.variables)
     // ...
     return useQueryNext(options)
   }
@@ -525,6 +519,69 @@ inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 ```
+
+## FAQ
+
+### What is the difference between `getFetchOptions` and `getOptions`?
+
+`getFetchOptions` will only return necessary options, while options like `staleTime` and `retry` will be ignored
+
+```ts
+const useTest1 = createQuery({
+  staleTime: Infinity,
+})
+
+// Only triggers on the first request
+queryClient.prefetchQuery(useTest1.getOptions())
+// Will always trigger a request
+queryClient.prefetchQuery(useTest1.getFetchOptions())
+
+const useTest2 = createQuery({
+  retry: 3,
+})
+
+// Automatically retries 3 times
+queryClient.prefetchQuery(useTest2.getOptions())
+// Does not automatically retry
+queryClient.prefetchQuery(useTest2.getFetchOptions())
+```
+
+### What is the difference between `fetcher` and `queryFn`?
+
+ReactQueryKit automatically converts fetcher to queryFn, as shown below:
+
+```ts
+const useTest = createQuery({
+  queryKey: ['test'],
+  fetcher: (variables, context) => {
+    // ...
+  },
+})
+
+// => useTest.getOptions(variables):
+// {
+//   queryKey: ['test', variables],
+//   queryFn: (context) => fetcher(variables, context)
+// }
+```
+
+## Migration
+
+Upgrading from ReactQueryKit 2 → ReactQueryKit 3
+
+```diff
+createQuery({
+-  primaryKey: 'posts',
+-  queryFn: ({ queryKey: [_primaryKey, variables] }) => {},
++  queryKey: ['posts'],
++  fetcher: variables => {},
+})
+```
+
+What you benefit from ReactQueryKit 3
+
+- Support hierarchical key
+- Support infer the types of fetcher, you can enjoy the preferred types automatically.
 
 ## Issues
 

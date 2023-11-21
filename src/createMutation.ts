@@ -14,14 +14,13 @@ export const createMutation = <
   TContext = unknown
 >(
   defaultOptions: CreateMutationOptions<TData, TVariables, TError, TContext>
-): MutationHook<TData, TVariables, TError> => {
-  const getKey = () => defaultOptions.mutationKey
-
+): MutationHook<TData, TVariables, TError, TContext> => {
   return Object.assign(
     withMiddleware(ReactQuery.useMutation, defaultOptions, 'mutations'),
     {
-      getKey,
+      getKey: () => defaultOptions.mutationKey,
+      getOptions: () => defaultOptions,
       mutationFn: defaultOptions.mutationFn,
     }
-  ) as MutationHook<TData, TVariables, TError>
+  ) as MutationHook<TData, TVariables, TError, TContext>
 }

@@ -21,7 +21,7 @@ export const createSuspenseInfiniteQuery = <
     TPageParam
   >
 ): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
-  return isV5()
+  return isV5
     ? createBaseQuery(options, ReactQuery.useSuspenseInfiniteQuery)
     : createBaseQuery(options, ReactQuery.useInfiniteQuery, suspenseOptions)
 }

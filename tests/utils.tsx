@@ -3,9 +3,9 @@ import { render } from '@testing-library/react'
 import * as React from 'react'
 
 let queryKeyCount = 0
-export function uniqueKey(): string {
+export function uniqueKey(): string[] {
   queryKeyCount++
-  return `query_${queryKeyCount}`
+  return [`query_${queryKeyCount}`]
 }
 
 export function renderWithClient(
@@ -22,4 +22,13 @@ export function renderWithClient(
         <QueryClientProvider client={client}>{rerenderUi}</QueryClientProvider>
       ),
   } as any
+}
+
+export function omit<T extends object, K extends string[]>(
+  object: T | null | undefined,
+  ...paths: K
+): Pick<T, Exclude<keyof T, K[number]>> {
+  return Object.fromEntries(
+    Object.entries(object || {}).filter(([key]) => !paths.includes(key))
+  ) as Pick<T, Exclude<keyof T, K[number]>>
 }
