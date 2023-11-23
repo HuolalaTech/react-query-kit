@@ -147,9 +147,10 @@ export interface CreateQueryOptions<
   TError = CompatibleError
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, QueryKey>,
-      'queryFn' | 'select'
+      'queryKey' | 'queryFn' | 'select'
     >,
     AdditionalQueryOptions<TFnData, TVariables> {
+  queryKey: QueryKey
   use?: Middleware<
     QueryHook<Clone<TFnData>, Clone<TVariables>, Clone<TError>>
   >[]
@@ -203,6 +204,7 @@ export interface CreateSuspenseQueryOptions<
   TError = CompatibleError
 > extends Omit<
       UseQueryOptions<TFnData, TError, TFnData, QueryKey>,
+      | 'queryKey'
       | 'queryFn'
       | 'enabled'
       | 'select'
@@ -213,9 +215,11 @@ export interface CreateSuspenseQueryOptions<
       | 'useErrorBoundary'
     >,
     AdditionalQueryOptions<TFnData, TVariables> {
+  queryKey: QueryKey
   use?: Middleware<
     SuspenseQueryHook<Clone<TFnData>, Clone<TVariables>, Clone<TError>>
   >[]
+  variables?: TVariables
 }
 
 export interface SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>
@@ -260,9 +264,10 @@ export interface CreateInfiniteQueryOptions<
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<TFnData, TFnData, TError, TPageParam>,
-      'queryFn' | 'select'
+      'queryKey' | 'queryFn' | 'select'
     >,
     AdditionalQueryOptions<TFnData, TVariables, TPageParam> {
+  queryKey: QueryKey
   use?: Middleware<
     InfiniteQueryHook<
       Clone<TFnData>,
@@ -271,6 +276,7 @@ export interface CreateInfiniteQueryOptions<
       Clone<TPageParam>
     >
   >[]
+  variables?: TVariables
 }
 
 export interface InfiniteQueryHookOptions<
@@ -354,6 +360,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
   TPageParam = number
 > extends Omit<
       CompatibleUseInfiniteQueryOptions<TFnData, TFnData, TError, TPageParam>,
+      | 'queryKey'
       | 'queryFn'
       | 'enabled'
       | 'select'
@@ -364,6 +371,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
       | 'useErrorBoundary'
     >,
     AdditionalQueryOptions<TFnData, TVariables, TPageParam> {
+  queryKey: QueryKey
   use?: Middleware<
     SuspenseInfiniteQueryHook<
       Clone<TFnData>,
@@ -372,6 +380,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
       Clone<TPageParam>
     >
   >[]
+  variables?: TVariables
 }
 
 export interface SuspenseInfiniteQueryHookOptions<
