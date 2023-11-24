@@ -283,6 +283,7 @@ export interface CreateSuspenseQueryOptions<
     >,
     AdditionalQueryOptions<TFnData, TVariables> {
   use?: Middleware<SuspenseQueryHook<TFnData, TVariables, TVariables>>[]
+  variables?: TVariables
 }
 
 export interface SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>
@@ -337,6 +338,7 @@ export interface CreateInfiniteQueryOptions<
     >,
     AdditionalQueryOptions<TFnData, TVariables, TPageParam> {
   use?: Middleware<InfiniteQueryHook<TFnData, TVariables, TError, TPageParam>>[]
+  variables?: TVariables
 }
 
 export interface InfiniteQueryHookOptions<
@@ -444,6 +446,7 @@ export interface CreateSuspenseInfiniteQueryOptions<
     >,
     AdditionalQueryOptions<TFnData, TVariables, TPageParam> {
   use?: Middleware<SuspenseInfiniteQueryHook<TFnData, TVariables, TVariables>>[]
+  variables?: TVariables
 }
 
 export interface SuspenseInfiniteQueryHookOptions<
@@ -517,7 +520,6 @@ export interface MutationHookOptions<TData, TError, TVariables, TContext>
     'mutationFn' | 'mutationKey'
   > {
   use?: Middleware<MutationHook<TData, TError, TVariables>>[]
-  variables?: TVariables
 }
 
 export type MutationHookResult<
@@ -530,9 +532,10 @@ export type MutationHookResult<
 export interface MutationHook<
   TData = unknown,
   TVariables = void,
-  TError = unknown
+  TError = unknown,
+  TDefaultContext = unknown
 > {
-  <TContext>(
+  <TContext = TDefaultContext>(
     options?: MutationHookOptions<TData, TError, TVariables, TContext>,
     queryClient?: CompatibleWithV4<QueryClient, void>
   ): MutationHookResult<TData, TError, TVariables, TContext>

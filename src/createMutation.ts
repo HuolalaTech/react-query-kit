@@ -1,11 +1,9 @@
-import * as ReactQuery from '@tanstack/react-query'
-
 import type {
   CompatibleError,
   CreateMutationOptions,
   MutationHook,
 } from './types'
-import { withMiddleware } from './utils'
+import { ReactQuery, withMiddleware } from './utils'
 
 export const createMutation = <
   TData = unknown,
@@ -14,7 +12,7 @@ export const createMutation = <
   TContext = unknown
 >(
   defaultOptions: CreateMutationOptions<TData, TVariables, TError, TContext>
-): MutationHook<TData, TVariables, TError> => {
+): MutationHook<TData, TVariables, TError, TContext> => {
   const getKey = () => defaultOptions.mutationKey
 
   return Object.assign(
@@ -23,5 +21,5 @@ export const createMutation = <
       getKey,
       mutationFn: defaultOptions.mutationFn,
     }
-  ) as MutationHook<TData, TVariables, TError>
+  ) as MutationHook<TData, TVariables, TError, TContext>
 }
