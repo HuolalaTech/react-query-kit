@@ -1,7 +1,6 @@
-import * as ReactQuery from '@tanstack/react-query'
-
 import { createBaseQuery } from './createBaseQuery'
 import type { CompatibleError, CreateQueryOptions, QueryHook } from './types'
+import { ReactQuery } from './utils'
 
 export const createQuery = <
   TFnData,

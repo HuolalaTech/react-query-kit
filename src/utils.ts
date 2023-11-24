@@ -1,11 +1,12 @@
-import * as ReactQuery from '@tanstack/react-query'
+import * as TanstackReactQuery from '@tanstack/react-query'
 import type { Query, QueryClient, QueryKey } from '@tanstack/react-query'
 
 import type { Middleware } from './types'
 
+export const ReactQuery = TanstackReactQuery
+
 export const isV5 = !!ReactQuery.useSuspenseQuery
 
-// Compatible with ReactQuery v4
 export const suspenseOptions = {
   enabled: true,
   suspense: true,

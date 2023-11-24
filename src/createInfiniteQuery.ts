@@ -1,11 +1,10 @@
-import * as ReactQuery from '@tanstack/react-query'
-
 import { createBaseQuery } from './createBaseQuery'
 import type {
   CompatibleError,
   CreateInfiniteQueryOptions,
   InfiniteQueryHook,
 } from './types'
+import { ReactQuery } from './utils'
 
 export const createInfiniteQuery = <
   TFnData,

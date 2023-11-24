@@ -1,11 +1,9 @@
-import * as ReactQuery from '@tanstack/react-query'
-
 import type {
   CompatibleError,
   CreateMutationOptions,
   MutationHook,
 } from './types'
-import { withMiddleware } from './utils'
+import { ReactQuery, withMiddleware } from './utils'
 
 export const createMutation = <
   TData = unknown,

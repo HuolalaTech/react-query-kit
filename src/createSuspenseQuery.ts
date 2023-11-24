@@ -1,12 +1,10 @@
-import * as ReactQuery from '@tanstack/react-query'
-
 import { createBaseQuery } from './createBaseQuery'
 import type {
   CompatibleError,
   CreateSuspenseQueryOptions,
   SuspenseQueryHook,
 } from './types'
-import { isV5, suspenseOptions } from './utils'
+import { ReactQuery, isV5, suspenseOptions } from './utils'
 
 export const createSuspenseQuery = <
   TFnData,
