@@ -56,11 +56,13 @@ type WithRequired<T, K extends keyof T> = T & {
 
 export type CompatibleError = CompatibleWithV4<DefaultError, Error>
 
+export type Fetcher<TFnData, TVariables = void, TPageParam = number> = (
+  variables: TVariables,
+  context: QueryFunctionContext<QueryKey, TPageParam>
+) => TFnData | Promise<TFnData>
+
 export type AdditionalQueryOptions<TFnData, TVariables, TPageParam = never> = {
-  fetcher: (
-    variables: TVariables,
-    context: QueryFunctionContext<QueryKey, TPageParam>
-  ) => TFnData | Promise<TFnData>
+  fetcher: Fetcher<TFnData, TVariables, TPageParam>
   variables?: TVariables
 }
 
