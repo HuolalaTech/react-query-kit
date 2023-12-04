@@ -379,7 +379,7 @@ Returns
 
 ## router
 
-`router` 允许您创建整个 API 的形状
+`router` which allow you to create a shape of your entire API
 
 ### Usage
 
