@@ -46,6 +46,7 @@ English | [简体中文](./README-zh_CN.md)
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [createMutation](#createmutation)
+  - [router](#router)
   - [Middleware](#middleware)
   - [Type inference](#type-inference)
 - [FAQ](#faq)
@@ -376,6 +377,81 @@ Returns
 - `getOptions: () => UseMutationOptions`
 - `mutationFn: MutationFunction<TData, TVariables>`
 
+## router
+
+`router` 允许您创建整个 API 的形状
+
+### Usage
+
+```tsx
+import { router } from 'react-query-kit'
+
+const posts = router(`posts`, {
+  byId: router.query({
+    fetcher: (variables: { id: number }) => {
+      return fetch(`/posts/${variables.id}`).then(res => res.json())
+    },
+    use: [myMiddleware],
+  }),
+
+  list: router.infiniteQuery({
+    fetcher: (
+      variables: { active: boolean },
+      { pageParam }
+    ): Promise<{
+      projects: { id: string; name: string }[]
+      nextCursor: number
+    }> => {
+      return fetch(
+        `/posts/?cursor=${pageParam}?active=${variables.active}`
+      ).then(res => res.json())
+    },
+    getNextPageParam: lastPage => lastPage.nextCursor,
+    initialPageParam: 0,
+  }),
+
+  add: router.mutation({
+    mutationFn: async (variables: { title: string; content: string }) =>
+      fetch('/posts', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(variables),
+      }).then(res => res.json()),
+  }),
+})
+
+// get root key
+posts.getKey() // ['posts']
+
+// hooks
+posts.byId.useQuery({ variables: { id: 1 } })
+posts.byId.useSuspenseQuery({ variables: { id: 1 } })
+posts.list.useInfiniteQuery({ variables: { active: true } })
+posts.list.useSuspenseInfiniteQuery({ variables: { active: true } })
+posts.add.useMutation()
+
+// expose methods
+posts.byId.getKey({ id: 1 }) // ['posts', 'byId', { id: 1 }]
+posts.byId.getFetchOptions({ id: 1 })
+posts.byId.getOptions({ id: 1 })
+posts.byId.fetcher({ id: 1 })
+posts.add.getKey() // ['posts', 'add']
+posts.add.getOptions()
+posts.add.mutationFn({ title: 'title', content: 'content' })
+```
+
+Expose Methods
+
+- `query`
+  Similar to `createQuery` but without option `queryKey`
+- `infiniteQuery`
+  Similar to `createInfiniteQuery` but without option `queryKey`
+- `mutation`
+  Similar to `createMutation` but without option `mutationKey`
+
 ## Middleware
 
 This feature is inspired by the [Middleware feature from SWR](https://swr.vercel.app/docs/middleware). The middleware feature is a new addition in ReactQueryKit 1.5.0 that enables you to execute logic before and after hooks.
@@ -524,7 +600,7 @@ inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 
 ### What is the difference between `getFetchOptions` and `getOptions`?
 
-`getFetchOptions` will only return necessary options, while options like `staleTime` and `retry` will be ignored
+`getFetchOptions` will only return necessary options, while options like `staleTime` and `retry` will be omited
 
 ```ts
 const useTest1 = createQuery({

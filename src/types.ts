@@ -56,7 +56,7 @@ type WithRequired<T, K extends keyof T> = T & {
 
 export type CompatibleError = CompatibleWithV4<DefaultError, Error>
 
-export type Fetcher<TFnData, TVariables = void, TPageParam = number> = (
+export type Fetcher<TFnData, TVariables = void, TPageParam = never> = (
   variables: TVariables,
   context: QueryFunctionContext<QueryKey, TPageParam>
 ) => TFnData | Promise<TFnData>
@@ -459,16 +459,12 @@ export type MutationHookResult<
   TContext = unknown
 > = UseMutationResult<TData, TError, TVariables, TContext>
 
-export interface MutationHook<
+export interface ExposeMutationMethods<
   TData = unknown,
   TVariables = void,
   TError = unknown,
   TDefaultContext = unknown
 > {
-  <TContext = TDefaultContext>(
-    options?: MutationHookOptions<TData, TError, TVariables, TContext>,
-    queryClient?: CompatibleWithV4<QueryClient, void>
-  ): MutationHookResult<TData, TError, TVariables, TContext>
   getKey: () => MutationKey | undefined
   getOptions: () => UseMutationOptions<
     TData,
@@ -477,6 +473,18 @@ export interface MutationHook<
     TDefaultContext
   >
   mutationFn: MutationFunction<TData, TVariables>
+}
+
+export interface MutationHook<
+  TData = unknown,
+  TVariables = void,
+  TError = unknown,
+  TDefaultContext = unknown
+> extends ExposeMutationMethods<TData, TVariables, TError, TDefaultContext> {
+  <TContext = TDefaultContext>(
+    options?: MutationHookOptions<TData, TError, TVariables, TContext>,
+    queryClient?: CompatibleWithV4<QueryClient, void>
+  ): MutationHookResult<TData, TError, TVariables, TContext>
 }
 
 // infer types

@@ -46,6 +46,7 @@
   - [createSuspenseQuery](#createsuspensequery)
   - [createSuspenseInfiniteQuery](#createsuspenseinfinitequery)
   - [createMutation](#createmutation)
+  - [router](#router)
   - [中间件](#中间件)
   - [类型推导](#类型推导)
 - [常见问题](#常见问题)
@@ -375,6 +376,80 @@ Returns
 - `getKey: () => MutationKey`
 - `getOptions: () => UseMutationOptions`
 - `mutationFn: MutationFunction<TData, TVariables>`
+
+## router
+
+`router` that allow you to create a shape of your entire API
+
+### Usage
+
+```tsx
+import { router } from 'react-query-kit'
+
+const posts = router(`posts`, {
+  byId: router.query({
+    fetcher: (variables: { id: number }) => {
+      return fetch(`/posts/${variables.id}`).then(res => res.json())
+    },
+  }),
+
+  list: router.infiniteQuery({
+    fetcher: (
+      variables: { active: boolean },
+      { pageParam }
+    ): Promise<{
+      projects: { id: string; name: string }[]
+      nextCursor: number
+    }> => {
+      return fetch(
+        `/posts/?cursor=${pageParam}?active=${variables.active}`
+      ).then(res => res.json())
+    },
+    getNextPageParam: lastPage => lastPage.nextCursor,
+    initialPageParam: 0,
+  }),
+
+  add: router.mutation({
+    mutationFn: async (variables: { title: string; content: string }) =>
+      fetch('/posts', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(variables),
+      }).then(res => res.json()),
+  }),
+})
+
+// get root key
+posts.getKey() // ['posts']
+
+// hooks
+posts.byId.useQuery({ variables: { id: 1 } })
+posts.byId.useSuspenseQuery({ variables: { id: 1 } })
+posts.list.useInfiniteQuery({ variables: { active: true } })
+posts.list.useSuspenseInfiniteQuery({ variables: { active: true } })
+posts.add.useMutation()
+
+// expose methods
+posts.byId.getKey({ id: 1 }) // ['posts', 'byId', { id: 1 }]
+posts.byId.getFetchOptions({ id: 1 })
+posts.byId.getOptions({ id: 1 })
+posts.byId.fetcher({ id: 1 })
+posts.add.getKey() // ['posts', 'add']
+posts.add.getOptions()
+posts.add.mutationFn({ title: 'title', content: 'content' })
+```
+
+Expose Methods
+
+- `query`
+  与 `createQuery` 类似，但无需选项 `queryKey`
+- `infiniteQuery`
+  与 `createInfiniteQuery` 类似，但无需选项 `queryKey`
+- `mutation`
+  与 `createMutation` 类似，但无需选项 `mutationKey`
 
 ## 中间件
 
