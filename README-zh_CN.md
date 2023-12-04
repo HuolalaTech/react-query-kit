@@ -442,6 +442,10 @@ posts.add.getOptions()
 posts.add.mutationFn({ title: 'title', content: 'content' })
 ```
 
+## API 文档
+
+`type Router = (key: string, config: TConfig) => TRouter`
+
 Expose Methods
 
 - `query`

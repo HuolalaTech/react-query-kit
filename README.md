@@ -443,6 +443,10 @@ posts.add.getOptions()
 posts.add.mutationFn({ title: 'title', content: 'content' })
 ```
 
+## API Reference
+
+`type Router = (key: string, config: TConfig) => TRouter`
+
 Expose Methods
 
 - `query`

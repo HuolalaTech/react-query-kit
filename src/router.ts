@@ -102,50 +102,28 @@ export const router = <TConfig extends RouterConfig>(
 ): CreateRouter<TConfig> => {
   return Object.entries(config).reduce(
     (acc, [key, opts]) => {
-      const keys = [scope, key]
-
-      if (opts._type === `m`) {
-        acc[key] = {
-          useMutation: createMutation({
-            ...opts,
-            mutationKey: keys,
-          }),
-          ...createMutation({
-            ...opts,
-            mutationKey: keys,
-          }),
-        }
-      } else if (opts._type === `q`) {
-        acc[key] = {
-          useQuery: createQuery({
-            ...(opts as any),
-            queryKey: keys,
-          }),
-          useSuspenseQuery: createSuspenseQuery({
-            ...(opts as any),
-            queryKey: keys,
-          }),
-          ...createQuery({
-            ...(opts as any),
-            queryKey: keys,
-          }),
-        }
-      } else {
-        acc[key] = {
-          useInfiniteQuery: createInfiniteQuery({
-            ...opts,
-            queryKey: keys,
-          }),
-          useSuspenseInfiniteQuery: createSuspenseInfiniteQuery({
-            ...(opts as any),
-            queryKey: keys,
-          }),
-          ...createInfiniteQuery({
-            ...opts,
-            queryKey: keys,
-          }),
-        }
+      const options: any = {
+        ...opts,
+        [opts._type === `m` ? `mutationKey` : `queryKey`]: [scope, key],
       }
+
+      acc[key] =
+        opts._type === `m`
+          ? {
+              useMutation: createMutation(options),
+              ...createMutation(options),
+            }
+          : opts._type === `q`
+          ? {
+              useQuery: createQuery(options),
+              useSuspenseQuery: createSuspenseQuery(options),
+              ...createQuery(options),
+            }
+          : {
+              useInfiniteQuery: createInfiniteQuery(options),
+              useSuspenseInfiniteQuery: createSuspenseInfiniteQuery(options),
+              ...createInfiniteQuery(options),
+            }
 
       return acc
     },
