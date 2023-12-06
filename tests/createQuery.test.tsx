@@ -21,6 +21,7 @@ describe('createQuery', () => {
       queryKey: key,
       fetcher,
     })
+
     expect(useGeneratedQuery.getKey()).toEqual(key)
     expect(useGeneratedQuery.getKey(variables)).toEqual([...key, variables])
     expect(omit(useGeneratedQuery.getOptions(variables), 'queryFn')).toEqual({

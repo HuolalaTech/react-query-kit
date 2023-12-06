@@ -8,93 +8,12 @@ import type {
   CreateInfiniteQueryOptions,
   CreateMutationOptions,
   CreateQueryOptions,
-  ExposeMethods,
-  ExposeMutationMethods,
-  InfiniteQueryHook,
-  MutationHook,
-  QueryHook,
-  SuspenseQueryHook,
+  CreateRouter,
+  RouterConfig,
+  RouterInfiniteQuery,
+  RouterMutation,
+  RouterQuery,
 } from './types'
-
-export type RouterQuery<
-  TFnData,
-  TVariables = void,
-  TError = CompatibleError
-> = Omit<CreateQueryOptions<TFnData, TVariables, TError>, 'queryKey'> & {
-  _type: `q`
-}
-
-export type RouterInfiniteQuery<
-  TFnData,
-  TVariables = void,
-  TError = CompatibleError,
-  TPageParam = number
-> = Omit<
-  CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>,
-  'queryKey'
-> & {
-  _type: `inf`
-}
-
-export type RouterMutation<
-  TData = unknown,
-  TVariables = void,
-  TError = CompatibleError,
-  TContext = unknown
-> = Omit<
-  CreateMutationOptions<TData, TVariables, TError, TContext>,
-  'mutationKey'
-> & {
-  _type: `m`
-}
-
-export type RouterConfig = Record<
-  string,
-  | RouterQuery<any, any, any>
-  | RouterInfiniteQuery<any, any, any>
-  | RouterMutation<any, any, any>
->
-
-export type CreateRouter<TConfig extends RouterConfig> = {
-  [K in keyof TConfig]: TConfig[K] extends RouterMutation<
-    infer TFnData,
-    infer TVariables,
-    infer TError,
-    infer TContext
-  >
-    ? {
-        useMutation: MutationHook<TFnData, TVariables, TError, TContext>
-      } & ExposeMutationMethods<TFnData, TVariables, TError, TContext>
-    : TConfig[K] extends RouterInfiniteQuery<
-        infer TFnData,
-        infer TVariables,
-        infer TError,
-        infer TPageParam
-      >
-    ? {
-        useInfiniteQuery: InfiniteQueryHook<
-          TFnData,
-          TVariables,
-          TError,
-          TPageParam
-        >
-        useSuspenseInfiniteQuery: InfiniteQueryHook<
-          TFnData,
-          TVariables,
-          TError,
-          TPageParam
-        >
-      } & ExposeMethods<TFnData, TVariables, TError, TPageParam>
-    : TConfig[K] extends Omit<
-        RouterQuery<infer TFnData, infer TVariables, infer TError>,
-        'queryKey'
-      >
-    ? {
-        useQuery: QueryHook<TFnData, TVariables, TError>
-        useSuspenseQuery: SuspenseQueryHook<TFnData, TVariables, TError>
-      } & ExposeMethods<TFnData, TVariables, TError>
-    : never
-} & { getKey: () => [string] }
 
 export const router = <TConfig extends RouterConfig>(
   scope: string,

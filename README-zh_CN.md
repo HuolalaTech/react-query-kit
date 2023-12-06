@@ -314,10 +314,6 @@ const useAddTodo = createMutation(
   async (variables: { title: string; content: string }) =>
     fetch('/post', {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(variables),
     }).then(res => res.json()),
   {
@@ -388,23 +384,14 @@ import { router } from 'react-query-kit'
 
 const posts = router(`posts`, {
   byId: router.query({
-    fetcher: (variables: { id: number }) => {
-      return fetch(`/posts/${variables.id}`).then(res => res.json())
-    },
+    fetcher: (variables: { id: number }) =>
+      fetch(`/posts/${variables.id}`).then(res => res.json()),
+    use: [myMiddleware],
   }),
 
   list: router.infiniteQuery({
-    fetcher: (
-      variables: { active: boolean },
-      { pageParam }
-    ): Promise<{
-      projects: { id: string; name: string }[]
-      nextCursor: number
-    }> => {
-      return fetch(
-        `/posts/?cursor=${pageParam}?active=${variables.active}`
-      ).then(res => res.json())
-    },
+    fetcher: (_variables, { pageParam }) =>
+      fetch(`/posts/?cursor=${pageParam}`).then(res => res.json()),
     getNextPageParam: lastPage => lastPage.nextCursor,
     initialPageParam: 0,
   }),
@@ -413,10 +400,6 @@ const posts = router(`posts`, {
     mutationFn: async (variables: { title: string; content: string }) =>
       fetch('/posts', {
         method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(variables),
       }).then(res => res.json()),
   }),
@@ -428,8 +411,8 @@ posts.getKey() // ['posts']
 // hooks
 posts.byId.useQuery({ variables: { id: 1 } })
 posts.byId.useSuspenseQuery({ variables: { id: 1 } })
-posts.list.useInfiniteQuery({ variables: { active: true } })
-posts.list.useSuspenseInfiniteQuery({ variables: { active: true } })
+posts.list.useInfiniteQuery()
+posts.list.useSuspenseInfiniteQuery()
 posts.add.useMutation()
 
 // expose methods
@@ -440,6 +423,11 @@ posts.byId.fetcher({ id: 1 })
 posts.add.getKey() // ['posts', 'add']
 posts.add.getOptions()
 posts.add.mutationFn({ title: 'title', content: 'content' })
+
+// infer types
+type Data = inferData<typeof posts.list>
+type FnData = inferFnData<typeof posts.list>
+type Variables = inferVariables<typeof posts.list>
 ```
 
 ## API 文档
@@ -469,9 +457,9 @@ import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
 const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
   return options => {
-    const logger = useLogger()
+    const log = useLogger()
     const fetcher = (variables, context) => {
-      logger.log(context.queryKey, variables)
+      log(context.queryKey, variables)
       return options.fetcher(variables, context)
     }
 
@@ -483,7 +471,6 @@ const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
 }
 
 const useUser = createQuery<Response, Variables>({
-  // ...
   use: [logger],
 })
 

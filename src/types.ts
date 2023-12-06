@@ -54,6 +54,12 @@ type WithRequired<T, K extends keyof T> = T & {
   [_ in K]: {}
 }
 
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T
+
 export type CompatibleError = CompatibleWithV4<DefaultError, Error>
 
 export type Fetcher<TFnData, TVariables = void, TPageParam = never> = (
@@ -75,19 +81,15 @@ export type Middleware<
   T extends (...args: any) => any = QueryHook<any, any, any>
 > = (hook: inferMiddlewareHook<T>) => inferMiddlewareHook<T>
 
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>
-    }
-  : T
+export type ExposeFetcher<TFnData, TVariables = void, TPageParam = never> = (
+  variables: TVariables,
+  context?: Partial<QueryFunctionContext<QueryKey, TPageParam>>
+) => TFnData | Promise<TFnData>
 
 export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
-  fetcher: (
-    variables: TVariables,
-    context?: Partial<QueryFunctionContext<QueryKey, TPageParam>>
-  ) => TFnData | Promise<TFnData>
-  getKey: <V extends DeepPartial<TVariables> | void = void>(
-    variables?: V
+  fetcher: ExposeFetcher<TFnData, TVariables, TPageParam>
+  getKey: (
+    variables?: DeepPartial<TVariables>
   ) => CompatibleWithV4<
     DataTag<
       QueryKey,
@@ -489,51 +491,37 @@ export interface MutationHook<
 
 // infer types
 
-export type inferVariables<T> = T extends QueryHook<any, infer TVariables, any>
+export type inferVariables<T> = T extends {
+  fetcher: ExposeFetcher<any, infer TVariables, any>
+}
   ? TVariables
-  : T extends SuspenseQueryHook<any, infer TVariables, any>
-  ? TVariables
-  : T extends InfiniteQueryHook<any, infer TVariables, any>
-  ? TVariables
-  : T extends SuspenseInfiniteQueryHook<any, infer TVariables, any>
-  ? TVariables
-  : T extends MutationHook<any, infer TVariables, any>
+  : T extends ExposeMutationMethods<any, infer TVariables, any, any>
   ? TVariables
   : never
 
-export type inferData<T> = T extends QueryHook<infer TData, any, any>
-  ? TData
-  : T extends SuspenseQueryHook<infer TData, any, any>
-  ? TData
-  : T extends InfiniteQueryHook<infer TData, any, any, infer TPageParam>
-  ? CompatibleInfiniteData<TData, TPageParam>
-  : T extends SuspenseInfiniteQueryHook<infer TData, any, any, infer TPageParam>
-  ? CompatibleInfiniteData<TData, TPageParam>
-  : T extends MutationHook<infer TData, any, any>
-  ? TData
+export type inferData<T> = T extends {
+  fetcher: ExposeFetcher<infer TFnData, any, infer TPageParam>
+}
+  ? [TPageParam] extends [never]
+    ? TFnData
+    : CompatibleInfiniteData<TFnData, TPageParam>
+  : T extends ExposeMutationMethods<infer TFnData, any, any, any>
+  ? TFnData
   : never
 
-export type inferFnData<T> = T extends QueryHook<infer TData, any, any>
-  ? TData
-  : T extends SuspenseQueryHook<infer TData, any, any>
-  ? TData
-  : T extends InfiniteQueryHook<infer TData, any, any>
-  ? TData
-  : T extends SuspenseInfiniteQueryHook<infer TData, any, any>
-  ? TData
-  : T extends MutationHook<infer TData, any, any>
-  ? TData
+export type inferFnData<T> = T extends {
+  fetcher: ExposeFetcher<infer TFnData, any, any>
+}
+  ? TFnData
+  : T extends ExposeMutationMethods<infer TFnData, any, any, any>
+  ? TFnData
   : never
 
-export type inferError<T> = T extends QueryHook<any, any, infer TError>
+export type inferError<T> = T extends {
+  fetcher: ExposeFetcher<any, infer TError, any>
+}
   ? TError
-  : T extends SuspenseQueryHook<any, any, infer TError>
-  ? TError
-  : T extends InfiniteQueryHook<any, any, infer TError>
-  ? TError
-  : T extends SuspenseInfiniteQueryHook<any, any, infer TError>
-  ? TError
-  : T extends MutationHook<any, any, infer TError>
+  : T extends ExposeMutationMethods<any, any, infer TError, any>
   ? TError
   : never
 
@@ -597,6 +585,122 @@ export type inferCreateOptions<T> = T extends QueryHook<
       infer TPageParam
     >
   ? CreateSuspenseInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
-  : T extends MutationHook<infer TFnData, infer TVariables, infer TError>
-  ? CreateMutationOptions<TFnData, TError, TVariables, unknown>
+  : T extends MutationHook<
+      infer TFnData,
+      infer TVariables,
+      infer TError,
+      infer TContext
+    >
+  ? CreateMutationOptions<TFnData, TError, TVariables, TContext>
   : never
+
+// router
+
+export type RouterQuery<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError
+> = Omit<CreateQueryOptions<TFnData, TVariables, TError>, 'queryKey'> & {
+  _type: `q`
+}
+
+export type RouterInfiniteQuery<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError,
+  TPageParam = number
+> = Omit<
+  CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>,
+  'queryKey'
+> & {
+  _type: `inf`
+}
+
+export type RouterMutation<
+  TData = unknown,
+  TVariables = void,
+  TError = CompatibleError,
+  TContext = unknown
+> = Omit<
+  CreateMutationOptions<TData, TVariables, TError, TContext>,
+  'mutationKey'
+> & {
+  _type: `m`
+}
+
+type DefaultTo<T, D> = unknown extends T ? D : T
+
+export type RouterConfig = Record<
+  string,
+  | RouterQuery<any, any, any>
+  | RouterInfiniteQuery<any, any, any, any>
+  | RouterMutation<any, any, any, any>
+>
+
+export type CreateRouter<TConfig extends RouterConfig> = {
+  [K in keyof TConfig]: TConfig[K] extends RouterMutation<
+    infer TFnData,
+    infer TVariables,
+    infer TError,
+    infer TContext
+  >
+    ? {
+        useMutation: MutationHook<
+          TFnData,
+          DefaultTo<TVariables, void>,
+          DefaultTo<TError, CompatibleError>,
+          TContext
+        >
+      } & ExposeMutationMethods<
+        TFnData,
+        DefaultTo<TVariables, void>,
+        DefaultTo<TError, CompatibleError>,
+        TContext
+      >
+    : TConfig[K] extends RouterInfiniteQuery<
+        infer TFnData,
+        infer TVariables,
+        infer TError,
+        infer TPageParam
+      >
+    ? {
+        useInfiniteQuery: InfiniteQueryHook<
+          TFnData,
+          DefaultTo<TVariables, void>,
+          DefaultTo<TError, CompatibleError>,
+          TPageParam
+        >
+        useSuspenseInfiniteQuery: SuspenseInfiniteQueryHook<
+          TFnData,
+          DefaultTo<TVariables, void>,
+          DefaultTo<TError, CompatibleError>,
+          TPageParam
+        >
+      } & ExposeMethods<
+        TFnData,
+        DefaultTo<TVariables, void>,
+        DefaultTo<TError, CompatibleError>,
+        TPageParam
+      >
+    : TConfig[K] extends Omit<
+        RouterQuery<infer TFnData, infer TVariables, infer TError>,
+        'queryKey'
+      >
+    ? {
+        useQuery: QueryHook<
+          TFnData,
+          DefaultTo<TVariables, void>,
+          DefaultTo<TError, CompatibleError>
+        >
+        useSuspenseQuery: SuspenseQueryHook<
+          TFnData,
+          DefaultTo<TVariables, void>,
+          DefaultTo<TError, CompatibleError>
+        >
+      } & ExposeMethods<
+        TFnData,
+        DefaultTo<TVariables, void>,
+        DefaultTo<TError, CompatibleError>
+      >
+    : never
+} & { getKey: () => [string] }
