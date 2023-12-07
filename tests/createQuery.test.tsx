@@ -53,7 +53,17 @@ describe('createQuery', () => {
       fetcher: (_variables: { id: number }) => {
         return 'test'
       },
-      use: [myMiddileware],
+      use: [
+        useNext => {
+          return options =>
+            useNext({
+              ...options,
+              initialData: 'fakeData',
+              enabled: false,
+            })
+        },
+        myMiddileware,
+      ],
     })
 
     const states: QueryHookResult<any, any>[] = []

@@ -61,9 +61,9 @@
 ## Installation
 
 ```bash
-$ npm i react-query-kit@beta
+$ npm i react-query-kit
 # or
-$ yarn add react-query-kit@beta
+$ yarn add react-query-kit
 ```
 
 如果您还在使用 React Query Kit v2？ 请在此处查看 v2 文档：https://github.com/liaoliao666/react-query-kit/tree/v2#readme.
@@ -382,7 +382,7 @@ Returns
 ```tsx
 import { router } from 'react-query-kit'
 
-const posts = router(`posts`, {
+const post = router(`post`, {
   byId: router.query({
     fetcher: (variables: { id: number }) =>
       fetch(`/posts/${variables.id}`).then(res => res.json()),
@@ -406,28 +406,29 @@ const posts = router(`posts`, {
 })
 
 // get root key
-posts.getKey() // ['posts']
+post.getKey() // ['post']
 
 // hooks
-posts.byId.useQuery({ variables: { id: 1 } })
-posts.byId.useSuspenseQuery({ variables: { id: 1 } })
-posts.list.useInfiniteQuery()
-posts.list.useSuspenseInfiniteQuery()
-posts.add.useMutation()
+post.byId.useQuery({ variables: { id: 1 } })
+post.byId.useSuspenseQuery({ variables: { id: 1 } })
+post.list.useInfiniteQuery()
+post.list.useSuspenseInfiniteQuery()
+post.add.useMutation()
 
 // expose methods
-posts.byId.getKey({ id: 1 }) // ['posts', 'byId', { id: 1 }]
-posts.byId.getFetchOptions({ id: 1 })
-posts.byId.getOptions({ id: 1 })
-posts.byId.fetcher({ id: 1 })
-posts.add.getKey() // ['posts', 'add']
-posts.add.getOptions()
-posts.add.mutationFn({ title: 'title', content: 'content' })
+post.byId.getKey({ id: 1 }) // ['post', 'byId', { id: 1 }]
+post.byId.getFetchOptions({ id: 1 })
+post.byId.getOptions({ id: 1 })
+post.byId.fetcher({ id: 1 })
+post.add.getKey() // ['post', 'add']
+post.add.getOptions()
+post.add.mutationFn({ title: 'title', content: 'content' })
 
 // infer types
 type Data = inferData<typeof posts.list>
 type FnData = inferFnData<typeof posts.list>
 type Variables = inferVariables<typeof posts.list>
+type Error = inferError<typeof posts.list>
 ```
 
 ## API 文档
@@ -592,26 +593,6 @@ inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 
 `getFetchOptions` 只会返回必要的选项，而像 `staleTime` 和 `retry` 等选项会被忽略
 
-```ts
-const useTest1 = createQuery({
-  staleTime: Infinity,
-})
-
-// 只有在第一次请求
-queryClient.prefetchQuery(useTest1.getOptions())
-// 永远会去请求
-queryClient.prefetchQuery(useTest1.getFetchOptions())
-
-const useTest2 = createQuery({
-  retry: 3,
-})
-
-// 会自动重试3次
-queryClient.prefetchQuery(useTest2.getOptions())
-// 不会自动重试
-queryClient.prefetchQuery(useTest2.getFetchOptions())
-```
-
 ### `fetcher` 和 `queryFn` 有什么不同
 
 ReactQueryKit 会自动将 `fetcher` 转换为 `queryFn`，例如
@@ -648,6 +629,7 @@ createQuery({
 
 - 支持传入数组 `queryKey`
 - 支持推断 fetcher 的类型，您可以自动享受首选的类型。
+- 支持创建整个 API 的形状
 
 ## Issues
 

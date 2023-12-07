@@ -517,9 +517,9 @@ export type inferFnData<T> = T extends {
   ? TFnData
   : never
 
-export type inferError<T> = T extends {
-  fetcher: ExposeFetcher<any, infer TError, any>
-}
+export type inferError<T> = T extends ExposeMethods<any, any, infer TError>
+  ? TError
+  : T extends ExposeMethods<any, any, infer TError, any>
   ? TError
   : T extends ExposeMutationMethods<any, any, infer TError, any>
   ? TError
@@ -668,19 +668,19 @@ export type CreateRouter<TConfig extends RouterConfig> = {
           TFnData,
           DefaultTo<TVariables, void>,
           DefaultTo<TError, CompatibleError>,
-          TPageParam
+          DefaultTo<TPageParam, number>
         >
         useSuspenseInfiniteQuery: SuspenseInfiniteQueryHook<
           TFnData,
           DefaultTo<TVariables, void>,
           DefaultTo<TError, CompatibleError>,
-          TPageParam
+          DefaultTo<TPageParam, number>
         >
       } & ExposeMethods<
         TFnData,
         DefaultTo<TVariables, void>,
         DefaultTo<TError, CompatibleError>,
-        TPageParam
+        DefaultTo<TPageParam, number>
       >
     : TConfig[K] extends Omit<
         RouterQuery<infer TFnData, infer TVariables, infer TError>,

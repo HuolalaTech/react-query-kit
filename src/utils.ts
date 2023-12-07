@@ -23,7 +23,7 @@ export const withMiddleware = (
     options?: { client?: QueryClient; use?: Middleware[] },
     queryClient?: QueryClient
   ) {
-    const [middleware, opts] = [
+    const [uses, opts]: [Middleware[], any] = [
       ReactQuery.useQueryClient(
         // @ts-ignore Compatible with ReactQuery v4
         isV5 ? queryClient : options
@@ -37,13 +37,9 @@ export const withMiddleware = (
       ],
       [[]]
     )
+    const composed = uses.reduceRight((next, use) => use(next), hook)
 
-    let next = hook
-    for (let i = middleware.length; i--; ) {
-      next = middleware[i](next)
-    }
-
-    return next(opts, queryClient)
+    return composed(opts, queryClient)
   }
 }
 

@@ -64,9 +64,9 @@ This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `dependencies`:
 
 ```bash
-$ npm i react-query-kit@beta
+$ npm i react-query-ki
 # or
-$ yarn add react-query-kit@beta
+$ yarn add react-query-kit
 ```
 
 If you still on React Query Kit v2? Check out the v2 docs here: https://github.com/liaoliao666/react-query-kit/tree/v2#readme.
@@ -347,7 +347,7 @@ function App() {
               mutation.mutate({ title: 'Do Laundry', content: 'content...' })
             }}
           >
-            Create Todo
+            create Todo
           </button>
         </>
       )}
@@ -382,7 +382,7 @@ Returns
 ```tsx
 import { router } from 'react-query-kit'
 
-const posts = router(`posts`, {
+const post = router(`post`, {
   byId: router.query({
     fetcher: (variables: { id: number }) =>
       fetch(`/posts/${variables.id}`).then(res => res.json()),
@@ -406,28 +406,29 @@ const posts = router(`posts`, {
 })
 
 // get root key
-posts.getKey() // ['posts']
+post.getKey() // ['post']
 
 // hooks
-posts.byId.useQuery({ variables: { id: 1 } })
-posts.byId.useSuspenseQuery({ variables: { id: 1 } })
-posts.list.useInfiniteQuery()
-posts.list.useSuspenseInfiniteQuery()
-posts.add.useMutation()
+post.byId.useQuery({ variables: { id: 1 } })
+post.byId.useSuspenseQuery({ variables: { id: 1 } })
+post.list.useInfiniteQuery()
+post.list.useSuspenseInfiniteQuery()
+post.add.useMutation()
 
 // expose methods
-posts.byId.getKey({ id: 1 }) // ['posts', 'byId', { id: 1 }]
-posts.byId.getFetchOptions({ id: 1 })
-posts.byId.getOptions({ id: 1 })
-posts.byId.fetcher({ id: 1 })
-posts.add.getKey() // ['posts', 'add']
-posts.add.getOptions()
-posts.add.mutationFn({ title: 'title', content: 'content' })
+post.byId.getKey({ id: 1 }) // ['post', 'byId', { id: 1 }]
+post.byId.getFetchOptions({ id: 1 })
+post.byId.getOptions({ id: 1 })
+post.byId.fetcher({ id: 1 })
+post.add.getKey() // ['post', 'add']
+post.add.getOptions()
+post.add.mutationFn({ title: 'title', content: 'content' })
 
 // infer types
 type Data = inferData<typeof posts.list>
 type FnData = inferFnData<typeof posts.list>
 type Variables = inferVariables<typeof posts.list>
+type Error = inferError<typeof posts.list>
 ```
 
 ## API Reference
@@ -590,31 +591,11 @@ inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
 
 ### What is the difference between `getFetchOptions` and `getOptions`?
 
-`getFetchOptions` will only return necessary options, while options like `staleTime` and `retry` will be omited
-
-```ts
-const useTest1 = createQuery({
-  staleTime: Infinity,
-})
-
-// Only triggers on the first request
-queryClient.prefetchQuery(useTest1.getOptions())
-// Will always trigger a request
-queryClient.prefetchQuery(useTest1.getFetchOptions())
-
-const useTest2 = createQuery({
-  retry: 3,
-})
-
-// Automatically retries 3 times
-queryClient.prefetchQuery(useTest2.getOptions())
-// Does not automatically retry
-queryClient.prefetchQuery(useTest2.getFetchOptions())
-```
+`getFetchOptions` would only return necessary options, while options like `staleTime` and `retry` would be omited
 
 ### What is the difference between `fetcher` and `queryFn`?
 
-ReactQueryKit automatically converts fetcher to queryFn, as shown below:
+ReactQueryKit would automatically converts fetcher to queryFn, as shown below:
 
 ```ts
 const useTest = createQuery({
@@ -648,6 +629,7 @@ What you benefit from ReactQueryKit 3
 
 - Support hierarchical key
 - Support infer the types of fetcher, you can enjoy the preferred types automatically.
+- Support to create a shape of your entire API
 
 ## Issues
 
