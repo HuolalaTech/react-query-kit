@@ -431,7 +431,7 @@ type Variables = inferVariables<typeof posts.list>
 type Error = inferError<typeof posts.list>
 ```
 
-## API 文档
+### API 文档
 
 `type Router = (key: string, config: TConfig) => TRouter`
 

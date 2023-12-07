@@ -64,7 +64,7 @@ This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `dependencies`:
 
 ```bash
-$ npm i react-query-ki
+$ npm i react-query-kit
 # or
 $ yarn add react-query-kit
 ```
@@ -431,7 +431,7 @@ type Variables = inferVariables<typeof posts.list>
 type Error = inferError<typeof posts.list>
 ```
 
-## API Reference
+### API Reference
 
 `type Router = (key: string, config: TConfig) => TRouter`
 
