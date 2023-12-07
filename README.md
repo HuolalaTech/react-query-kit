@@ -367,7 +367,7 @@ Options
   - Optional
   - array of middleware functions [(details)](#middleware)
 
-Returns
+Expose Methods
 
 - `getKey: () => MutationKey`
 - `getOptions: () => UseMutationOptions`
@@ -425,10 +425,24 @@ post.add.getOptions()
 post.add.mutationFn({ title: 'title', content: 'content' })
 
 // infer types
-type Data = inferData<typeof posts.list>
-type FnData = inferFnData<typeof posts.list>
-type Variables = inferVariables<typeof posts.list>
-type Error = inferError<typeof posts.list>
+type Data = inferData<typeof post.list>
+type FnData = inferFnData<typeof post.list>
+type Variables = inferVariables<typeof post.list>
+type Error = inferError<typeof post.list>
+```
+
+### Merging Routers
+
+```ts
+import { router } from 'react-query-kit'
+
+const user = router(`user`, {})
+const post = router(`post`, {})
+
+const k = {
+  user,
+  post,
+}
 ```
 
 ### API Reference

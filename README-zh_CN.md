@@ -367,7 +367,7 @@ Options
   - 可选
   - 中间件函数数组 [(详情)](#中间件)
 
-Returns
+Expose Methods
 
 - `getKey: () => MutationKey`
 - `getOptions: () => UseMutationOptions`
@@ -425,10 +425,24 @@ post.add.getOptions()
 post.add.mutationFn({ title: 'title', content: 'content' })
 
 // infer types
-type Data = inferData<typeof posts.list>
-type FnData = inferFnData<typeof posts.list>
-type Variables = inferVariables<typeof posts.list>
-type Error = inferError<typeof posts.list>
+type Data = inferData<typeof post.list>
+type FnData = inferFnData<typeof post.list>
+type Variables = inferVariables<typeof post.list>
+type Error = inferError<typeof post.list>
+```
+
+### 合并路由
+
+```ts
+import { router } from 'react-query-kit'
+
+const user = router(`user`, {})
+const post = router(`post`, {})
+
+const k = {
+  user,
+  post,
+}
 ```
 
 ### API 文档

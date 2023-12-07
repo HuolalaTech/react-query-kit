@@ -2,7 +2,7 @@ import { router } from '../src'
 
 describe('router', () => {
   it('should return the correct shape', () => {
-    const posts = router(`posts`, {
+    const post = router(`post`, {
       byId: router.query({
         fetcher: (variables: { id: number }): Promise<{ id: 1 }> =>
           fetch(`/posts/${variables.id}`).then(res => res.json()),
@@ -29,25 +29,25 @@ describe('router', () => {
       }),
     })
 
-    expect(posts.getKey()).toEqual(['posts'])
-    expect(posts.byId.getKey()).toEqual(['posts', 'byId'])
-    expect(posts.byId.getKey({ id: 1 })).toEqual(['posts', 'byId', { id: 1 }])
-    expect(posts.list.getKey()).toEqual(['posts', 'list'])
-    expect(posts.list.getKey()).toEqual(['posts', 'list'])
-    expect(posts.add.getKey()).toEqual(['posts', 'add'])
-    expect(typeof posts.byId.fetcher === 'function').toBe(true)
-    expect(typeof posts.byId.getFetchOptions === 'function').toBe(true)
-    expect(typeof posts.byId.getOptions === 'function').toBe(true)
-    expect(typeof posts.byId.useQuery === 'function').toBe(true)
-    expect(typeof posts.byId.useSuspenseQuery === 'function').toBe(true)
-    expect(typeof posts.list.fetcher === 'function').toBe(true)
-    expect(typeof posts.list.getFetchOptions === 'function').toBe(true)
-    expect(typeof posts.list.getOptions === 'function').toBe(true)
-    expect(typeof posts.list.useInfiniteQuery === 'function').toBe(true)
-    expect(typeof posts.list.useSuspenseInfiniteQuery === 'function').toBe(true)
-    expect(typeof posts.add.mutationFn === 'function').toBe(true)
-    expect(typeof posts.add.getKey === 'function').toBe(true)
-    expect(typeof posts.add.getOptions === 'function').toBe(true)
-    expect(typeof posts.add.useMutation === 'function').toBe(true)
+    expect(post.getKey()).toEqual(['posts'])
+    expect(post.byId.getKey()).toEqual(['posts', 'byId'])
+    expect(post.byId.getKey({ id: 1 })).toEqual(['posts', 'byId', { id: 1 }])
+    expect(post.list.getKey()).toEqual(['posts', 'list'])
+    expect(post.list.getKey()).toEqual(['posts', 'list'])
+    expect(post.add.getKey()).toEqual(['posts', 'add'])
+    expect(typeof post.byId.fetcher === 'function').toBe(true)
+    expect(typeof post.byId.getFetchOptions === 'function').toBe(true)
+    expect(typeof post.byId.getOptions === 'function').toBe(true)
+    expect(typeof post.byId.useQuery === 'function').toBe(true)
+    expect(typeof post.byId.useSuspenseQuery === 'function').toBe(true)
+    expect(typeof post.list.fetcher === 'function').toBe(true)
+    expect(typeof post.list.getFetchOptions === 'function').toBe(true)
+    expect(typeof post.list.getOptions === 'function').toBe(true)
+    expect(typeof post.list.useInfiniteQuery === 'function').toBe(true)
+    expect(typeof post.list.useSuspenseInfiniteQuery === 'function').toBe(true)
+    expect(typeof post.add.mutationFn === 'function').toBe(true)
+    expect(typeof post.add.getKey === 'function').toBe(true)
+    expect(typeof post.add.getOptions === 'function').toBe(true)
+    expect(typeof post.add.useMutation === 'function').toBe(true)
   })
 })
