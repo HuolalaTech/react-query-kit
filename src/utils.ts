@@ -11,7 +11,7 @@ export const suspenseOptions = {
   enabled: true,
   suspense: true,
   useErrorBoundary: (_error: unknown, query: Query) =>
-    query.state.data === undefined,
+    typeof query.state.data === 'undefined',
 }
 
 export const withMiddleware = (
@@ -37,12 +37,12 @@ export const withMiddleware = (
       ],
       [[]]
     )
-    const composed = uses.reduceRight((next, use) => use(next), hook)
+    const composedHook = uses.reduceRight((next, use) => use(next), hook)
 
-    return composed(opts, queryClient)
+    return composedHook(opts, queryClient)
   }
 }
 
 export const getKey = (queryKey: QueryKey, variables?: any): QueryKey => {
-  return variables === undefined ? [...queryKey] : [...queryKey, variables]
+  return typeof variables === 'undefined' ? queryKey : [...queryKey, variables]
 }

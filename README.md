@@ -403,6 +403,13 @@ const post = router(`post`, {
         body: JSON.stringify(variables),
       }).then(res => res.json()),
   }),
+
+  // nest router
+  command: {
+    report: router.mutation({ mutationFn }),
+
+    promote: router.mutation({ mutationFn }),
+  },
 })
 
 // get root key
@@ -414,6 +421,7 @@ post.byId.useSuspenseQuery({ variables: { id: 1 } })
 post.list.useInfiniteQuery()
 post.list.useSuspenseInfiniteQuery()
 post.add.useMutation()
+post.command.report.useMutation()
 
 // expose methods
 post.byId.getKey({ id: 1 }) // ['post', 'byId', { id: 1 }]

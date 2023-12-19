@@ -15,41 +15,49 @@ import type {
   RouterQuery,
 } from './types'
 
-export const router = <TConfig extends RouterConfig>(
-  scope: string,
-  config: TConfig
-): CreateRouter<TConfig> => {
+const buildRouter = (keys: string[], config: RouterConfig) => {
   return Object.entries(config).reduce(
     (acc, [key, opts]) => {
-      const options: any = {
-        ...opts,
-        [opts._type === `m` ? `mutationKey` : `queryKey`]: [scope, key],
-      }
+      if (!opts._type) {
+        acc[key] = buildRouter([...keys, key], opts)
+      } else {
+        const options: any = {
+          ...opts,
+          [opts._type === `m` ? `mutationKey` : `queryKey`]: [...keys, key],
+        }
 
-      acc[key] =
-        opts._type === `m`
-          ? {
-              useMutation: createMutation(options),
-              ...createMutation(options),
-            }
-          : opts._type === `q`
-          ? {
-              useQuery: createQuery(options),
-              useSuspenseQuery: createSuspenseQuery(options),
-              ...createQuery(options),
-            }
-          : {
-              useInfiniteQuery: createInfiniteQuery(options),
-              useSuspenseInfiniteQuery: createSuspenseInfiniteQuery(options),
-              ...createInfiniteQuery(options),
-            }
+        acc[key] =
+          opts._type === `m`
+            ? {
+                useMutation: createMutation(options),
+                ...createMutation(options),
+              }
+            : opts._type === `q`
+            ? {
+                useQuery: createQuery(options),
+                useSuspenseQuery: createSuspenseQuery(options),
+                ...createQuery(options),
+              }
+            : {
+                useInfiniteQuery: createInfiniteQuery(options),
+                useSuspenseInfiniteQuery: createSuspenseInfiniteQuery(options),
+                ...createInfiniteQuery(options),
+              }
+      }
 
       return acc
     },
     {
-      getKey: () => [scope],
+      getKey: () => keys,
     } as any
   )
+}
+
+export const router = <TConfig extends RouterConfig>(
+  scope: string,
+  config: TConfig
+): CreateRouter<TConfig> => {
+  return buildRouter([scope], config)
 }
 
 router.query = <TFnData, TVariables = void, TError = CompatibleError>(

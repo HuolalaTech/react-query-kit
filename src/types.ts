@@ -635,6 +635,36 @@ export type RouterConfig = Record<
   | RouterQuery<any, any, any>
   | RouterInfiniteQuery<any, any, any, any>
   | RouterMutation<any, any, any, any>
+  | Record<
+      string,
+      | RouterQuery<any, any, any>
+      | RouterInfiniteQuery<any, any, any, any>
+      | RouterMutation<any, any, any, any>
+      | Record<
+          string,
+          | RouterQuery<any, any, any>
+          | RouterInfiniteQuery<any, any, any, any>
+          | RouterMutation<any, any, any, any>
+          | Record<
+              string,
+              | RouterQuery<any, any, any>
+              | RouterInfiniteQuery<any, any, any, any>
+              | RouterMutation<any, any, any, any>
+              | Record<
+                  string,
+                  | RouterQuery<any, any, any>
+                  | RouterInfiniteQuery<any, any, any, any>
+                  | RouterMutation<any, any, any, any>
+                  | Record<
+                      string,
+                      | RouterQuery<any, any, any>
+                      | RouterInfiniteQuery<any, any, any, any>
+                      | RouterMutation<any, any, any, any>
+                    >
+                >
+            >
+        >
+    >
 >
 
 export type CreateRouter<TConfig extends RouterConfig> = {
@@ -702,5 +732,7 @@ export type CreateRouter<TConfig extends RouterConfig> = {
         DefaultTo<TVariables, void>,
         DefaultTo<TError, CompatibleError>
       >
+    : TConfig[K] extends RouterConfig
+    ? CreateRouter<TConfig[K]>
     : never
 } & { getKey: () => [string] }

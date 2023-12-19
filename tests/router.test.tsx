@@ -4,7 +4,9 @@ describe('router', () => {
   it('should return the correct shape', () => {
     const post = router(`post`, {
       byId: router.query({
-        fetcher: (variables: { id: number }): Promise<{ id: 1 }> =>
+        fetcher: (variables: {
+          id: number
+        }): Promise<{ title: string; content: string }> =>
           fetch(`/post/${variables.id}`).then(res => res.json()),
       }),
 
@@ -27,6 +29,15 @@ describe('router', () => {
             body: JSON.stringify(variables),
           }).then(res => res.json()),
       }),
+
+      command: {
+        report: router.query({
+          fetcher: (variables: {
+            id: number
+          }): Promise<{ title: string; content: string }> =>
+            fetch(`/post/report/${variables.id}`).then(res => res.json()),
+        }),
+      },
     })
 
     expect(post.getKey()).toEqual(['post'])
@@ -35,6 +46,21 @@ describe('router', () => {
     expect(post.list.getKey()).toEqual(['post', 'list'])
     expect(post.list.getKey()).toEqual(['post', 'list'])
     expect(post.add.getKey()).toEqual(['post', 'add'])
+    expect(post.command.getKey()).toEqual(['post', 'command'])
+    expect(post.command.report.getKey()).toEqual(['post', 'command', 'report'])
+    expect(post.command.report.getKey({ id: 1 })).toEqual([
+      'post',
+      'command',
+      'report',
+      { id: 1 },
+    ])
+    expect(typeof post.command.report.fetcher === 'function').toBe(true)
+    expect(typeof post.command.report.getFetchOptions === 'function').toBe(true)
+    expect(typeof post.command.report.getOptions === 'function').toBe(true)
+    expect(typeof post.command.report.useQuery === 'function').toBe(true)
+    expect(typeof post.command.report.useSuspenseQuery === 'function').toBe(
+      true
+    )
     expect(typeof post.byId.fetcher === 'function').toBe(true)
     expect(typeof post.byId.getFetchOptions === 'function').toBe(true)
     expect(typeof post.byId.getOptions === 'function').toBe(true)
