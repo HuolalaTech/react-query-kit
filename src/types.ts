@@ -60,6 +60,8 @@ type DeepPartial<T> = T extends object
     }
   : T
 
+type DefaultTo<T, D> = unknown extends T ? D : T
+
 export type CompatibleError = CompatibleWithV4<DefaultError, Error>
 
 export type Fetcher<TFnData, TVariables = void, TPageParam = never> = (
@@ -596,15 +598,30 @@ export type inferCreateOptions<T> = T extends QueryHook<
 
 // router
 
+export type RouterQueryOptions<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError
+> = Omit<CreateQueryOptions<TFnData, TVariables, TError>, 'queryKey'>
+
 export type RouterQuery<
   TFnData,
   TVariables = void,
   TError = CompatibleError
-> = Omit<CreateQueryOptions<TFnData, TVariables, TError>, 'queryKey'> & {
+> = RouterQueryOptions<TFnData, TVariables, TError> & {
   _type: `q`
 }
 
-export type RouterInfiniteQuery<
+export type ResolvedRouterQuery<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError
+> = {
+  useQuery: QueryHook<TFnData, TVariables, TError>
+  useSuspenseQuery: SuspenseQueryHook<TFnData, TVariables, TError>
+} & ExposeMethods<TFnData, TVariables, TError>
+
+export type RouterInfiniteQueryOptions<
   TFnData,
   TVariables = void,
   TError = CompatibleError,
@@ -612,11 +629,38 @@ export type RouterInfiniteQuery<
 > = Omit<
   CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>,
   'queryKey'
+>
+
+export type RouterInfiniteQuery<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError,
+  TPageParam = number
+> = RouterInfiniteQueryOptions<
+  TFnData,
+  TVariables,
+  TError,
+  Clone<TPageParam>
 > & {
   _type: `inf`
 }
 
-export type RouterMutation<
+export type ResolvedRouterInfiniteQuery<
+  TFnData,
+  TVariables = void,
+  TError = CompatibleError,
+  TPageParam = number
+> = {
+  useInfiniteQuery: InfiniteQueryHook<TFnData, TVariables, TError, TPageParam>
+  useSuspenseInfiniteQuery: SuspenseInfiniteQueryHook<
+    TFnData,
+    TVariables,
+    TError,
+    TPageParam
+  >
+} & ExposeMethods<TFnData, TVariables, TError, TPageParam>
+
+export type RouterMutationOptions<
   TData = unknown,
   TVariables = void,
   TError = CompatibleError,
@@ -624,48 +668,43 @@ export type RouterMutation<
 > = Omit<
   CreateMutationOptions<TData, TVariables, TError, TContext>,
   'mutationKey'
-> & {
+>
+
+export type RouterMutation<
+  TData = unknown,
+  TVariables = void,
+  TError = CompatibleError,
+  TContext = unknown
+> = RouterMutationOptions<TData, TVariables, TError, TContext> & {
   _type: `m`
 }
 
-type DefaultTo<T, D> = unknown extends T ? D : T
-
-export type RouterConfig = Record<
-  string,
-  | RouterQuery<any, any, any>
-  | RouterInfiniteQuery<any, any, any, any>
-  | RouterMutation<any, any, any, any>
-  | Record<
-      string,
-      | RouterQuery<any, any, any>
-      | RouterInfiniteQuery<any, any, any, any>
-      | RouterMutation<any, any, any, any>
-      | Record<
-          string,
-          | RouterQuery<any, any, any>
-          | RouterInfiniteQuery<any, any, any, any>
-          | RouterMutation<any, any, any, any>
-          | Record<
-              string,
-              | RouterQuery<any, any, any>
-              | RouterInfiniteQuery<any, any, any, any>
-              | RouterMutation<any, any, any, any>
-              | Record<
-                  string,
-                  | RouterQuery<any, any, any>
-                  | RouterInfiniteQuery<any, any, any, any>
-                  | RouterMutation<any, any, any, any>
-                  | Record<
-                      string,
-                      | RouterQuery<any, any, any>
-                      | RouterInfiniteQuery<any, any, any, any>
-                      | RouterMutation<any, any, any, any>
-                    >
-                >
-            >
-        >
-    >
+export type ResolvedRouterMutation<
+  TData = unknown,
+  TVariables = void,
+  TError = CompatibleError,
+  TContext = unknown
+> = {
+  useMutation: MutationHook<
+    TData,
+    DefaultTo<TVariables, void>,
+    DefaultTo<TError, CompatibleError>,
+    TContext
+  >
+} & ExposeMutationMethods<
+  TData,
+  DefaultTo<TVariables, void>,
+  DefaultTo<TError, CompatibleError>,
+  TContext
 >
+
+export interface RouterConfig {
+  [k: string]:
+    | RouterQuery<any, any, any>
+    | RouterInfiniteQuery<any, any, any, any>
+    | RouterMutation<any, any, any, any>
+    | RouterConfig
+}
 
 export type CreateRouter<TConfig extends RouterConfig> = {
   [K in keyof TConfig]: TConfig[K] extends RouterMutation<
@@ -674,14 +713,7 @@ export type CreateRouter<TConfig extends RouterConfig> = {
     infer TError,
     infer TContext
   >
-    ? {
-        useMutation: MutationHook<
-          TFnData,
-          DefaultTo<TVariables, void>,
-          DefaultTo<TError, CompatibleError>,
-          TContext
-        >
-      } & ExposeMutationMethods<
+    ? ResolvedRouterMutation<
         TFnData,
         DefaultTo<TVariables, void>,
         DefaultTo<TError, CompatibleError>,
@@ -693,20 +725,7 @@ export type CreateRouter<TConfig extends RouterConfig> = {
         infer TError,
         infer TPageParam
       >
-    ? {
-        useInfiniteQuery: InfiniteQueryHook<
-          TFnData,
-          DefaultTo<TVariables, void>,
-          DefaultTo<TError, CompatibleError>,
-          DefaultTo<TPageParam, number>
-        >
-        useSuspenseInfiniteQuery: SuspenseInfiniteQueryHook<
-          TFnData,
-          DefaultTo<TVariables, void>,
-          DefaultTo<TError, CompatibleError>,
-          DefaultTo<TPageParam, number>
-        >
-      } & ExposeMethods<
+    ? ResolvedRouterInfiniteQuery<
         TFnData,
         DefaultTo<TVariables, void>,
         DefaultTo<TError, CompatibleError>,
@@ -716,18 +735,7 @@ export type CreateRouter<TConfig extends RouterConfig> = {
         RouterQuery<infer TFnData, infer TVariables, infer TError>,
         'queryKey'
       >
-    ? {
-        useQuery: QueryHook<
-          TFnData,
-          DefaultTo<TVariables, void>,
-          DefaultTo<TError, CompatibleError>
-        >
-        useSuspenseQuery: SuspenseQueryHook<
-          TFnData,
-          DefaultTo<TVariables, void>,
-          DefaultTo<TError, CompatibleError>
-        >
-      } & ExposeMethods<
+    ? ResolvedRouterQuery<
         TFnData,
         DefaultTo<TVariables, void>,
         DefaultTo<TError, CompatibleError>
@@ -735,4 +743,4 @@ export type CreateRouter<TConfig extends RouterConfig> = {
     : TConfig[K] extends RouterConfig
     ? CreateRouter<TConfig[K]>
     : never
-} & { getKey: () => [string] }
+} & { getKey: () => string[] }

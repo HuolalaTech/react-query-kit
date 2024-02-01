@@ -5,14 +5,14 @@ import { createSuspenseInfiniteQuery } from './createSuspenseInfiniteQuery'
 import { createSuspenseQuery } from './createSuspenseQuery'
 import type {
   CompatibleError,
-  CreateInfiniteQueryOptions,
-  CreateMutationOptions,
-  CreateQueryOptions,
   CreateRouter,
   RouterConfig,
   RouterInfiniteQuery,
+  RouterInfiniteQueryOptions,
   RouterMutation,
+  RouterMutationOptions,
   RouterQuery,
+  RouterQueryOptions,
 } from './types'
 
 const buildRouter = (keys: string[], config: RouterConfig) => {
@@ -54,19 +54,19 @@ const buildRouter = (keys: string[], config: RouterConfig) => {
 }
 
 export const router = <TConfig extends RouterConfig>(
-  scope: string,
+  key: string,
   config: TConfig
 ): CreateRouter<TConfig> => {
-  return buildRouter([scope], config)
+  return buildRouter([key], config)
 }
 
 router.query = <TFnData, TVariables = void, TError = CompatibleError>(
-  options: Omit<CreateQueryOptions<TFnData, TVariables, TError>, 'queryKey'>
-): RouterQuery<TFnData, TVariables, TError> => {
+  options: RouterQueryOptions<TFnData, TVariables, TError>
+) => {
   return {
     ...options,
     _type: 'q',
-  }
+  } as RouterQuery<TFnData, TVariables, TError>
 }
 
 router.infiniteQuery = <
@@ -75,12 +75,14 @@ router.infiniteQuery = <
   TError = CompatibleError,
   TPageParam = number
 >(
-  options: Omit<
-    CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>,
-    'queryKey'
+  options: RouterInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
+) => {
+  return { ...options, _type: 'inf' } as RouterInfiniteQuery<
+    TFnData,
+    TVariables,
+    TError,
+    TPageParam
   >
-): RouterInfiniteQuery<TFnData, TVariables, TError, TPageParam> => {
-  return { ...options, _type: 'inf' }
 }
 
 router.mutation = <
@@ -89,10 +91,12 @@ router.mutation = <
   TError = CompatibleError,
   TContext = unknown
 >(
-  options: Omit<
-    CreateMutationOptions<TFnData, TVariables, TError, TContext>,
-    'mutationKey'
+  options: RouterMutationOptions<TFnData, TVariables, TError, TContext>
+) => {
+  return { ...options, _type: 'm' } as RouterMutation<
+    TFnData,
+    TVariables,
+    TError,
+    TContext
   >
-): RouterMutation<TFnData, TVariables, TError, TContext> => {
-  return { ...options, _type: 'm' }
 }
