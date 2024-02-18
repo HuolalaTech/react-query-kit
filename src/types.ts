@@ -445,15 +445,15 @@ export interface CreateMutationOptions<
   TError = CompatibleError,
   TContext = unknown
 > extends UseMutationOptions<TData, TError, TVariables, TContext> {
-  use?: Middleware<MutationHook<TData, TError, TVariables>>[]
+  use?: Middleware<MutationHook<TData, TVariables, TError>>[]
 }
 
 export interface MutationHookOptions<TData, TError, TVariables, TContext>
   extends Omit<
-    UseMutationOptions<TData, TError, TVariables, TContext>,
+    UseMutationOptions<TData, TVariables, TError, TContext>,
     'mutationFn' | 'mutationKey'
   > {
-  use?: Middleware<MutationHook<TData, TError, TVariables>>[]
+  use?: Middleware<MutationHook<TData, TVariables, TError>>[]
 }
 
 export type MutationHookResult<
@@ -466,7 +466,7 @@ export type MutationHookResult<
 export interface ExposeMutationMethods<
   TData = unknown,
   TVariables = void,
-  TError = unknown,
+  TError = CompatibleError,
   TDefaultContext = unknown
 > {
   getKey: () => MutationKey | undefined
@@ -482,7 +482,7 @@ export interface ExposeMutationMethods<
 export interface MutationHook<
   TData = unknown,
   TVariables = void,
-  TError = unknown,
+  TError = CompatibleError,
   TDefaultContext = unknown
 > extends ExposeMutationMethods<TData, TVariables, TError, TDefaultContext> {
   <TContext = TDefaultContext>(
@@ -593,7 +593,7 @@ export type inferCreateOptions<T> = T extends QueryHook<
       infer TError,
       infer TContext
     >
-  ? CreateMutationOptions<TFnData, TError, TVariables, TContext>
+  ? CreateMutationOptions<TFnData, TVariables, TError, TContext>
   : never
 
 // router

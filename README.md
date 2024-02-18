@@ -48,6 +48,7 @@ English | [简体中文](./README-zh_CN.md)
   - [createMutation](#createmutation)
   - [router](#router)
   - [Middleware](#middleware)
+  - [TypeScript](#typescript)
   - [Type inference](#type-inference)
 - [FAQ](#faq)
 - [Migration](#migration)
@@ -86,12 +87,12 @@ If you still on React Query Kit v2? Check out the v2 docs here: https://github.c
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createQuery } from 'react-query-kit'
 
-type Response = { title: string; content: string }
+type Data = { title: string; content: string }
 type Variables = { id: number }
 
 const usePost = createQuery({
   queryKey: ['posts'],
-  fetcher: (variables: Variables): Promise<Response> => {
+  fetcher: (variables: Variables): Promise<Data> => {
     return fetch(`/posts/${variables.id}`).then(res => res.json())
   },
   // u can also pass middleware to cutomize this hook's behavior
@@ -142,7 +143,7 @@ const queries = useQueries({
 })
 
 // getQueryData
-queryClient.getQueryData(usePost.getKey(variables)) // Response
+queryClient.getQueryData(usePost.getKey(variables)) // Data
 
 // setQueryData
 queryClient.setQueryData(usePost.getKey(variables), {...})
@@ -177,12 +178,12 @@ Expose Methods
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createInfiniteQuery } from 'react-query-kit'
 
-type Response = { projects: { id: string; name: string }[]; nextCursor: number }
+type Data = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
 const useProjects = createInfiniteQuery({
   queryKey: ['projects'],
-  fetcher: (variables: Variables, { pageParam }): Promise<Response> => {
+  fetcher: (variables: Variables, { pageParam }): Promise<Data> => {
     return fetch(
       `/projects?cursor=${pageParam}?active=${variables.active}`
     ).then(res => res.json())
@@ -478,7 +479,7 @@ Middleware receive the hook and can execute logic before and after running it. I
 import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
-const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
+const logger: Middleware<QueryHook<Data, Variables>> = useQueryNext => {
   return options => {
     const log = useLogger()
     const fetcher = (variables, context) => {
@@ -493,7 +494,7 @@ const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
   }
 }
 
-const useUser = createQuery<Response, Variables>({
+const useUser = createQuery<Data, Variables>({
   use: [logger],
 })
 
@@ -593,6 +594,45 @@ const useSomething = createQuery({
 useSomething({...}, anotherQueryClient)
 ```
 
+## TypeScript
+
+By default, ReactQueryKit will also infer the types of `data` and `variables` from `fetcher`, so you can have the preferred types automatically.
+
+```ts
+type Data = { title: string; content: string }
+type Variables = { id: number }
+
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: Variables): Promise<Data> => {
+    return fetch(`/posts/${variables}`).then(res => res.json())
+  },
+})
+
+// `data` will be inferred as `Data | undefined`.
+// `variables` will be inferred as `Variables`.
+const { data } = usePost({ variables: 1 })
+```
+
+You can also explicitly specify the types for `fetcher`‘s `variables` and `data`.
+
+```ts
+type Data = { title: string; content: string }
+type Variables = { id: number }
+
+const usePost = createQuery<Data, Variables, Error>({
+  queryKey: ['posts'],
+  fetcher: variables => {
+    return fetch(`/posts/${variables}`).then(res => res.json())
+  },
+})
+
+// `data` will be inferred as `Data | undefined`.
+// `error` will be inferred as `Error | null`
+// `variables` will be inferred as `Variables`.
+const { data, error } = usePost({ variables: 1 })
+```
+
 ## Type inference
 
 You can extract the TypeScript type of any custom hook with `inferData` or `inferVariables`
@@ -600,10 +640,10 @@ You can extract the TypeScript type of any custom hook with `inferData` or `infe
 ```ts
 import { inferData, inferFnData, inferError, inferVariables, inferOptions } from 'react-query-kit'
 
-const useProjects = createInfiniteQuery<Response, Variables, Error>(...)
+const useProjects = createInfiniteQuery<Data, Variables, Error>(...)
 
-inferData<typeof useProjects> // InfiniteData<Response>
-inferFnData<typeof useProjects> // Response
+inferData<typeof useProjects> // InfiniteData<Data>
+inferFnData<typeof useProjects> // Data
 inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>

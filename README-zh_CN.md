@@ -48,6 +48,7 @@
   - [createMutation](#createmutation)
   - [router](#router)
   - [中间件](#中间件)
+  - [TypeScript](#typescript)
   - [类型推导](#类型推导)
 - [常见问题](#常见问题)
 - [迁移](#迁移)
@@ -83,12 +84,12 @@ $ yarn add react-query-kit
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createQuery } from 'react-query-kit'
 
-type Response = { title: string; content: string }
+type Data = { title: string; content: string }
 type Variables = { id: number }
 
 const usePost = createQuery({
   queryKey: ['posts'],
-  fetcher: (variables: Variables): Promise<Response> => {
+  fetcher: (variables: Variables): Promise<Data> => {
     return fetch(`/posts/${variables.id}`).then(res => res.json())
   },
   // 你还可以通过中间件来定制这个 hook 的行为
@@ -140,7 +141,7 @@ const queries = useQueries({
 })
 
 // getQueryData
-queryClient.getQueryData(usePost.getKey(variables)) // Response
+queryClient.getQueryData(usePost.getKey(variables)) // Data
 
 // setQueryData
 queryClient.setQueryData(usePost.getKey(variables), {...})
@@ -175,12 +176,12 @@ Expose Methods
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { createInfiniteQuery } from 'react-query-kit'
 
-type Response = { projects: { id: string; name: string }[]; nextCursor: number }
+type Data = { projects: { id: string; name: string }[]; nextCursor: number }
 type Variables = { active: boolean }
 
 const useProjects = createInfiniteQuery({
   queryKey: ['projects'],
-  fetcher: (variables: Variables, { pageParam }): Promise<Response> => {
+  fetcher: (variables: Variables, { pageParam }): Promise<Data> => {
     return fetch(
       `/projects?cursor=${pageParam}?active=${variables.active}`
     ).then(res => res.json())
@@ -478,7 +479,7 @@ Expose Methods
 import { QueryClient } from '@tanstack/react-query'
 import { Middleware, MutationHook, QueryHook, getKey } from 'react-query-kit'
 
-const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
+const logger: Middleware<QueryHook<Data, Variables>> = useQueryNext => {
   return options => {
     const log = useLogger()
     const fetcher = (variables, context) => {
@@ -493,7 +494,7 @@ const logger: Middleware<QueryHook<Response, Variables>> = useQueryNext => {
   }
 }
 
-const useUser = createQuery<Response, Variables>({
+const useUser = createQuery<Data, Variables>({
   use: [logger],
 })
 
@@ -593,6 +594,45 @@ const useSomething = createQuery({
 useSomething({...}, anotherQueryClient)
 ```
 
+## TypeScript
+
+默认情况下，ReactQueryKit 还会从 `fetcher` 推断 `data` 和 `variables` 的类型，因此您可以自动获得首选类型。
+
+```ts
+type Data = { title: string; content: string }
+type Variables = { id: number }
+
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: Variables): Promise<Data> => {
+    return fetch(`/posts/${variables}`).then(res => res.json())
+  },
+})
+
+// `data` 将被推断为 `Data | undefined`.
+// `variables` 将被推断为 `Variables`.
+const { data } = usePost({ variables: 1 })
+```
+
+您还可以显式指定 `fetcher` 参数和返回的类型。
+
+```ts
+type Data = { title: string; content: string }
+type Variables = { id: number }
+
+const usePost = createQuery<Data, Variables, Error>({
+  queryKey: ['posts'],
+  fetcher: variables => {
+    return fetch(`/posts/${variables}`).then(res => res.json())
+  },
+})
+
+// `data` 将被推断为 `Data | undefined`.
+// `error` 将被推断为 `Error | null`
+// `variables` 将被推断为 `Variables`.
+const { data, error } = usePost({ variables: 1 })
+```
+
 ## 类型推导
 
 您可以使用 `inferData` 或 `inferVariables` 提取任何自定义 hook 的 TypeScript 类型
@@ -600,10 +640,10 @@ useSomething({...}, anotherQueryClient)
 ```ts
 import { inferData, inferFnData, inferError, inferVariables, inferOptions } from 'react-query-kit'
 
-const useProjects = createInfiniteQuery<Response, Variables>(...)
+const useProjects = createInfiniteQuery<Data, Variables>(...)
 
-inferData<typeof useProjects> // InfiniteData<Response>
-inferFnData<typeof useProjects> // Response
+inferData<typeof useProjects> // InfiniteData<Data>
+inferFnData<typeof useProjects> // Data
 inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
