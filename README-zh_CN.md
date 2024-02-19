@@ -611,7 +611,7 @@ const usePost = createQuery({
 
 // `data` 将被推断为 `Data | undefined`.
 // `variables` 将被推断为 `Variables`.
-const { data } = usePost({ variables: 1 })
+const { data } = usePost({ variables: { id: 1 } })
 ```
 
 您还可以显式指定 `fetcher` 参数和返回的类型。
@@ -630,7 +630,7 @@ const usePost = createQuery<Data, Variables, Error>({
 // `data` 将被推断为 `Data | undefined`.
 // `error` 将被推断为 `Error | null`
 // `variables` 将被推断为 `Variables`.
-const { data, error } = usePost({ variables: 1 })
+const { data, error } = usePost({ variables: { id: 1 } })
 ```
 
 ## 类型推导

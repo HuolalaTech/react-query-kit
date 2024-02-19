@@ -611,7 +611,7 @@ const usePost = createQuery({
 
 // `data` will be inferred as `Data | undefined`.
 // `variables` will be inferred as `Variables`.
-const { data } = usePost({ variables: 1 })
+const { data } = usePost({ variables: { id: 1 } })
 ```
 
 You can also explicitly specify the types for `fetcher`‘s `variables` and `data`.
@@ -630,7 +630,7 @@ const usePost = createQuery<Data, Variables, Error>({
 // `data` will be inferred as `Data | undefined`.
 // `error` will be inferred as `Error | null`
 // `variables` will be inferred as `Variables`.
-const { data, error } = usePost({ variables: 1 })
+const { data, error } = usePost({ variables: { id: 1 } })
 ```
 
 ## Type inference
