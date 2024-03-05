@@ -450,7 +450,7 @@ export interface CreateMutationOptions<
 
 export interface MutationHookOptions<TData, TError, TVariables, TContext>
   extends Omit<
-    UseMutationOptions<TData, TVariables, TError, TContext>,
+    UseMutationOptions<TData, TError, TVariables, TContext>,
     'mutationFn' | 'mutationKey'
   > {
   use?: Middleware<MutationHook<TData, TVariables, TError>>[]
@@ -731,9 +731,10 @@ export type CreateRouter<TConfig extends RouterConfig> = {
         DefaultTo<TError, CompatibleError>,
         DefaultTo<TPageParam, number>
       >
-    : TConfig[K] extends Omit<
-        RouterQuery<infer TFnData, infer TVariables, infer TError>,
-        'queryKey'
+    : TConfig[K] extends RouterQuery<
+        infer TFnData,
+        infer TVariables,
+        infer TError
       >
     ? ResolvedRouterQuery<
         TFnData,
