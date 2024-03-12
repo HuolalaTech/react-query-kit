@@ -5,15 +5,7 @@ import type {
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 
-import type { AdditionalQueryOptions, Middleware } from './types'
 import { getKey as getFullKey, withMiddleware } from './utils'
-
-interface CreateBaseQueryOptions
-  extends Omit<UseInfiniteQueryOptions, 'queryFn'>,
-    AdditionalQueryOptions<any, any> {
-  use?: Middleware[]
-  variables?: any
-}
 
 type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
@@ -44,38 +36,30 @@ export const createBaseQuery = (
     }
   }
 
-  const {
-    queryKey,
-    fetcher,
-    queryKeyHashFn,
-    getPreviousPageParam,
-    getNextPageParam,
-    initialPageParam,
-  } = defaultOptions as CreateBaseQueryOptions
-
   const getQueryOptions = (fetcherFn: any, variables: any) => {
     return {
       queryFn: (context: QueryFunctionContext) => fetcherFn(variables, context),
-      queryKey: getFullKey(queryKey, variables),
+      queryKey: getFullKey(defaultOptions.queryKey, variables),
     }
   }
 
-  const getKey = (variables?: any) => getFullKey(queryKey, variables)
+  const getKey = (variables?: any) =>
+    getFullKey(defaultOptions.queryKey, variables)
 
   const getOptions = (variables: any) => {
     return {
       ...defaultOptions,
-      ...getQueryOptions(fetcher, variables),
+      ...getQueryOptions(defaultOptions.fetcher, variables),
     }
   }
 
   const getFetchOptions = (variables: any) => {
     return {
-      queryKeyHashFn,
-      getPreviousPageParam,
-      getNextPageParam,
-      initialPageParam,
-      ...getQueryOptions(fetcher, variables),
+      ...getQueryOptions(defaultOptions.fetcher, variables),
+      queryKeyHashFn: defaultOptions.queryKeyHashFn,
+      getPreviousPageParam: defaultOptions.getPreviousPageParam,
+      getNextPageParam: defaultOptions.getNextPageParam,
+      initialPageParam: defaultOptions.initialPageParam,
     }
   }
 
@@ -86,15 +70,15 @@ export const createBaseQuery = (
     return useRQHook(
       {
         ...options,
-        ...overrideOptions,
         ...getQueryOptions(options.fetcher, options.variables),
+        ...overrideOptions,
       },
       queryClient
     )
   }
 
   return Object.assign(withMiddleware(useBaseHook, defaultOptions, 'queries'), {
-    fetcher,
+    fetcher: defaultOptions.fetcher,
     getKey,
     getOptions,
     getFetchOptions,
