@@ -456,7 +456,7 @@ const k = {
 
 ### API 文档
 
-`type Router = (key: string, config: TConfig) => TRouter`
+`type Router = (key: unknown | unknown[], config: TConfig) => TRouter`
 
 Expose Methods
 

@@ -744,4 +744,4 @@ export type CreateRouter<TConfig extends RouterConfig> = {
     : TConfig[K] extends RouterConfig
     ? CreateRouter<TConfig[K]>
     : never
-} & { getKey: () => string[] }
+} & { getKey: () => QueryKey }

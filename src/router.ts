@@ -1,3 +1,5 @@
+import { QueryKey } from '@tanstack/react-query'
+
 import { createInfiniteQuery } from './createInfiniteQuery'
 import { createMutation } from './createMutation'
 import { createQuery } from './createQuery'
@@ -15,7 +17,7 @@ import type {
   RouterQueryOptions,
 } from './types'
 
-const buildRouter = (keys: string[], config: RouterConfig) => {
+const buildRouter = (keys: QueryKey, config: RouterConfig) => {
   return Object.entries(config).reduce(
     (acc, [key, opts]) => {
       if (!opts._type) {
@@ -54,10 +56,10 @@ const buildRouter = (keys: string[], config: RouterConfig) => {
 }
 
 export const router = <TConfig extends RouterConfig>(
-  key: string,
+  key: string | QueryKey,
   config: TConfig
 ): CreateRouter<TConfig> => {
-  return buildRouter([key], config)
+  return buildRouter(Array.isArray(key) ? key : [key], config)
 }
 
 router.query = <TFnData, TVariables = void, TError = CompatibleError>(
