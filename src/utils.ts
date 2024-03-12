@@ -10,6 +10,7 @@ export const isV5 = !!ReactQuery.useSuspenseQuery
 export const suspenseOptions = {
   enabled: true,
   suspense: true,
+  placeholderData: undefined,
   useErrorBoundary: (_error: unknown, query: Query) =>
     query.state.data === undefined,
 }
