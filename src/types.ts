@@ -189,7 +189,7 @@ export type DefinedQueryHookResult<TData, TError> = DefinedUseQueryResult<
 
 export interface QueryHook<
   TFnData = unknown,
-  TVariables = any,
+  TVariables = void,
   TError = CompatibleError
 > extends ExposeMethods<TFnData, TVariables, TError> {
   <TData = TFnData>(
@@ -494,7 +494,7 @@ export interface MutationHook<
 // infer types
 
 export type inferVariables<T> = T extends {
-  fetcher: ExposeFetcher<any, infer TVariables, any>
+  fetcher: ExposeFetcher<any, infer TVariables, infer _TPageParam>
 }
   ? TVariables
   : T extends ExposeMutationMethods<any, infer TVariables, any, any>
@@ -512,7 +512,7 @@ export type inferData<T> = T extends {
   : never
 
 export type inferFnData<T> = T extends {
-  fetcher: ExposeFetcher<infer TFnData, any, any>
+  fetcher: ExposeFetcher<infer TFnData, any, infer _TPageParam>
 }
   ? TFnData
   : T extends ExposeMutationMethods<infer TFnData, any, any, any>
