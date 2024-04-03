@@ -62,23 +62,23 @@ export const router = <TConfig extends RouterConfig>(
   return buildRouter(Array.isArray(key) ? key : [key], config)
 }
 
-router.query = <TFnData, TVariables = void, TError = CompatibleError>(
+function query<TFnData, TVariables = void, TError = CompatibleError>(
   options: RouterQueryOptions<TFnData, TVariables, TError>
-) => {
+) {
   return {
     ...options,
     _type: 'q',
   } as RouterQuery<TFnData, TVariables, TError>
 }
 
-router.infiniteQuery = <
+function infiniteQuery<
   TFnData,
   TVariables = void,
   TError = CompatibleError,
   TPageParam = number
 >(
   options: RouterInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
-) => {
+) {
   return { ...options, _type: 'inf' } as RouterInfiniteQuery<
     TFnData,
     TVariables,
@@ -87,14 +87,12 @@ router.infiniteQuery = <
   >
 }
 
-router.mutation = <
+function mutation<
   TFnData = unknown,
   TVariables = void,
   TError = CompatibleError,
   TContext = unknown
->(
-  options: RouterMutationOptions<TFnData, TVariables, TError, TContext>
-) => {
+>(options: RouterMutationOptions<TFnData, TVariables, TError, TContext>) {
   return { ...options, _type: 'm' } as RouterMutation<
     TFnData,
     TVariables,
@@ -102,3 +100,7 @@ router.mutation = <
     TContext
   >
 }
+
+router.query = query
+router.infiniteQuery = infiniteQuery
+router.mutation = mutation

@@ -6,7 +6,7 @@ import type {
 } from './types'
 import { ReactQuery, isV5, suspenseOptions } from './utils'
 
-export const createSuspenseInfiniteQuery = <
+export function createSuspenseInfiniteQuery<
   TFnData,
   TVariables = void,
   TError = CompatibleError,
@@ -18,7 +18,7 @@ export const createSuspenseInfiniteQuery = <
     TError,
     TPageParam
   >
-): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
+): SuspenseInfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
   return isV5
     ? createBaseQuery(options, ReactQuery.useSuspenseInfiniteQuery)
     : createBaseQuery(options, ReactQuery.useInfiniteQuery, suspenseOptions)

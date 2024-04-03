@@ -6,13 +6,13 @@ import type {
 } from './types'
 import { ReactQuery } from './utils'
 
-export const createInfiniteQuery = <
+export function createInfiniteQuery<
   TFnData,
   TVariables = void,
   TError = CompatibleError,
   TPageParam = number
 >(
   options: CreateInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
-): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> => {
+): InfiniteQueryHook<TFnData, TVariables, TError, TPageParam> {
   return createBaseQuery(options, ReactQuery.useInfiniteQuery)
 }
