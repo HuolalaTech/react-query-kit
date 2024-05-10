@@ -1,11 +1,11 @@
-import type {
-  QueryClient,
-  QueryFunctionContext,
-  UseBaseQueryOptions,
-  UseInfiniteQueryOptions,
+import {
+  type QueryClient,
+  type QueryFunctionContext,
+  type UseBaseQueryOptions,
+  type UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 
-import { getKey as getFullKey, withMiddleware } from './utils'
+import { ReactQuery, getKey as getFullKey, withMiddleware } from './utils'
 
 type QueryBaseHookOptions = Omit<
   UseBaseQueryOptions,
@@ -38,7 +38,10 @@ export const createBaseQuery = (
 
   const getQueryOptions = (fetcherFn: any, variables: any) => {
     return {
-      queryFn: (context: QueryFunctionContext) => fetcherFn(variables, context),
+      queryFn:
+        variables && variables === ReactQuery.skipToken
+          ? ReactQuery.skipToken
+          : (context: QueryFunctionContext) => fetcherFn(variables, context),
       queryKey: getFullKey(defaultOptions.queryKey, variables),
     }
   }

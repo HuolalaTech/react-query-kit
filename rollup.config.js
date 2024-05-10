@@ -35,7 +35,6 @@ export default function rollup() {
     cjs(options),
     umdDev(options),
     umdProd(options),
-    esmZip(options),
   ]
 }
 
@@ -118,29 +117,6 @@ function umdProd({ input, external, globals, jsName }) {
       format: 'umd',
       sourcemap: true,
       file: `build/umd/index.production.js`,
-      name: jsName,
-      globals,
-    },
-    plugins: [
-      babelPlugin,
-      commonJS(),
-      nodeResolve({ extensions }),
-      replaceDevPlugin('production'),
-      terser({
-        mangle: true,
-        compress: true,
-      }),
-    ],
-  }
-}
-
-function esmZip({ input, external, globals, jsName }) {
-  return {
-    external,
-    input,
-    output: {
-      format: 'esm',
-      file: `build/zip/zip.esm.js`,
       name: jsName,
       globals,
     },

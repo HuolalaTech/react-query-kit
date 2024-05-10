@@ -32,3 +32,9 @@ export function omit<T extends object, K extends string[]>(
     Object.entries(object || {}).filter(([key]) => !paths.includes(key))
   ) as Pick<T, Exclude<keyof T, K[number]>>
 }
+
+export function sleep(timeout: number): Promise<void> {
+  return new Promise((resolve, _reject) => {
+    setTimeout(resolve, timeout)
+  })
+}

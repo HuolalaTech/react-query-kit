@@ -14,7 +14,6 @@
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
-  <a href="https://unpkg.com/browse/react-query-kit@latest/build/zip/zip.esm.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/zip/zip.esm.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -28,7 +27,7 @@
 
 - 以类型安全的方式管理 `queryKey`
 - 让 `queryClient` 的操作更清楚地关联到哪个自定义 hook
-- 可以从任何自定义 ReactQuery 挂钩中提取的 TypeScript 类型
+- 可以从任何自定义 ReactQuery hook 中提取的 TypeScript 类型
 - 中间件
 
 [English](./README.md) | 简体中文
@@ -50,6 +49,7 @@
   - [中间件](#中间件)
   - [TypeScript](#typescript)
   - [类型推导](#类型推导)
+  - [禁用查询](#禁用查询)
 - [常见问题](#常见问题)
 - [迁移](#迁移)
 - [Issues](#issues)
@@ -647,6 +647,24 @@ inferFnData<typeof useProjects> // Data
 inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
+```
+
+## 禁用查询
+
+要禁用查询，您可以将 `skipToken` 作为选项 `variables` 传递给您的自定义查询。这将阻止查询被执行。
+
+```ts
+import { skipToken } from '@tanstack/react-query'
+
+const [name, setName] = useState<string | undefined>()
+const result = usePost({
+  variables: id ? { id: id } : skipToken,
+})
+
+// 以及用于 useQueries 的示例
+const queries = useQueries({
+  queries: [usePost.getOptions(id ? { id: id } : skipToken)],
+})
 ```
 
 ## 常见问题

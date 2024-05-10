@@ -1,12 +1,12 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, skipToken } from '@tanstack/react-query'
 import '@testing-library/jest-dom'
-import { waitFor } from '@testing-library/react'
+import { fireEvent, waitFor } from '@testing-library/react'
 import * as React from 'react'
 
 import { createQuery } from '../src'
 import type { QueryHookResult } from '../src'
 import { Middleware } from '../src/types'
-import { omit, renderWithClient, uniqueKey } from './utils'
+import { omit, renderWithClient, sleep, uniqueKey } from './utils'
 
 describe('createQuery', () => {
   const queryClient = new QueryClient()
@@ -137,5 +137,51 @@ describe('createQuery', () => {
     const rendered = renderWithClient(queryClient, <Page />)
 
     await waitFor(() => rendered.getByText('selectedData'))
+  })
+
+  it('should respect skipToken and refetch when skipToken is taken away', async () => {
+    const useGeneratedQuery = createQuery<string>({
+      queryKey: uniqueKey(),
+      fetcher: async () => {
+        await sleep(10)
+        return Promise.resolve('data')
+      },
+    })
+
+    function Page({ enabled }: { enabled: boolean }) {
+      const { data, status } = useGeneratedQuery({
+        variables: enabled ? undefined : skipToken,
+        retry: false,
+        retryOnMount: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+      })
+
+      return (
+        <div>
+          <div>status: {status}</div>
+          <div>data: {String(data)}</div>
+        </div>
+      )
+    }
+
+    function App() {
+      const [enabled, toggle] = React.useReducer(x => !x, false)
+
+      return (
+        <div>
+          <Page enabled={enabled} />
+          <button onClick={toggle}>enable</button>
+        </div>
+      )
+    }
+
+    const rendered = renderWithClient(queryClient, <App />)
+
+    await waitFor(() => rendered.getByText('status: pending'))
+
+    fireEvent.click(rendered.getByRole('button', { name: 'enable' }))
+    await waitFor(() => rendered.getByText('status: success'))
+    await waitFor(() => rendered.getByText('data: data'))
   })
 })

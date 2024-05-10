@@ -14,7 +14,6 @@
 <p align="center">
   <a href="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml"><img src="https://github.com/liaoliao666/react-query-kit/actions/workflows/tests.yml/badge.svg?branch=main" alt="Latest build" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/v/react-query-kit" alt="Latest published version" target="\_parent"></a>
-  <a href="https://unpkg.com/browse/react-query-kit@latest/build/zip/zip.esm.js" rel="nofollow"><img src="https://img.badgesize.io/https:/unpkg.com/react-query-kit@latest/build/zip/zip.esm.js?label=gzip%20size&compression=gzip" alt="gzip size"></a>
   <a href="https://github.com/liaoliao666/react-query-kit"><img src="https://badgen.net/npm/types/react-query-kit" alt="Types included" target="\_parent"></a>
   <a href="https://github.com/liaoliao666/react-query-kit/blob/main/LICENSE"><img src="https://badgen.net/npm/license/react-query-kit" alt="License" target="\_parent"></a>
   <a href="https://www.npmjs.com/package/react-query-kit"><img src="https://badgen.net/npm/dt/react-query-kit" alt="Number of downloads" target="\_parent"></a>
@@ -50,6 +49,7 @@ English | [简体中文](./README-zh_CN.md)
   - [Middleware](#middleware)
   - [TypeScript](#typescript)
   - [Type inference](#type-inference)
+  - [Disabling Queries](#disabling-queries)
 - [FAQ](#faq)
 - [Migration](#migration)
 - [Issues](#issues)
@@ -647,6 +647,24 @@ inferFnData<typeof useProjects> // Data
 inferVariables<typeof useProjects> // Variables
 inferError<typeof useProjects> // Error
 inferOptions<typeof useProjects> // InfiniteQueryHookOptions<...>
+```
+
+## Disabling Queries
+
+To disable queries, you can pass `skipToken` as the option `variables` to your custom query. This will prevent the query from being executed.
+
+```ts
+import { skipToken } from '@tanstack/react-query'
+
+const [name, setName] = useState<string | undefined>()
+const result = usePost({
+  variables: id ? { id: id } : skipToken,
+})
+
+// and for useQueries example
+const queries = useQueries({
+  queries: [usePost.getOptions(id ? { id: id } : skipToken)],
+})
 ```
 
 ## FAQ

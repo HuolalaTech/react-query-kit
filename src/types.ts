@@ -13,6 +13,7 @@ import type {
   QueryKey,
   QueryKeyHashFunction,
   QueryObserverSuccessResult,
+  SkipToken,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseMutationOptions,
@@ -100,7 +101,9 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
     QueryKey
   >
   getFetchOptions: (
-    variables: TVariables extends void ? TVariables | void : TVariables
+    variables: TVariables extends void
+      ? CompatibleWithV4<TVariables | SkipToken, TVariables> | void
+      : CompatibleWithV4<TVariables | SkipToken, TVariables>
   ) => Pick<
     ReturnType<
       ExposeMethods<TFnData, TVariables, TError, TPageParam>['getOptions']
@@ -117,7 +120,9 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
           | 'initialPageParam'
   >
   getOptions: (
-    variables: TVariables extends void ? TVariables | void : TVariables
+    variables: TVariables extends void
+      ? CompatibleWithV4<TVariables | SkipToken, TVariables> | void
+      : CompatibleWithV4<TVariables | SkipToken, TVariables>
   ) => [TPageParam] extends [never]
     ? CompatibleWithV4<
         UseQueryOptions<TFnData, TError, TFnData, QueryKey> & {
@@ -169,7 +174,7 @@ export interface QueryHookOptions<TFnData, TError, TData, TVariables>
     'queryKey' | 'queryFn' | 'queryKeyHashFn'
   > {
   use?: Middleware<QueryHook<TFnData, TVariables, TError>>[]
-  variables?: TVariables
+  variables?: CompatibleWithV4<TVariables | SkipToken, TVariables>
 }
 
 export interface DefinedQueryHookOptions<TFnData, TError, TData, TVariables>
@@ -242,7 +247,7 @@ export interface SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>
     | 'useErrorBoundary'
   > {
   use?: Middleware<SuspenseQueryHook<TFnData, TVariables, TVariables>>[]
-  variables?: TVariables
+  variables?: CompatibleWithV4<TVariables | SkipToken, TVariables>
 }
 
 export type SuspenseQueryHookResult<TData, TError> = Omit<
@@ -301,7 +306,7 @@ export interface InfiniteQueryHookOptions<
     | 'getNextPageParam'
   > {
   use?: Middleware<InfiniteQueryHook<TFnData, TVariables, TError, TPageParam>>[]
-  variables?: TVariables
+  variables?: CompatibleWithV4<TVariables | SkipToken, TVariables>
 }
 
 export interface DefinedInfiniteQueryHookOptions<
@@ -411,7 +416,7 @@ export interface SuspenseInfiniteQueryHookOptions<
     | 'useErrorBoundary'
   > {
   use?: Middleware<SuspenseInfiniteQueryHook<TFnData, TVariables, TVariables>>[]
-  variables?: TVariables
+  variables?: CompatibleWithV4<TVariables | SkipToken, TVariables>
 }
 
 export type SuspenseInfiniteQueryHookResult<TData, TError> = Omit<
