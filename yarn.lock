@@ -1676,17 +1676,17 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@tanstack/query-core@5.35.1":
-  version "5.35.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.35.1.tgz#a7e6cbf0f252475da19ba9cba6567e8fe683b2ee"
-  integrity sha512-0Dnpybqb8+ps6WgqBnqFEC+1F/xLvUosRAq+wiGisTgolOZzqZfkE2995dEXmhuzINiTM7/a6xSGznU0NIvBkw==
+"@tanstack/query-core@5.59.16":
+  version "5.59.16"
+  resolved "https://registry-npm-next.huolala.work/@tanstack/query-core/-/query-core-5.59.16.tgz#aa4616e8a9c12afeef4cfbf3ed0f55f404d66e67"
+  integrity sha1-qkYW6KnBKv7vTPvz7Q9V9ATWbmc=
 
-"@tanstack/react-query@^5.35.1":
-  version "5.35.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.35.1.tgz#3b7c710bb32c6c71e0cbe64029dded9b0cbd9a0f"
-  integrity sha512-i2T7m2ffQdNqlX3pO+uMsnQ0H4a59Ens2GxtlMsRiOvdSB4SfYmHb27MnvFV8rGmtWRaa4gPli0/rpDoSS5LbQ==
+"@tanstack/react-query@^5.59.16":
+  version "5.59.16"
+  resolved "https://registry-npm-next.huolala.work/@tanstack/react-query/-/react-query-5.59.16.tgz#1e701c6e6681965c04aa426df9da54b8edc6db1b"
+  integrity sha1-HnAcbmaBllwEqkJt+dpUuO3G2xs=
   dependencies:
-    "@tanstack/query-core" "5.35.1"
+    "@tanstack/query-core" "5.59.16"
 
 "@testing-library/dom@^9.0.0":
   version "9.3.0"

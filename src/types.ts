@@ -127,6 +127,10 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
     ? CompatibleWithV4<
         UseQueryOptions<TFnData, TError, TFnData, QueryKey> & {
           queryKey: DataTag<QueryKey, TFnData>
+          queryFn?: Exclude<
+            UseQueryOptions<TFnData, TError, TFnData, QueryKey>['queryFn'],
+            SkipToken
+          >
         },
         // Not work to infer TError in v4
         {
