@@ -1,6 +1,6 @@
 {
   "name": "react-query-kit",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "🕊️ A toolkit for ReactQuery that make ReactQuery hooks more reusable and typesafe",
   "author": "liaoliao666",
   "repository": "liaoliao666/react-query-kit",
@@ -55,9 +55,7 @@
     "ts-jest": "^29.1.0",
     "typescript": "^5.1.6"
   },
-  "peerDependencies": {
-    "@tanstack/react-query": "^4 || ^5"
-  },
+  "peerDependencies": {},
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
       "optional": true

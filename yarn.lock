@@ -1678,13 +1678,13 @@
 
 "@tanstack/query-core@5.59.16":
   version "5.59.16"
-  resolved "https://registry-npm-next.huolala.work/@tanstack/query-core/-/query-core-5.59.16.tgz#aa4616e8a9c12afeef4cfbf3ed0f55f404d66e67"
-  integrity sha1-qkYW6KnBKv7vTPvz7Q9V9ATWbmc=
+  resolved "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.59.16.tgz#aa4616e8a9c12afeef4cfbf3ed0f55f404d66e67"
+  integrity sha512-crHn+G3ltqb5JG0oUv6q+PMz1m1YkjpASrXTU+sYWW9pLk0t2GybUHNRqYPZWhxgjPaVGC4yp92gSFEJgYEsPw==
 
 "@tanstack/react-query@^5.59.16":
   version "5.59.16"
-  resolved "https://registry-npm-next.huolala.work/@tanstack/react-query/-/react-query-5.59.16.tgz#1e701c6e6681965c04aa426df9da54b8edc6db1b"
-  integrity sha1-HnAcbmaBllwEqkJt+dpUuO3G2xs=
+  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.59.16.tgz#1e701c6e6681965c04aa426df9da54b8edc6db1b"
+  integrity sha512-MuyWheG47h6ERd4PKQ6V8gDyBu3ThNG22e1fRVwvq6ap3EqsFhyuxCAwhNP/03m/mLg+DAb0upgbPaX6VB+CkQ==
   dependencies:
     "@tanstack/query-core" "5.59.16"
 
