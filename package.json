@@ -55,7 +55,9 @@
     "ts-jest": "^29.1.0",
     "typescript": "^5.1.6"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@tanstack/react-query": "^4 || ^5"
+  },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
       "optional": true
