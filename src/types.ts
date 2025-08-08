@@ -31,16 +31,31 @@ type CompatibleWithV4<V5, V4> =
     ? V5
     : V4
 
+type CompatibleWithTwoV5<V6Generics, V5Generics> = UseInfiniteQueryOptions<
+  unknown,
+  DefaultError,
+  unknown,
+  QueryKey,
+  unknown
+> extends never
+  ? V5Generics
+  : V6Generics
+
 type CompatibleUseInfiniteQueryOptions<TFnData, TData, TError, TPageParam> =
   CompatibleWithV4<
-    UseInfiniteQueryOptions<
-      TFnData,
-      TError,
-      TData,
-      TFnData,
-      QueryKey,
-      TPageParam
+    CompatibleWithTwoV5<
+      UseInfiniteQueryOptions<TFnData, TError, TData, QueryKey, TPageParam>,
+      // @ts-ignore
+      UseInfiniteQueryOptions<
+        TFnData,
+        TError,
+        TData,
+        TFnData,
+        QueryKey,
+        TPageParam
+      >
     >,
+    // @ts-ignore
     UseInfiniteQueryOptions<TFnData, TError, TData, TFnData, QueryKey>
   >
 
