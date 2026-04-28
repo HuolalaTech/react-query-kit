@@ -372,7 +372,7 @@ Expose Methods
 
 - `getKey: () => MutationKey`
 - `getOptions: () => UseMutationOptions`
-- `mutationFn: MutationFunction<TData, TVariables>`
+- `mutationFn: ExposeMutationFn<TData, TVariables>`
 
 ## router
 

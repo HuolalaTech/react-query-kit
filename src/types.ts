@@ -5,7 +5,7 @@ import type {
   DefinedUseQueryResult,
   InfiniteData,
   InfiniteQueryObserverSuccessResult,
-  MutationFunction,
+  MutationFunctionContext,
   MutationKey,
   QueryClient,
   QueryFunction,
@@ -487,6 +487,18 @@ export type MutationHookResult<
   TContext = unknown
 > = UseMutationResult<TData, TError, TVariables, TContext>
 
+export type ExposeMutationFn<TData = unknown, TVariables = void> = [
+  TVariables
+] extends [void]
+  ? (
+      variables?: TVariables,
+      context?: Partial<MutationFunctionContext>
+    ) => Promise<TData>
+  : (
+      variables: TVariables,
+      context?: Partial<MutationFunctionContext>
+    ) => Promise<TData>
+
 export interface ExposeMutationMethods<
   TData = unknown,
   TVariables = void,
@@ -500,7 +512,7 @@ export interface ExposeMutationMethods<
     TVariables,
     TDefaultContext
   >
-  mutationFn: MutationFunction<TData, TVariables>
+  mutationFn: ExposeMutationFn<TData, TVariables>
 }
 
 export interface MutationHook<
@@ -633,7 +645,7 @@ export type RouterQuery<
   TVariables = void,
   TError = CompatibleError
 > = RouterQueryOptions<TFnData, TVariables, TError> & {
-  _type: `q`
+  _routerType: `q`
 }
 
 export type ResolvedRouterQuery<
@@ -666,7 +678,7 @@ export type RouterInfiniteQuery<
   TError,
   Clone<TPageParam>
 > & {
-  _type: `inf`
+  _routerType: `inf`
 }
 
 export type ResolvedRouterInfiniteQuery<
@@ -700,7 +712,7 @@ export type RouterMutation<
   TError = CompatibleError,
   TContext = unknown
 > = RouterMutationOptions<TData, TVariables, TError, TContext> & {
-  _type: `m`
+  _routerType: `m`
 }
 
 export type ResolvedRouterMutation<
@@ -722,12 +734,15 @@ export type ResolvedRouterMutation<
   TContext
 >
 
-export interface RouterConfig {
-  [k: string]:
-    | RouterQuery<any, any, any>
-    | RouterInfiniteQuery<any, any, any, any>
-    | RouterMutation<any, any, any, any>
-    | RouterConfig
+export type RouterLeaf =
+  | RouterQuery<any, any, any>
+  | RouterInfiniteQuery<any, any, any, any>
+  | RouterMutation<any, any, any, any>
+
+export type RouterConfig = {
+  _routerType?: never
+} & {
+  [k: string]: RouterLeaf | RouterConfig
 }
 
 export type CreateRouter<TConfig extends RouterConfig> = {

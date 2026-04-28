@@ -17,24 +17,37 @@ import type {
   RouterQueryOptions,
 } from './types'
 
+type RouterNode = RouterConfig[string]
+type RouterTypedNode = RouterNode & {
+  _routerType: 'q' | 'inf' | 'm'
+}
+
+const isRouterLeaf = (value: RouterNode): value is RouterTypedNode => {
+  return !!value && typeof value._routerType === 'string'
+}
+
 const buildRouter = (keys: QueryKey, config: RouterConfig) => {
   return Object.entries(config).reduce(
     (acc, [key, opts]) => {
-      if (!opts._type) {
+      if (!isRouterLeaf(opts)) {
         acc[key] = buildRouter([...keys, key], opts)
       } else {
+        const type = opts._routerType
         const options: any = {
           ...opts,
-          [opts._type === `m` ? `mutationKey` : `queryKey`]: [...keys, key],
+          [type === `m` ? `mutationKey` : `queryKey`]: [...keys, key],
+        }
+
+        if (type === `m`) {
+          acc[key] = {
+            useMutation: createMutation(options),
+            ...createMutation(options),
+          }
+          return acc
         }
 
         acc[key] =
-          opts._type === `m`
-            ? {
-                useMutation: createMutation(options),
-                ...createMutation(options),
-              }
-            : opts._type === `q`
+          type === `q`
             ? {
                 useQuery: createQuery(options),
                 useSuspenseQuery: createSuspenseQuery(options),
@@ -64,11 +77,11 @@ export const router = <TConfig extends RouterConfig>(
 
 function query<TFnData, TVariables = void, TError = CompatibleError>(
   options: RouterQueryOptions<TFnData, TVariables, TError>
-) {
+): RouterQuery<TFnData, TVariables, TError> {
   return {
     ...options,
-    _type: 'q',
-  } as RouterQuery<TFnData, TVariables, TError>
+    _routerType: 'q',
+  }
 }
 
 function infiniteQuery<
@@ -78,8 +91,8 @@ function infiniteQuery<
   TPageParam = number
 >(
   options: RouterInfiniteQueryOptions<TFnData, TVariables, TError, TPageParam>
-) {
-  return { ...options, _type: 'inf' } as RouterInfiniteQuery<
+): RouterInfiniteQuery<TFnData, TVariables, TError, TPageParam> {
+  return { ...options, _routerType: 'inf' } as RouterInfiniteQuery<
     TFnData,
     TVariables,
     TError,
@@ -92,8 +105,10 @@ function mutation<
   TVariables = void,
   TError = CompatibleError,
   TContext = unknown
->(options: RouterMutationOptions<TFnData, TVariables, TError, TContext>) {
-  return { ...options, _type: 'm' } as RouterMutation<
+>(
+  options: RouterMutationOptions<TFnData, TVariables, TError, TContext>
+): RouterMutation<TFnData, TVariables, TError, TContext> {
+  return { ...options, _routerType: 'm' } as RouterMutation<
     TFnData,
     TVariables,
     TError,
