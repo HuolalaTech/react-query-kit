@@ -23,8 +23,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          check-latest: true
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
       - name: Install dependencies 🔧
