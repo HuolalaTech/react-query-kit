@@ -125,11 +125,13 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
     >,
     // @ts-ignore
     [TPageParam] extends [never]
-      ? 'queryKey' | 'queryFn' | 'queryKeyHashFn'
+      ? 'queryKey' | 'queryFn' | 'queryKeyHashFn' | 'gcTime' | 'staleTime'
       :
           | 'queryKey'
           | 'queryFn'
           | 'queryKeyHashFn'
+          | 'gcTime'
+          | 'staleTime'
           | 'getNextPageParam'
           | 'getPreviousPageParam'
           | 'initialPageParam'

@@ -63,6 +63,8 @@ export const createBaseQuery = (
       getPreviousPageParam: defaultOptions.getPreviousPageParam,
       getNextPageParam: defaultOptions.getNextPageParam,
       initialPageParam: defaultOptions.initialPageParam,
+      staleTime: defaultOptions.staleTime,
+      gcTime: defaultOptions.gcTime,
     }
   }
 
