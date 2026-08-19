@@ -166,6 +166,15 @@ export type ExposeMethods<TFnData, TVariables, TError, TPageParam = never> = {
           DataTag<QueryKey, InfiniteData<TFnData, TPageParam>>,
           QueryKey
         >
+        queryFn?: Exclude<
+          CompatibleUseInfiniteQueryOptions<
+            TFnData,
+            TFnData,
+            TError,
+            TPageParam
+          >['queryFn'],
+          SkipToken
+        >
       }
 }
 
