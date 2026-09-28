@@ -50,6 +50,7 @@ English | [简体中文](./README-zh_CN.md)
   - [TypeScript](#typescript)
   - [Type inference](#type-inference)
   - [Disabling Queries](#disabling-queries)
+  - [Strict Variables](#strict-variables)
 - [FAQ](#faq)
 - [Migration](#migration)
 - [Issues](#issues)
@@ -666,6 +667,35 @@ const queries = useQueries({
   queries: [usePost.getOptions(id ? { id: id } : skipToken)],
 })
 ```
+
+## Strict Variables
+
+By default `variables` are optional at the call site, since they may also come from the definition, a middleware or the `QueryClient`'s default options. If your hooks always get their variables at the call site, register `strictVariables` to make TypeScript require them wherever the fetcher needs them:
+
+```ts
+declare module 'react-query-kit' {
+  interface Register {
+    strictVariables: true
+  }
+}
+```
+
+```ts
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: { id: number }): Promise<Data> => {
+    return fetch(`/posts/${variables.id}`).then(res => res.json())
+  },
+})
+
+usePost({ variables: { id: 1 } })
+usePost({ variables: id ? { id } : skipToken })
+
+usePost() // ❌ Expected 1-2 arguments, but got 0.
+usePost({ enabled: !!id }) // ❌ Property 'variables' is missing
+```
+
+This applies to the hooks of `createQuery`, `createInfiniteQuery`, `createSuspenseQuery`, `createSuspenseInfiniteQuery` and `router`, and to `inferOptions`. Hooks without variables are not affected. To keep `variables` optional for a fetcher that can run without them, include `undefined` in their type, e.g. `(variables: Variables | undefined) => ...`; an optional parameter `(variables?: Variables)` is inferred as `Variables`.
 
 ## FAQ
 

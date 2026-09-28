@@ -78,6 +78,36 @@ type DeepPartial<T> = T extends object
 
 type DefaultTo<T, D> = unknown extends T ? D : T
 
+/**
+ * Register global options through declaration merging, e.g. set
+ * `strictVariables: true` to require `variables` at the call site.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Register {}
+
+// Variables can only be left out when the fetcher accepts `undefined`,
+// which is what it receives then
+type RequiresVariables<TVariables> = Register extends { strictVariables: true }
+  ? undefined extends TVariables
+    ? false
+    : true
+  : false
+
+type WithRequiredVariables<TOptions, TVariables> =
+  RequiresVariables<TVariables> extends true
+    ? TOptions & {
+        variables: CompatibleWithV4<TVariables | SkipToken, TVariables>
+      }
+    : TOptions
+
+type QueryHookArgs<TOptions, TVariables> =
+  RequiresVariables<TVariables> extends true
+    ? [
+        options: WithRequiredVariables<TOptions, TVariables>,
+        queryClient?: CompatibleWithV4<QueryClient, void>
+      ]
+    : [options?: TOptions, queryClient?: CompatibleWithV4<QueryClient, void>]
+
 export type CompatibleError = CompatibleWithV4<DefaultError, Error>
 
 export type Fetcher<TFnData, TVariables = void, TPageParam = never> = (
@@ -219,12 +249,17 @@ export interface QueryHook<
   TError = CompatibleError
 > extends ExposeMethods<TFnData, TVariables, TError> {
   <TData = TFnData>(
-    options: DefinedQueryHookOptions<TFnData, TError, TData, TVariables>,
+    options: WithRequiredVariables<
+      DefinedQueryHookOptions<TFnData, TError, TData, TVariables>,
+      TVariables
+    >,
     queryClient?: CompatibleWithV4<QueryClient, void>
   ): DefinedQueryHookResult<TData, TError>
   <TData = TFnData>(
-    options?: QueryHookOptions<TFnData, TError, TData, TVariables>,
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    ...args: QueryHookArgs<
+      QueryHookOptions<TFnData, TError, TData, TVariables>,
+      TVariables
+    >
   ): QueryHookResult<TData, TError>
 }
 
@@ -282,8 +317,10 @@ export interface SuspenseQueryHook<
   TError = CompatibleError
 > extends ExposeMethods<TFnData, TVariables, TError> {
   <TData = TFnData>(
-    options?: SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>,
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    ...args: QueryHookArgs<
+      SuspenseQueryHookOptions<TFnData, TError, TData, TVariables>,
+      TVariables
+    >
   ): SuspenseQueryHookResult<TData, TError>
 }
 
@@ -362,24 +399,23 @@ export interface InfiniteQueryHook<
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TError, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
-    options: DefinedInfiniteQueryHookOptions<
-      TFnData,
-      TError,
-      TData,
-      TVariables,
-      TPageParam
+    options: WithRequiredVariables<
+      DefinedInfiniteQueryHookOptions<
+        TFnData,
+        TError,
+        TData,
+        TVariables,
+        TPageParam
+      >,
+      TVariables
     >,
     queryClient?: CompatibleWithV4<QueryClient, void>
   ): DefinedInfiniteQueryHookResult<TData, TError>
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
-    options?: InfiniteQueryHookOptions<
-      TFnData,
-      TError,
-      TData,
-      TVariables,
-      TPageParam
-    >,
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    ...args: QueryHookArgs<
+      InfiniteQueryHookOptions<TFnData, TError, TData, TVariables, TPageParam>,
+      TVariables
+    >
   ): InfiniteQueryHookResult<TData, TError>
 }
 
@@ -452,14 +488,16 @@ export interface SuspenseInfiniteQueryHook<
   TPageParam = number
 > extends ExposeMethods<TFnData, TVariables, TError, TPageParam> {
   <TData = CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>>(
-    options?: SuspenseInfiniteQueryHookOptions<
-      TFnData,
-      TError,
-      TData,
-      TVariables,
-      TPageParam
-    >,
-    queryClient?: CompatibleWithV4<QueryClient, void>
+    ...args: QueryHookArgs<
+      SuspenseInfiniteQueryHookOptions<
+        TFnData,
+        TError,
+        TData,
+        TVariables,
+        TPageParam
+      >,
+      TVariables
+    >
   ): SuspenseInfiniteQueryHookResult<TData, TError>
 }
 
@@ -570,21 +608,30 @@ export type inferOptions<T> = T extends QueryHook<
   infer TVariables,
   infer TError
 >
-  ? QueryHookOptions<TFnData, TError, TFnData, TVariables>
+  ? WithRequiredVariables<
+      QueryHookOptions<TFnData, TError, TFnData, TVariables>,
+      TVariables
+    >
   : T extends SuspenseQueryHook<infer TFnData, infer TVariables, infer TError>
-  ? SuspenseQueryHookOptions<TFnData, TError, TFnData, TVariables>
+  ? WithRequiredVariables<
+      SuspenseQueryHookOptions<TFnData, TError, TFnData, TVariables>,
+      TVariables
+    >
   : T extends InfiniteQueryHook<
       infer TFnData,
       infer TVariables,
       infer TError,
       infer TPageParam
     >
-  ? InfiniteQueryHookOptions<
-      TFnData,
-      TError,
-      CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
-      TVariables,
-      TPageParam
+  ? WithRequiredVariables<
+      InfiniteQueryHookOptions<
+        TFnData,
+        TError,
+        CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
+        TVariables,
+        TPageParam
+      >,
+      TVariables
     >
   : T extends SuspenseInfiniteQueryHook<
       infer TFnData,
@@ -592,12 +639,15 @@ export type inferOptions<T> = T extends QueryHook<
       infer TError,
       infer TPageParam
     >
-  ? SuspenseInfiniteQueryHookOptions<
-      TFnData,
-      TError,
-      CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
-      TVariables,
-      TPageParam
+  ? WithRequiredVariables<
+      SuspenseInfiniteQueryHookOptions<
+        TFnData,
+        TError,
+        CompatibleWithV4<InfiniteData<TFnData, TPageParam>, TFnData>,
+        TVariables,
+        TPageParam
+      >,
+      TVariables
     >
   : T extends MutationHook<infer TFnData, infer TVariables, infer TError>
   ? MutationHookOptions<TFnData, TError, TVariables, unknown>
