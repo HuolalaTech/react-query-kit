@@ -50,6 +50,7 @@
   - [TypeScript](#typescript)
   - [类型推导](#类型推导)
   - [禁用查询](#禁用查询)
+  - [严格的 variables](#严格的-variables)
 - [常见问题](#常见问题)
 - [迁移](#迁移)
 - [Issues](#issues)
@@ -666,6 +667,35 @@ const queries = useQueries({
   queries: [usePost.getOptions(id ? { id: id } : skipToken)],
 })
 ```
+
+## 严格的 variables
+
+默认情况下，调用 hook 时 `variables` 是可选的，因为它也可能来自 hook 的定义、中间件或 `QueryClient` 的默认选项。如果您的 hook 总是在调用时传入 `variables`，可以注册 `strictVariables`，让 TypeScript 在 `fetcher` 需要 `variables` 时强制传入：
+
+```ts
+declare module 'react-query-kit' {
+  interface Register {
+    strictVariables: true
+  }
+}
+```
+
+```ts
+const usePost = createQuery({
+  queryKey: ['posts'],
+  fetcher: (variables: { id: number }): Promise<Data> => {
+    return fetch(`/posts/${variables.id}`).then(res => res.json())
+  },
+})
+
+usePost({ variables: { id: 1 } })
+usePost({ variables: id ? { id } : skipToken })
+
+usePost() // ❌ Expected 1-2 arguments, but got 0.
+usePost({ enabled: !!id }) // ❌ Property 'variables' is missing
+```
+
+这适用于 `createQuery`、`createInfiniteQuery`、`createSuspenseQuery`、`createSuspenseInfiniteQuery` 和 `router` 创建的 hook，以及 `inferOptions`。没有 `variables` 的 hook 不受影响。如果 `fetcher` 在没有 `variables` 时也能运行，想让 `variables` 保持可选，请在其类型中包含 `undefined`，例如 `(variables: Variables | undefined) => ...`；可选参数 `(variables?: Variables)` 会被推断为 `Variables`。
 
 ## 常见问题
 

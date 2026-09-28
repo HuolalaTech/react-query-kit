@@ -66,7 +66,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "rollup --config rollup.config.js && npm run typecheck",
-    "typecheck": "tsc -b && tsc -p tsconfig.types.json --pretty false",
+    "typecheck": "tsc -b && tsc -p tsconfig.types.json --pretty false && tsc -p tsconfig.types.strict.json --pretty false",
     "stats": "open ./build/stats-html.html",
     "eslint": "eslint --fix '*.{js,json}' '{src,tests,benchmarks}/**/*.{ts,tsx}'",
     "test": "jest"

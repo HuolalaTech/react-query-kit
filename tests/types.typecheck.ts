@@ -20,6 +20,14 @@ const queryMiddleware: Middleware<typeof usePost> = useQueryNext => options => {
 
 void queryMiddleware
 
+// Variables stay optional unless `strictVariables` is registered.
+const useOptionalVariables = () => {
+  usePost()
+  usePost({ enabled: true })
+}
+
+void useOptionalVariables
+
 type UsePostOptions = Parameters<typeof usePost>[0]
 
 const validQueryOptions: UsePostOptions = {
