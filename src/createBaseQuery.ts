@@ -57,14 +57,15 @@ export const createBaseQuery = (
   }
 
   const getFetchOptions = (variables: any) => {
+    const { queryKeyHashFn, staleTime, gcTime } = defaultOptions
     return {
       ...getQueryOptions(defaultOptions.fetcher, variables),
-      queryKeyHashFn: defaultOptions.queryKeyHashFn,
+      ...(queryKeyHashFn !== undefined && { queryKeyHashFn }),
       getPreviousPageParam: defaultOptions.getPreviousPageParam,
       getNextPageParam: defaultOptions.getNextPageParam,
       initialPageParam: defaultOptions.initialPageParam,
-      staleTime: defaultOptions.staleTime,
-      gcTime: defaultOptions.gcTime,
+      ...(staleTime !== undefined && { staleTime }),
+      ...(gcTime !== undefined && { gcTime }),
     }
   }
 
