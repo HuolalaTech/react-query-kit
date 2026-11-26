@@ -37,6 +37,45 @@ describe('createQuery', () => {
     queryClient.prefetchQuery(useGeneratedQuery.getFetchOptions(variables))
   })
 
+  it('should use QueryClient defaults when prefetching', async () => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 30_000,
+          gcTime: 60_000,
+          queryKeyHashFn: key => `custom:${JSON.stringify(key)}`,
+        },
+      },
+    })
+    const fetcher = jest.fn(async () => 'test')
+    const useGeneratedQuery = createQuery({ queryKey: uniqueKey(), fetcher })
+    const options = useGeneratedQuery.getFetchOptions()
+
+    await client.prefetchQuery(options)
+    await client.prefetchQuery(options)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(client.getQueryData(options.queryKey)).toBe('test')
+    expect(client.getQueryCache().find(options)?.gcTime).toBe(60_000)
+  })
+
+  it('should include explicit fetch options', () => {
+    const queryKeyHashFn = () => 'custom'
+    const useGeneratedQuery = createQuery({
+      queryKey: uniqueKey(),
+      fetcher: () => 'test',
+      staleTime: Infinity,
+      gcTime: 0,
+      queryKeyHashFn,
+    })
+
+    expect(useGeneratedQuery.getFetchOptions()).toMatchObject({
+      staleTime: Infinity,
+      gcTime: 0,
+      queryKeyHashFn,
+    })
+  })
+
   it('should return the correct initial data from middleware', async () => {
     const myMiddileware: Middleware = useQueryNext => {
       return options => {
